@@ -39,11 +39,9 @@ What info do we want
 
 2. pac man's location and direction
 
-3. food? location/distance
+3. power pellet T/F, locations/distance
 
-4. power pellet T/F, locations/distance
-
-5. coin locations, distance to coins?
+4. coin locations, distance to coins?
 	- grouping?
 
 What things do we want explanations to say?
@@ -52,7 +50,7 @@ What things do we want explanations to say?
 
 2. Going towards coin group
 
-3. Going towards power pellet / food
+3. Going towards power pellet
 
 4. Eating ghost with power pellet
 
@@ -60,3 +58,83 @@ What things do we want explanations to say?
 
 
 '''
+
+# compares the cur gameState to the last one. If they are judged significantly different,
+# we want to run alternate states
+def threshold(gameState, lastGameState):
+	comparison = compare(gameState, lastGameState)
+	if comparison is over threshold:
+		altGameStates = generateAlterateGameStates(gameState)
+		return genExplanation(gameState, altGameStates)
+
+
+
+
+# a mock-up of what we might want our heuristic to look like
+def heuristic(gameState):
+	pac_v = gameState.pacman.getLocation() # (x,y,v)
+	ghosts_v = gameState.ghosts.getLocations() #[(x,y,v), (x,y,v)...]
+	powerPellet_loc = gameState.powerPellets.getLocations() # [] if none, else ^
+	coin_loc = gameState.coins.getLocations() # ^
+
+	coinGroups = coinGrouping(pac_v, coin_loc)
+
+	return {"numCoins":numCoins, "coinGroups":coinGroups, "ghostDanger":ghostDanger, ...}
+
+
+# mathematically figures out where the biggest differences are
+def compare(gameStateUsed, gameStateAlt):
+	heuristicUsed = heuristic(gameStateUsed)
+	heuristicAlt = heuristic(gameStateAlt)
+
+	# somehow weight each thing to determine what's important,
+	# assume used gamestate is somehow better
+
+	return largestDifferenceInAlt
+	
+
+# generates explanation from compare
+def genExplanation(gameStateUsed, altGameStates):
+
+
+
+	comparisons = {}
+	for key in altGameStates:
+		comparisons[key] = compare(gameStateUsed, altGameStates[key])
+
+	print(key + " direction was a bad direction because " + reason)
+		
+
+
+
+
+
+# Helper functions
+
+def distance(point1, point2):
+	# going to actually need to find a path bc it's not always a simple L
+	
+def coinGrouping(pac_v, coin_loc, powerPellet_loc):
+	
+	unsearched coins = coin_loc + powerPellet_loc
+
+	while unsearched coins:
+	if coin next to existing group:
+		add coin to group
+	else:
+		make new group with just it - note this doesn't work if it's not sorted x O x
+
+
+	pseudoGroup = [[(x,y)...], [(x,y)...]...]
+	for group in pseudoGroup:
+		find coin closest to pac man location using distance func
+
+	return [(numCoins, closest), (numCoins, closest)...]
+
+def generateAlternateGameStates(gameState):
+	# play the game 1 state in the future, with all possible moves
+
+	return altGameStates # {"left": gameStateLeft, "right":gameStateRight, "up": None, ...}
+
+
+
