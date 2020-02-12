@@ -1,5 +1,55 @@
 # Created by Blake and Adam
 
+'''
+Files we think we don't need:
+PacmanAgents.py - examples of basic AIs. 
+	Might be useful to adapt for our ghosts, but not necessary in its own right
+
+multiagentTestClasses.py
+	this is just minimax? shit worked with it all commented
+
+multiAgents.py is also not necessary
+
+remove whole directory test_cases, looks like it's for grading
+
+remove grading.py
+
+remove VERSION
+
+remove autograder.py
+
+remove projectParams.py
+
+remove testParser.py
+
+Shit we definitely need but don't want to touch:
+
+graphicsDisplay.py
+
+graphicsUtils.py
+
+textDisplay.py
+
+
+keyboardAgents.py - not hard but no reason to fuck with it
+
+layout.py
+
+shit we need but might want to clean:
+
+
+util.py
+
+ghostAgents.py we will need to modify to have good ghosts / ghosts with personality
+
+pacman.py
+
+game.py
+	These control the basic game
+
+
+
+'''
 
 # copied from multiAgents.py
 '''
