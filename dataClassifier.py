@@ -16,10 +16,10 @@
 # code for data classification
 
 import mostFrequent
-import naiveBayes
+# import naiveBayes
 import perceptron
 import perceptron_pacman
-import mira
+# import mira
 import samples
 import sys
 import util
