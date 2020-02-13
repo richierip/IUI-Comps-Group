@@ -103,6 +103,7 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 20), self.textColor, "decision", "Times", self.fontSize, "bold")
         self.scoreText = text( self.toScreen(0, 0  ), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -120,6 +121,9 @@ class InfoPane:
 
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
+
+    def updateDecision(self, decision):
+        changeText(self.decision, decision)
 
     def setTeam(self, isBlue):
         text = "RED TEAM"
