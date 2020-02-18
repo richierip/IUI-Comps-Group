@@ -103,7 +103,8 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 20), self.textColor, "decision", "Times", self.fontSize, "bold")
+        self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(0, 0  ), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -122,7 +123,14 @@ class InfoPane:
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
+    def parseDecision(self, decision):
+        newstring = ""
+        for i in range(0, len(decision), 29):
+            newstring += decision[i:i+29] + "\n"
+        return newstring
+
     def updateDecision(self, decision):
+        decision = self.parseDecision(decision)
         changeText(self.decision, decision)
 
     def setTeam(self, isBlue):

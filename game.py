@@ -614,6 +614,9 @@ class Game:
         while not self.gameOver:
             # Fetch the next agent
             agent = self.agents[agentIndex]
+            #pacstate = self.state.getPacmanState()
+            #print self.state.getLegalActions()
+            #print pacstate.getPosition(), pacstate.getDirection()
             move_time = 0
             skip_action = False
             # Generate an observation of the state

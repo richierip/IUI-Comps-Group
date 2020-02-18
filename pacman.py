@@ -552,8 +552,12 @@ def readCommand( argv ):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, noKeyboard)
-    args['ghosts'] = [ghostType( i+1 ) for i in range( options.numGhosts )]
+    if options.ghost == "test":
+        ghosts = [loadAgent("DirectionalGhost", noKeyboard)(1), loadAgent("AmbusherGhost", noKeyboard)(2), loadAgent("RandomGhost", noKeyboard)(3), loadAgent("RandomGhost", noKeyboard)(4)]
+        args['ghosts'] = [ghosts[i] for i in range( options.numGhosts )]
+    else:
+        ghostType = loadAgent(options.ghost, noKeyboard)
+        args['ghosts'] = [ghostType( i+1 ) for i in range( options.numGhosts )]
 
     # Choose a display format
     if options.quietGraphics:
@@ -628,7 +632,6 @@ def replayGame( layout, actions, display ):
 def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
     import __main__
     __main__.__dict__['_display'] = display
-
     rules = ClassicGameRules(timeout)
     games = []
 
