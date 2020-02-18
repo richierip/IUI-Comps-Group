@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -42,6 +42,7 @@ class RandomGhost( GhostAgent ):
         dist.normalize()
         return dist
 
+# BLINKY (red)
 class DirectionalGhost( GhostAgent ):
     "A ghost that prefers to rush Pacman, or flee when scared."
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
@@ -63,6 +64,7 @@ class DirectionalGhost( GhostAgent ):
         newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
         pacmanPosition = state.getPacmanPosition()
 
+
         # Select best actions given the state
         distancesToPacman = [manhattanDistance( pos, pacmanPosition ) for pos in newPositions]
         if isScared:
@@ -80,7 +82,7 @@ class DirectionalGhost( GhostAgent ):
         dist.normalize()
         return dist
 
-
+# PINKY (pink)
 class AmbusherGhost(GhostAgent):
     "A ghost that prefers to ambush pacman, or flee when scared."
 
@@ -102,6 +104,7 @@ class AmbusherGhost(GhostAgent):
         actionVectors = [Actions.directionToVector(a, speed) for a in legalActions]
         newPositions = [(pos[0] + a[0], pos[1] + a[1]) for a in actionVectors]
         pacmanPosition = state.getPacmanPosition()
+        #print(pacmanPosition)
 
         #Get pacman's direction and path towards one square in front of it, if it's a legal move
         #otherwise just chase.
@@ -126,5 +129,47 @@ class AmbusherGhost(GhostAgent):
         dist = util.Counter()
         for a in bestActions: dist[a] = bestProb / len(bestActions)
         for a in legalActions: dist[a] += (1 - bestProb) / len(legalActions)
+        dist.normalize()
+        return dist
+
+# INKY (blue)
+# For now, follows another random ghost. LMAO
+class PatrolGhost( GhostAgent ):
+    "A ghost that patrols, or flee when scared."
+    def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
+        self.index = index
+        self.prob_attack = prob_attack
+        self.prob_scaredFlee = prob_scaredFlee
+
+    def getDistribution( self, state ):
+        # Read variables from state
+        ghostState = state.getGhostState( self.index )
+        legalActions = state.getLegalActions( self.index )
+        pos = state.getGhostPosition( self.index )
+        isScared = ghostState.scaredTimer > 0
+
+        speed = 1
+        if isScared: speed = 0.5
+
+        actionVectors = [Actions.directionToVector( a, speed ) for a in legalActions]
+        newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
+
+        randGhost = random.randint(0,len(state.data.agentStates))
+        randGhostPosition = state.getPacmanPosition(randGhost)
+
+        # Select best actions given the state
+        distancesToPacman = [manhattanDistance( pos, randGhostPosition ) for pos in newPositions]
+        if isScared:
+            bestScore = max( distancesToPacman )
+            bestProb = self.prob_scaredFlee
+        else:
+            bestScore = min( distancesToPacman )
+            bestProb = self.prob_attack
+        bestActions = [action for action, distance in zip( legalActions, distancesToPacman ) if distance == bestScore]
+
+        # Construct distribution
+        dist = util.Counter()
+        for a in bestActions: dist[a] = bestProb / len(bestActions)
+        for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
         return dist
