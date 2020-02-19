@@ -141,6 +141,7 @@ class InfoPane:
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
         changeText(self.decision, decision)
+        wait_for_click()
 
     def setTeam(self, isBlue):
         text = "RED TEAM"

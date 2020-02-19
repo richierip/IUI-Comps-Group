@@ -73,9 +73,11 @@ class DirectionalGhost( GhostAgent ):
         else:
             bestScore = min( distancesToPacman )
             bestProb = self.prob_attack
+        # There will only be multiple action in bestActions if equally optimal (?)
         bestActions = [action for action, distance in zip( legalActions, distancesToPacman ) if distance == bestScore]
 
-        # Construct distribution
+        # Construct distribution. Give each bestAction a proportional probability from prob_attack and any other
+        # possible moves a proportional probability from 1 - prob_attack
         dist = util.Counter()
         for a in bestActions: dist[a] = bestProb / len(bestActions)
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
@@ -108,7 +110,7 @@ class AmbusherGhost(GhostAgent):
 
         #Get pacman's direction and path towards one square in front of it, if it's a legal move
         #otherwise just chase.
-        directions = {"North": (1,0), "South": (-1,0), "East": (0,1), "West": (0,-1), "Stop": (0,0)}
+        directions = {"North": (2,0), "South": (-2,0), "East": (0,2), "West": (0,-2), "Stop": (0,0)}
         pacDir = directions[state.getPacmanState().getDirection()]
         if pacDir in legalActions:
             nextPosition = (pacmanPosition[0] + pacDir[0], pacmanPosition[1] + pacDir[1])
@@ -116,14 +118,14 @@ class AmbusherGhost(GhostAgent):
             nextPosition = pacmanPosition
 
         # Select best actions given the state
-        distancesToPacman = [manhattanDistance(pos, nextPosition) for pos in newPositions]
+        distancesToTarget = [manhattanDistance(pos, nextPosition) for pos in newPositions]
         if isScared:
-            bestScore = max(distancesToPacman)
+            bestScore = max(distancesToTarget)
             bestProb = self.prob_scaredFlee
         else:
-            bestScore = min(distancesToPacman)
+            bestScore = min(distancesToTarget)
             bestProb = self.prob_attack
-        bestActions = [action for action, distance in zip(legalActions, distancesToPacman) if distance == bestScore]
+        bestActions = [action for action, distance in zip(legalActions, distancesToTarget) if distance == bestScore]
 
         # Construct distribution
         dist = util.Counter()
@@ -154,8 +156,8 @@ class PatrolGhost( GhostAgent ):
         actionVectors = [Actions.directionToVector( a, speed ) for a in legalActions]
         newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
 
-        randGhost = random.randint(0,len(state.data.agentStates))
-        randGhostPosition = state.getPacmanPosition(randGhost)
+        randGhost = random.randint(1,len(state.data.agentStates)-1)
+        randGhostPosition = state.getGhostPosition(randGhost)
 
         # Select best actions given the state
         distancesToPacman = [manhattanDistance( pos, randGhostPosition ) for pos in newPositions]
