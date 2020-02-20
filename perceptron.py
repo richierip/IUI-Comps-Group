@@ -54,6 +54,11 @@ class PerceptronClassifier:
             print "Starting iteration ", iteration, "..."
             for i in range(len(trainingData)):
                 "*** YOUR CODE HERE ***"
+                y = trainingData[i]
+                yprime = self.classify([trainingData[i]])[0]
+                if trainingLabels[i] != yprime:
+                    self.weights[trainingLabels[i]]+=y
+                    self.weights[trainingLabels[yprime]]-=y 
                 
                 # util.raiseNotDefined()
 
@@ -80,6 +85,7 @@ class PerceptronClassifier:
         featuresWeights = []
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        featuresWeights.append(self.weights[label].sortedKeys()[:100])
+        # util.raiseNotDefined()
 
         return featuresWeights
