@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -33,10 +33,10 @@ PACMAN_OUTLINE_WIDTH = 2
 PACMAN_CAPTURE_OUTLINE_WIDTH = 4
 
 GHOST_COLORS = []
-GHOST_COLORS.append(formatColor(.9,0,0)) # Red
-GHOST_COLORS.append(formatColor(0,.3,.9)) # Blue
-GHOST_COLORS.append(formatColor(.98,.41,.07)) # Orange
-GHOST_COLORS.append(formatColor(.1,.75,.7)) # Green
+GHOST_COLORS.append(formatColor(1,0,0)) # Red
+GHOST_COLORS.append(formatColor(1,.7215,1)) # NOT BLUE NOW ITS PINK
+GHOST_COLORS.append(formatColor(0,1,1)) # NOT ORANGE CYAN
+GHOST_COLORS.append(formatColor(1,.7215,.3215)) # ORANGE
 GHOST_COLORS.append(formatColor(1.0,0.6,0.0)) # Yellow
 GHOST_COLORS.append(formatColor(.4,0.13,0.91)) # Purple
 
@@ -103,7 +103,9 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
-        self.scoreText = text( self.toScreen(0, 0  ), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
+        self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions"), "Times", self.fontSize-10, "bold")
+        self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
         self.ghostDistanceText = []
@@ -120,6 +122,26 @@ class InfoPane:
 
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
+
+    def parseDecision(self, decision):
+        words = decision.split(" ")
+        newstring = words[0]
+        sentenceLength = len(newstring)
+        for word in words[1:]:
+            if sentenceLength + len(word) + 1 > 29:
+                newstring += "\n" + word
+                sentenceLength = len(word)
+            else:
+                newstring += " " + word
+                sentenceLength += len(word)
+        # for i in range(0, len(decision), 29):
+        #     newstring += decision[i:i+29] + "\n"
+        return newstring
+
+    def updateDecision(self, decision):
+        decision = self.parseDecision(decision)
+        changeText(self.decision, decision)
+        wait_for_click()
 
     def setTeam(self, isBlue):
         text = "RED TEAM"
@@ -330,7 +352,7 @@ class PacmanGraphics:
         if ghost.scaredTimer > 0:
             return SCARED_COLOR
         else:
-            return GHOST_COLORS[ghostIndex]
+            return GHOST_COLORS[ghostIndex-1]
 
     def drawGhost(self, ghost, agentIndex):
         pos = self.getPosition(ghost)
@@ -397,7 +419,7 @@ class PacmanGraphics:
         if ghost.scaredTimer > 0:
             color = SCARED_COLOR
         else:
-            color = GHOST_COLORS[ghostIndex]
+            color = GHOST_COLORS[ghostIndex-1]
         edit(ghostImageParts[0], ('fill', color), ('outline', color))
         self.moveEyes(self.getPosition(ghost), self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
@@ -646,7 +668,7 @@ class FirstPersonPacmanGraphics(PacmanGraphics):
                     self.currentGhostImages[i] = None
 
     def getGhostColor(self, ghost, ghostIndex):
-        return GHOST_COLORS[ghostIndex]
+        return GHOST_COLORS[ghostIndex-1]
 
     def getPosition(self, ghostState):
         if not self.showGhosts and not ghostState.isPacman and ghostState.getPosition()[1] > 1:
