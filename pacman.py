@@ -567,7 +567,7 @@ def readCommand( argv ):
 
     # Choose a ghost agent
     if options.ghost == "test":
-        ghosts = [loadAgent("DirectionalGhost", noKeyboard)(1), loadAgent("AmbusherGhost", noKeyboard)(2), loadAgent("PatrolGhost", noKeyboard)(3), loadAgent("RandomGhost", noKeyboard)(4)]
+        ghosts = [loadAgent("DirectionalGhost", noKeyboard)(1), loadAgent("AmbusherGhost", noKeyboard)(2), loadAgent("PatrolGhost", noKeyboard)(3), loadAgent("WhimsicalGhost", noKeyboard)(4)]
         args['ghosts'] = [ghosts[i] for i in range( options.numGhosts )]
     else:
         ghostType = loadAgent(options.ghost, noKeyboard)
