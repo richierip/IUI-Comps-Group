@@ -104,7 +104,7 @@ class InfoPane:
 
     def drawPane(self):
         self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions"), "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -125,10 +125,11 @@ class InfoPane:
 
     def parseDecision(self, decision):
         words = decision.split(" ")
+        print(words)
         newstring = words[0]
-        sentenceLength = len(newstring)
+        sentenceLength = len(newstring) # Why this line?
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 29:
+            if sentenceLength + len(word) + 1 > 21: # was 29
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
@@ -136,6 +137,7 @@ class InfoPane:
                 sentenceLength += len(word)
         # for i in range(0, len(decision), 29):
         #     newstring += decision[i:i+29] + "\n"
+        print(newstring)
         return newstring
 
     def updateDecision(self, decision):
