@@ -125,10 +125,11 @@ class InfoPane:
 
     def parseDecision(self, decision):
         words = decision.split(" ")
+        print(words)
         newstring = words[0]
-        sentenceLength = len(newstring)
+        sentenceLength = len(newstring) # Why this line?
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 21:
+            if sentenceLength + len(word) + 1 > 21: # was 29
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
@@ -138,6 +139,7 @@ class InfoPane:
         newstring += "\n\nRate this decision!\n(1) This is garbage\n(2) Less garbage\n(3) Decent"
         # for i in range(0, len(decision), 29):
         #     newstring += decision[i:i+29] + "\n"
+        print(newstring)
         return newstring
 
     def updateDecision(self, decision):
