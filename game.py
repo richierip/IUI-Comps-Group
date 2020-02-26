@@ -21,6 +21,7 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
 from util import *
+from graphicsUtils import *
 import time, os
 import traceback
 import sys
@@ -711,9 +712,9 @@ class Game:
             getDecision (presumably from pacman state data)'''
             # r = random.randint(1,100)
             # if r == 1:
-            #self.display.infoPane.updateDecision("ye")
-            ###idx = agentIndex - agentIndex % 2 + 1
-            ###self.display.update( self.state.makeObservation(idx).data )
+            #     self.display.infoPane.updateDecision("ye")
+            ##idx = agentIndex - agentIndex % 2 + 1
+            ##self.display.update( self.state.makeObservation(idx).data )
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)
@@ -737,4 +738,7 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
+        # key = wait_for_rating(["y", "n"])
+        # if key == "y":
+        #     self.run()
         self.display.finish()

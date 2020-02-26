@@ -309,6 +309,17 @@ def wait_for_keys():
         sleep(0.05)
     return keys
 
+def wait_for_rating(options):
+    keys = []
+    check = True
+    while check:
+        keys = keys_pressed()
+        if keys:
+            if keys[0] in options:
+                check = False
+        sleep(0.05)
+    return keys[0]
+
 def remove_from_screen(x,
                        d_o_e=Tkinter.tkinter.dooneevent,
                        d_w=Tkinter.tkinter.DONT_WAIT):

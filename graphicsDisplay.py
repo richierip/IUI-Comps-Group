@@ -104,7 +104,7 @@ class InfoPane:
 
     def drawPane(self):
         self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions"), "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -128,12 +128,14 @@ class InfoPane:
         newstring = words[0]
         sentenceLength = len(newstring)
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 29:
+            if sentenceLength + len(word) + 1 > 21:
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
                 newstring += " " + word
                 sentenceLength += len(word)
+
+        newstring += "\n\nRate this decision!\n(1) This is garbage\n(2) Less garbage\n(3) Decent"
         # for i in range(0, len(decision), 29):
         #     newstring += decision[i:i+29] + "\n"
         return newstring
@@ -141,7 +143,8 @@ class InfoPane:
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
         changeText(self.decision, decision)
-        wait_for_click()
+        rating = wait_for_rating(["1","2","3","4"])
+        changeText(self.decision, "")
 
     def setTeam(self, isBlue):
         text = "RED TEAM"
