@@ -1,8 +1,8 @@
 from util import Queue
-from game import GameStateData
-from game import Actions
+import game
 
 
+# TODO bfs fails with half distances when ghosts run away
 def BFS(xy1, xy2, gameStateData):
 	q = Queue()
 	q.push(xy1)
@@ -10,7 +10,7 @@ def BFS(xy1, xy2, gameStateData):
 	done = False
 	while not q.isEmpty() and not done:
 		nextPoint = q.pop()
-		neighbors = Actions.getLegalNeighbors(nextPoint,gameStateData.layout.walls)
+		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				q.push(neighbor)
@@ -36,7 +36,7 @@ def coinGrouping(xy, gameStateData):
 	coinGroups = {}
 	while not q.isEmpty():
 		nextPoint = q.pop()
-		neighbors = Actions.getLegalNeighbors(nextPoint,gameStateData.layout.walls)
+		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				q.push(neighbor)
@@ -58,7 +58,7 @@ def coinGroup(xy, gameStateData):
 	seen = set((xy))
 	while not q.isEmpty():
 		nextPoint = q.pop()
-		neighbors = Actions.getLegalNeighbors(nextPoint,gameStateData.layout.walls)
+		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				seen.add(nextPoint)

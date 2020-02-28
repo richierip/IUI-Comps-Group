@@ -24,6 +24,8 @@ from util import *
 import time, os
 import traceback
 import sys
+import heuristic
+import BFS
 
 #######################
 # Parts worth reading #
@@ -701,6 +703,10 @@ class Game:
                     self.unmute()
                     return
             else:
+                # TODO Placeholder todo just so I (Adam) can bookmark this
+                if agentIndex == 0 and heuristic.threshold(self.state, self.state.generateSuccessor(0, action)):
+                    self.display.updateExplanation(heuristic.newExplanation(self.state, action))
+
                 self.state = self.state.generateSuccessor( agentIndex, action )
 
             # Change the display

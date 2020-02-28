@@ -123,6 +123,10 @@ class InfoPane:
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
+    # TODO Updates explanation here too
+    def updateExplanation(self, explanation):
+        changeText(self.decision, explanation)
+
     def parseDecision(self, decision):
         words = decision.split(" ")
         newstring = words[0]
@@ -274,6 +278,10 @@ class PacmanGraphics:
         self.infoPane.updateScore(newState.score)
         if 'ghostDistances' in dir(newState):
             self.infoPane.updateGhostDistances(newState.ghostDistances)
+
+    # TODO This is where I update the explanation
+    def updateExplanation(self, explanation):
+        self.infoPane.updateExplanation(explanation)
 
     def make_window(self, width, height):
         grid_width = (width-1) * self.gridSize
