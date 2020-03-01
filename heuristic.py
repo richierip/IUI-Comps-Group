@@ -43,13 +43,13 @@ def gatherFactors(state):
 # TODO i'm not sure how this comes in from BFS
 # Calculates differences in food group states
 # diff: (dist, direction, size)
-def foodGroupDiff(food, cur_pac, next_pac):
+def foodGroupDiff(food, cur_pac, next_pac, state):
 	
 	diff = []
-	for foodkey in food.getKeys():
-		cur_dist = len(BFS.BFS(cur_pac, foodkey, cur_state))
-        next_dist = len(BFS.BFS(next_pac, foodkey, next_state))
-        if next_dist - cur_dist >= 0:
+	for foodkey in food.keys():
+		cur_dist = len(BFS.BFS(cur_pac, foodkey, state))
+        next_dist = len(BFS.BFS(next_pac, foodkey, state))
+        if next_dist - cur_dist > 0:
             diff.append((next_dist, 1, len(food[foodkey])))
         else:
             diff.append((next_dist, -1, len(food[foodkey])))
@@ -103,7 +103,7 @@ def compare(cur_state, next_state):
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
     # TODO uncomment
     diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(),next_state), \
-    	cur_state.getPacmanPosition(),next_state.getPacmanPosition())
+    	cur_state.getPacmanPosition(),next_state.getPacmanPosition(),next_state)
     diffs['food'] = next_factors["num_food"] - cur_factors["num_food"]
     diffs['capsules'] = distanceDiff(cur_state, next_state, cur_factors["capsule_locs"])
     return diffs
@@ -126,7 +126,7 @@ def weight(factors):
     # Weight Food Groups
     for food in factors["food_groups"]:
     	# 80/(distance*towards_away*-1) -1 bc towards shrinks distance but good
-    	cur_weight = 80 / float((food[0] * food[1] * -1) * factors["food"])
+    	cur_weight = 80 / float((max(food[0],1) * food[1] * -1) * factors["food"])
     	weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
 
     # Weight Capsules
