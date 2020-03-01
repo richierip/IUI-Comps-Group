@@ -44,7 +44,7 @@ def coinGrouping(xy, gameStateData):
 				q.push(neighbor)
 				seen.add(neighbor)
 
-				if food[neighbor[0]][neighbor[1]] or neighbor in capsules:
+				if neighbor in food or neighbor in capsules:
 					# we have a coin at neighbor
 					coinGroups[neighbor] = coinGroup(neighbor, gameStateData)
 					for coin in coinGroups[neighbor]:
@@ -68,7 +68,7 @@ def coinGroup(xy, gameStateData):
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				seen.add(neighbor)
-				if food[neighbor[0]][neighbor[1]] or neighbor in capsules:
+				if neighbor in food or neighbor in capsules:
 					seenCoin.add(neighbor)
 					q.push(neighbor)
 	return seen
