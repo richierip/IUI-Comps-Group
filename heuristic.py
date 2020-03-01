@@ -3,114 +3,10 @@
 import game
 import BFS
 
-'''
-Files we think we don't need:
-PacmanAgents.py - examples of basic AIs. 
-	Might be useful to adapt for our ghosts, but not necessary in its own right
-
-multiagentTestClasses.py
-	this is just minimax? shit worked with it all commented
-
-multiAgents.py is also not necessary
-
-remove whole directory test_cases, looks like it's for grading
-
-remove grading.py
-
-remove VERSION
-
-remove autograder.py
-
-remove projectParams.py
-
-remove testParser.py
-
-Shit we definitely need but don't want to touch:
-
-graphicsDisplay.py
-
-graphicsUtils.py
-
-textDisplay.py
-
-
-keyboardAgents.py - not hard but no reason to fuck with it
-
-layout.py
-
-shit we need but might want to clean:
-
-
-util.py
-
-ghostAgents.py we will need to modify to have good ghosts / ghosts with personality
-
-pacman.py
-
-game.py
-	These control the basic game
-
-
-
-'''
-
-# copied from multiAgents.py
-'''
-def evaluationFunction(self, currentGameState, action):
-		"""
-		Design a better evaluation function here.
-
-		The evaluation function takes in the current and proposed successor
-		GameStates (pacman.py) and returns a number, where higher numbers are better.
-
-		The code below extracts some useful information from the state, like the
-		remaining food (newFood) and Pacman position after moving (newPos).
-		newScaredTimes holds the number of moves that each ghost will remain
-		scared because of Pacman having eaten a power pellet.
-
-		Print out these variables to see what you're getting, then combine them
-		to create a masterful evaluation function.
-		"""
-		# Useful information you can extract from a GameState (pacman.py)
-		successorGameState = currentGameState.generatePacmanSuccessor(action)
-		newPos = successorGameState.getPacmanPosition()
-		newFood = successorGameState.getFood()
-		newGhostStates = successorGameState.getGhostStates()
-		newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-		"*** YOUR CODE HERE ***"
-		return successorGameState.getScore()
-'''
-
-'''
-Approaches / things we want to implement
-
-
-What info do we want
-
-1. a list of distances to each ghost (with directions?)
-
-2. pac man's location and direction
-
-3. power pellet T/F, locations/distance
-
-4. coin locations, distance to coins?
-	- grouping?
-
-What things do we want explanations to say?
-
-1. ghost proximity threshold-- nearest ghost is too close, go away from it
-
-2. Going towards coin group
-
-3. Going towards power pellet
-
-4. Eating ghost with power pellet
 
 
 
 
-'''
 
 
 # Generates the other game states possible from current position
@@ -130,13 +26,15 @@ def genAltGameStates(gameState, nextMove):
 # num_food x
 # Capsules (power pellets) [(x,y), ...]
 # Scared ghosts [num, ...] where num = scared timer
+
+
 def gatherFactors(state):
     factors = {}
     factors["pacman_loc"] = state.getPacmanPosition()
     factors["ghost_locs"] = state.getGhostPositions()
     factors["scared"] = [ghostState.scaredTimer for ghostState in state.getGhostStates()]
     # TODO uncomment
-    # factors["food_groups"] = BFS.coinGrouping(state.getPacmanPosition(), state)
+    #factors["food_groups"] = BFS.coinGrouping(pacPos, state)
     factors["num_food"] = state.getNumFood()
     factors["capsule_locs"] = state.getCapsules()
     return factors
@@ -144,17 +42,18 @@ def gatherFactors(state):
 
 # TODO i'm not sure how this comes in from BFS
 # Calculates differences in food group states
-def foodGroupDiff(cur_food, next_food):
-    diff = []
-    index = 0
-    # Ate entire coin group
-    if len(cur_food) != len(next_food):
-        index = 1
-
-    for i in range(len(cur_food)):
-        diff.append(("DISTANCE AWAY", "DIRECTION 1 = away, -1 = towards"
-                                      "", "SIZE OF GROUPING"))
-    return diff
+# diff: (dist, direction, size)
+def foodGroupDiff(food, cur_pac, next_pac):
+	
+	diff = []
+	for foodkey in food.getKeys():
+		cur_dist = len(BFS.BFS(cur_pac, foodkey, cur_state))
+        next_dist = len(BFS.BFS(next_pac, foodkey, next_state))
+        if next_dist - cur_dist >= 0:
+            diff.append((next_dist, 1, len(food[foodkey])))
+        else:
+            diff.append((next_dist, -1, len(food[foodkey])))
+	return diff
 
 
 # Calculates differences between pacman and objective such as ghosts
@@ -203,7 +102,8 @@ def compare(cur_state, next_state):
     diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"])
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
     # TODO uncomment
-    # diffs["food_groups"] = foodGroupDiff(cur_factors["food_groups"], next_factors["food_groups"])
+    diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(),next_state), \
+    	cur_state.getPacmanPosition(),next_state.getPacmanPosition())
     diffs['food'] = next_factors["num_food"] - cur_factors["num_food"]
     diffs['capsules'] = distanceDiff(cur_state, next_state, cur_factors["capsule_locs"])
     return diffs
@@ -224,10 +124,10 @@ def weight(factors):
                         factors["ghosts"][i][1]))
 
     # Weight Food Groups
-    # for food in factors["food_groups"]:
-    # 	# 5/(distance*towards_away*-1) -1 bc towards shrinks distance but good
-    #     cur_weight = 5 / float((food[0] * food[1] * -1))
-    #     weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
+    for food in factors["food_groups"]:
+    	# 80/(distance*towards_away*-1) -1 bc towards shrinks distance but good
+    	cur_weight = 80 / float((food[0] * food[1] * -1) * factors["food"])
+    	weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
 
     # Weight Capsules
     for capsule in factors["capsules"]:
