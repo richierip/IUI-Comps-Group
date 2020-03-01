@@ -4,11 +4,6 @@ import game
 import BFS
 
 
-
-
-
-
-
 # Generates the other game states possible from current position
 def genAltGameStates(gameState, nextMove):
     moves = gameState.getLegalActions(0)
@@ -26,34 +21,28 @@ def genAltGameStates(gameState, nextMove):
 # num_food x
 # Capsules (power pellets) [(x,y), ...]
 # Scared ghosts [num, ...] where num = scared timer
-
-
 def gatherFactors(state):
     factors = {}
     factors["pacman_loc"] = state.getPacmanPosition()
     factors["ghost_locs"] = state.getGhostPositions()
     factors["scared"] = [ghostState.scaredTimer for ghostState in state.getGhostStates()]
-    # TODO uncomment
-    #factors["food_groups"] = BFS.coinGrouping(pacPos, state)
     factors["num_food"] = state.getNumFood()
     factors["capsule_locs"] = state.getCapsules()
     return factors
 
 
-# TODO i'm not sure how this comes in from BFS
 # Calculates differences in food group states
 # diff: (dist, direction, size)
 def foodGroupDiff(food, cur_pac, next_pac, state):
-	
-	diff = []
-	for foodkey in food.keys():
-		cur_dist = len(BFS.BFS(cur_pac, foodkey, state))
+    diff = []
+    for foodkey in food.keys():
+        cur_dist = len(BFS.BFS(cur_pac, foodkey, state))
         next_dist = len(BFS.BFS(next_pac, foodkey, state))
         if next_dist - cur_dist > 0:
             diff.append((next_dist, 1, len(food[foodkey])))
         else:
             diff.append((next_dist, -1, len(food[foodkey])))
-	return diff
+    return diff
 
 
 # Calculates differences between pacman and objective such as ghosts
@@ -92,7 +81,7 @@ def scaredDiff(cur_timer, next_timer):
 # Distance difference from closest food group [(absolute disance, difference, size), ...]
 # Distance difference for each ghost [(absolute distance, difference), ...]
 # Scared mode timer difference [(total timer, -1 = timer and 1 = no timer), ...]
-# Food amount difference x
+# Food amount x
 # Distance from capsules [(absolute distance, difference), ...]
 def compare(cur_state, next_state):
     diffs = {}
@@ -101,10 +90,9 @@ def compare(cur_state, next_state):
 
     diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"])
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
-    # TODO uncomment
-    diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(),next_state), \
-    	cur_state.getPacmanPosition(),next_state.getPacmanPosition(),next_state)
-    diffs['food'] = next_factors["num_food"] - cur_factors["num_food"]
+    diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(), next_state), \
+                                         cur_state.getPacmanPosition(), next_state.getPacmanPosition(), next_state)
+    diffs['food'] = next_factors["num_food"]
     diffs['capsules'] = distanceDiff(cur_state, next_state, cur_factors["capsule_locs"])
     return diffs
 
@@ -125,9 +113,9 @@ def weight(factors):
 
     # Weight Food Groups
     for food in factors["food_groups"]:
-    	# 80/(distance*towards_away*-1) -1 bc towards shrinks distance but good
-    	cur_weight = 80 / float((max(food[0],1) * food[1] * -1) * factors["food"])
-    	weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
+        # 80/(distance*towards_away*-1) -1 bc towards shrinks distance but good
+        cur_weight = 80 / float(max(food[0], 1) * food[1] * -1 * factors["food"])
+        weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
 
     # Weight Capsules
     for capsule in factors["capsules"]:
