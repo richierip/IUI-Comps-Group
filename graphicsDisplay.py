@@ -61,6 +61,8 @@ SCARED_COLOR = formatColor(1,1,1)
 GHOST_VEC_COLORS = map(colorToVector, GHOST_COLORS)
 
 PACMAN_COLOR = formatColor(255.0/255.0,255.0/255.0,61.0/255)
+TEST_COLOR = formatColor(0.0/255.0,255.0/255.0,61.0/255)
+TEST_COLOR2 = formatColor(0,0,0)
 PACMAN_SCALE = 0.5
 #pacman_speed = 0.25
 
@@ -79,6 +81,22 @@ CAPSULE_SIZE = 0.25
 # Drawing walls
 WALL_RADIUS = 0.15
 
+# class decisionText:
+#     def __init__(self):
+#         self.decTitle = "Decision:"
+#         self.decision = ""
+#         self.option1 =
+
+#This really needs to be here and not inside the class, trust me
+def firstChoice():
+    print("Option 1")
+
+def secondChoice():
+    print("Option 2")
+
+def thirdChoice():
+    print("Option 3")
+
 class InfoPane:
     def __init__(self, layout, gridSize):
         self.gridSize = gridSize
@@ -87,6 +105,8 @@ class InfoPane:
         self.height = INFO_PANE_HEIGHT
         self.fontSize = 24
         self.textColor = PACMAN_COLOR
+        self.decisionColor = TEST_COLOR
+        self.decisionTitleColor = TEST_COLOR2
         self.drawPane()
 
     def toScreen(self, pos, y = None):
@@ -103,9 +123,16 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
-        self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions"), "Times", self.fontSize-10, "bold")
+        self.decTitle = text(self.toScreen(self.width - 230, -self.base + 20), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 65), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
+        #top = Tkinter.Tk()
+        B = Tkinter.Button( text ="First", command = firstChoice)
+        B.place(x = self.width - 100, y = 240)
+        B = Tkinter.Button( text ="Second", command = secondChoice)
+        B.place(x = self.width - 100, y = 265)
+        B = Tkinter.Button( text ="Third", command = thirdChoice)
+        B.place(x = self.width - 100, y = 290)
 
     def initializeGhostDistances(self, distances):
         self.ghostDistanceText = []
@@ -126,27 +153,26 @@ class InfoPane:
     def parseDecision(self, decision):
         words = decision.split(" ")
         newstring = words[0]
-        sentenceLength = len(newstring)
+        sentenceLength = len(newstring) # Why this line?
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 29:
+            if sentenceLength + len(word) + 1 > 21: # was 29
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
                 newstring += " " + word
                 sentenceLength += len(word)
-        # for i in range(0, len(decision), 29):
-        #     newstring += decision[i:i+29] + "\n"
+
+        newstring += "\n\nRate this decision!\n(1) This is garbage\n(2) Less garbage\n(3) Decent"
         return newstring
 
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
+        #print("here")
         changeText(self.decision, decision)
-        wait_for_click()
+        rating = wait_for_rating(["1","2","3","4"])
+        #do something with the rating here (save to file?/add to file?)
+        changeText(self.decision, "")
 
-    def setTeam(self, isBlue):
-        text = "RED TEAM"
-        if isBlue: text = "BLUE TEAM"
-        self.teamText = text( self.toScreen(300, 0  ), self.textColor, text, "Times", self.fontSize, "bold")
 
     def updateGhostDistances(self, distances):
         if len(distances) == 0: return
@@ -295,10 +321,10 @@ class PacmanGraphics:
         outlineColor = PACMAN_COLOR
         fillColor = PACMAN_COLOR
 
-        if self.capture:
-            outlineColor = TEAM_COLORS[index % 2]
-            fillColor = GHOST_COLORS[index]
-            width = PACMAN_CAPTURE_OUTLINE_WIDTH
+        # if self.capture:
+        #     outlineColor = TEAM_COLORS[index % 2]
+        #     fillColor = GHOST_COLORS[index]
+        #     width = PACMAN_CAPTURE_OUTLINE_WIDTH
 
         return [circle(screen_point, PACMAN_SCALE * self.gridSize,
                        fillColor = fillColor, outlineColor = outlineColor,

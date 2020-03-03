@@ -212,7 +212,6 @@ class WhimsicalGhost( GhostAgent ):
         frontPacman = self.getTargetSquare(state, state.getPacmanPosition(), 2)
 
         target = (2*frontPacman[0]-blinkyPosition[0], 2*frontPacman[1]-blinkyPosition[1])
-        print(blinkyPosition, frontPacman, target)
 
         # Select best actions given the state
         distancesToTarget = [manhattanDistance( pos, target ) for pos in newPositions]
