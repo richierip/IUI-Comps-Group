@@ -709,7 +709,6 @@ class Game:
 
             # Change the display
             self.display.update( self.state.data )
-<<<<<<< HEAD
 
             # Update decision display
             ''' For some random probability, (e.g. choose one in every ten moves) 
@@ -719,10 +718,8 @@ class Game:
             #     self.display.infoPane.updateDecision("ye")
             ##idx = agentIndex - agentIndex % 2 + 1
             ##self.display.update( self.state.makeObservation(idx).data )
-=======
             ###idx = agentIndex - agentIndex % 2 + 1
             ###self.display.update( self.state.makeObservation(idx).data )
->>>>>>> b43efcbc01fcf282e4e4c8a965c805839bcc8aa3
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)

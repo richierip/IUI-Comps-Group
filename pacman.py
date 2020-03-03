@@ -41,10 +41,12 @@ The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
 from game import GameStateData
 from game import Game
+from game import Configuration
 from game import Directions
 from game import Actions
 from util import nearestPoint
 from util import manhattanDistance
+from threading import Timer
 import util, layout
 import sys, types, time, random, os
 
@@ -407,6 +409,7 @@ class GhostRules:
         ghostState = state.data.agentStates[ghostIndex]
         speed = GhostRules.GHOST_SPEED
         if ghostState.scaredTimer > 0: speed /= 2.0
+        # elif ghostState.respawned: speed /= 8.0
         vector = Actions.directionToVector( action, speed )
         ghostState.configuration = ghostState.configuration.generateSuccessor( vector )
     applyAction = staticmethod( applyAction )
@@ -436,6 +439,12 @@ class GhostRules:
     def collide( state, ghostState, agentIndex):
         if ghostState.scaredTimer > 0:
             state.data.scoreChange += 200
+            # Need some method of keeping ghost still/placing it somewhere unreachable until timer
+            # decrements
+            # upOne = Configuration((10, ghostState.start.pos[1] + 1), ghostState.start.direction)
+            # t = Timer(3, GhostRules.placeGhost, [state])
+            # t.start()
+            # ghostState.respawned = True
             GhostRules.placeGhost(state, ghostState)
             ghostState.scaredTimer = 0
             # Added for first-person
@@ -453,6 +462,11 @@ class GhostRules:
     def placeGhost(state, ghostState):
         ghostState.configuration = ghostState.start
     placeGhost = staticmethod( placeGhost )
+
+    def liberate( ghostState):
+        print(ghostState)
+        upOne = Configuration((10, ghostState.start.pos[1]+1), ghostState.start.direction)
+    liberate = staticmethod( liberate )
 
 #############################
 # FRAMEWORK TO START A GAME #
@@ -552,8 +566,12 @@ def readCommand( argv ):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, noKeyboard)
-    args['ghosts'] = [ghostType( i+1 ) for i in range( options.numGhosts )]
+    if options.ghost == "test":
+        ghosts = [loadAgent("DirectionalGhost", noKeyboard)(1), loadAgent("AmbusherGhost", noKeyboard)(2), loadAgent("PatrolGhost", noKeyboard)(3), loadAgent("WhimsicalGhost", noKeyboard)(4)]
+        args['ghosts'] = [ghosts[i] for i in range( options.numGhosts )]
+    else:
+        ghostType = loadAgent(options.ghost, noKeyboard)
+        args['ghosts'] = [ghostType( i+1 ) for i in range( options.numGhosts )]
 
     # Choose a display format
     if options.quietGraphics:
@@ -628,7 +646,6 @@ def replayGame( layout, actions, display ):
 def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
     import __main__
     __main__.__dict__['_display'] = display
-
     rules = ClassicGameRules(timeout)
     games = []
 
