@@ -38,5 +38,3 @@ class MostFrequentClassifier(classificationMethod.ClassificationMethod):
         Classify all test data as the most common label.
         """
         return [self.guess for i in testData]
-
-  
