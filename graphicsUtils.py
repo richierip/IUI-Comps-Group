@@ -129,18 +129,43 @@ def wait_for_click():
             return val, 'ctrl_left'
         sleep(0.05)
 
+def round_rectangle(x1, y1, x2, y2, radius=10):
+
+    points = [(x1+radius, y1),
+              (x1+radius, y1),
+              (x2-radius, y1),
+              (x2-radius, y1),
+              (x2, y1),
+              (x2, y1+radius),
+              (x2, y1+radius),
+              (x2, y2-radius),
+              (x2, y2-radius),
+              (x2, y2),
+              (x2-radius, y2),
+              (x2-radius, y2),
+              (x1+radius, y2),
+              (x1+radius, y2),
+              (x1, y2),
+              (x1, y2-radius),
+              (x1, y2-radius),
+              (x1, y1+radius),
+              (x1, y1+radius),
+              (x1, y1)]
+
+    return points
+
 def draw_background():
     corners = [(0,0), (0, _canvas_ys), (_canvas_xs, _canvas_ys), (_canvas_xs, 0)]
     polygon(corners, _bg_color, fillColor=_bg_color, filled=True, smoothed=False)
-    ######
-    #testing here to see if we can draw a separate window for decisions
-    ### NEED TO GENERALIZE THIS TO WORK IN ALL LAYOUTS
 
-    yellowHighlight = [(_canvas_xs - 315,5), (_canvas_xs - 315, _canvas_ys - 5), (_canvas_xs - 5, _canvas_ys - 5), (_canvas_xs - 5, 5)]
-    polygon(yellowHighlight, formatColor(255.0/255.0,255.0/255.0,61.0/255), fillColor=formatColor(255.0/255.0,255.0/255.0,61.0/255), filled=True, smoothed=False)
+    ###########################################################
+    # Decision pane display
+    ###########################################################
+    outerPane = round_rectangle(_canvas_xs - 315,25,_canvas_xs - 5,_canvas_ys - 5)
+    innerPane = round_rectangle(_canvas_xs - 310,30,_canvas_xs - 10,_canvas_ys - 10)
 
-    testCorners = [(_canvas_xs - 310,10), (_canvas_xs - 310, _canvas_ys - 10), (_canvas_xs - 10, _canvas_ys - 10), (_canvas_xs - 10, 10)]
-    polygon(testCorners, formatColor(0,0,0), fillColor=formatColor(255, 255, 255), filled=True, smoothed=False)
+    polygon(outerPane, formatColor(255.0/255.0,255.0/255.0,61.0/255), fillColor=formatColor(255.0/255.0,255.0/255.0,61.0/255), filled=True, smoothed=True)
+    polygon(innerPane, formatColor(0,0,0), fillColor=formatColor(255, 255, 255), filled=True, smoothed=True)
 
 def _destroy_window(event=None):
     sys.exit(0)

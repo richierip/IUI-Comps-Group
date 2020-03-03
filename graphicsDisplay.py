@@ -123,8 +123,8 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
-        self.decTitle = text(self.toScreen(self.width - 230, -self.base + 20), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 65), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
+        self.decTitle = text(self.toScreen(self.width - 230, -self.base + 30), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
         #top = Tkinter.Tk()
         B = Tkinter.Button( text ="First", command = firstChoice)
