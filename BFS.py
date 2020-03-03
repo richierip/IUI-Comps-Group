@@ -8,6 +8,8 @@ def BFS(xy1, xy2, gameStateData):
 	q.push(xy1)
 	seen = {xy1: None}
 	done = False
+	if xy1 == xy2:
+		return []
 	while not q.isEmpty() and not done:
 		nextPoint = q.pop()
 		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
@@ -35,23 +37,33 @@ def coinGrouping(xy, gameStateData):
 	q = Queue()
 	q.push(xy)
 	seen = set()
+	seencoins = set()
 	coinGroups = {}
 	while not q.isEmpty():
 		nextPoint = q.pop()
+		if (nextPoint in food or nextPoint in capsules) and (nextPoint not in seencoins):
+			# we have a coin at nextPoint
+			coinGroups[nextPoint] = coinGroup(nextPoint, gameStateData)
+			for coin in coinGroups[nextPoint]:
+				seencoins.add(coin)
+
+		seen.add(nextPoint)
 		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
+
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				q.push(neighbor)
-				seen.add(neighbor)
-
-				if neighbor in food or neighbor in capsules:
-					# we have a coin at neighbor
-					coinGroups[neighbor] = coinGroup(neighbor, gameStateData)
-					for coin in coinGroups[neighbor]:
-						seen.add(coin)
-	for coinGroup in coinGroups.keys():
-		#print("closest: " + str(coinGroup) + ", size: " + str(len(coinGroups[coinGroup])))
-		pass
+				
+	''' # testing purposes
+	print("printing groups")
+	testset = set()
+	for coins in coinGroups.keys():
+		for coin in coinGroups[coins]:
+			if coin in testset:
+				raise(Error("found coin in 2 groups"))
+		print("closest: " + str(coins) + ", stuff: " + str(len(coinGroups[coins])))
+	print("done printing groups")
+	'''
 	return coinGroups
 
 
@@ -63,8 +75,10 @@ def coinGroup(xy, gameStateData):
 	capsules = gameStateData.getCapsules()
 	q = Queue()
 	q.push(xy)
-	seen = set(xy)
-	seenCoin = set(xy)
+	seen = set()
+	seen.add(xy)
+	seenCoin = set()
+	seenCoin.add(xy)
 	while not q.isEmpty():
 		nextPoint = q.pop()
 		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
@@ -74,9 +88,38 @@ def coinGroup(xy, gameStateData):
 				if neighbor in food or neighbor in capsules:
 					seenCoin.add(neighbor)
 					q.push(neighbor)
-	return seen
+	return seenCoin
 
+# returns the closest 3 coinGroups
+# format: {distance : numCoins, distance1 : numCoins1}
+# if less than 3, returns only first 2 or 1.
+def coinGroup3s(xy, gameStateData):
+	food = gameStateData.getFood().asList()
+	capsules = gameStateData.getCapsules()
+	q = Queue()
+	q.push(xy)
+	seen = set()
+	seencoins = set()
+	coinGroups = {}
+	while not q.isEmpty() and len(coinGroups) < 3:
+		nextPoint = q.pop()
+		if (nextPoint in food or nextPoint in capsules) and (nextPoint not in seencoins):
+			# we have a coin at nextPoint
+			coinGroups[nextPoint] = coinGroup(nextPoint, gameStateData)
+			for coin in coinGroups[nextPoint]:
+				seencoins.add(coin)
+
+		seen.add(nextPoint)
+		neighbors = game.Actions.getLegalNeighbors(nextPoint, gameStateData.getWalls())
+
+		for neighbor in neighbors:
+			if neighbor not in seen:
+				q.push(neighbor)
+	rdict = {}
+	for key in coinGroups:
+		rdict[BFS(xy,key, gameStateData)] = len(coinGroups[key])
 	
+	return rdict
 
 
 
