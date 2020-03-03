@@ -25,6 +25,8 @@ from graphicsUtils import *
 import time, os
 import traceback
 import sys
+import heuristic
+import BFS
 
 #######################
 # Parts worth reading #
@@ -130,7 +132,6 @@ class AgentState:
         self.scaredTimer = 0
         self.numCarrying = 0
         self.numReturned = 0
-        self.respawned = False
 
     def __str__( self ):
         if self.isPacman:
@@ -616,9 +617,6 @@ class Game:
         while not self.gameOver:
             # Fetch the next agent
             agent = self.agents[agentIndex]
-            #pacstate = self.state.getPacmanState()
-            #print self.state.getLegalActions()
-            #print pacstate.getPosition(), pacstate.getDirection()
             move_time = 0
             skip_action = False
             # Generate an observation of the state
@@ -702,10 +700,16 @@ class Game:
                     self.unmute()
                     return
             else:
+                # TODO Placeholder todo just so I (Adam) can bookmark this
+                if agentIndex == 0 and heuristic.threshold(self.state, self.state.generateSuccessor(0, action)):
+                    # self.display.updateExplanation(heuristic.newExplanation(self.state, action))
+                    pass
+
                 self.state = self.state.generateSuccessor( agentIndex, action )
 
             # Change the display
             self.display.update( self.state.data )
+<<<<<<< HEAD
 
             # Update decision display
             ''' For some random probability, (e.g. choose one in every ten moves) 
@@ -715,6 +719,10 @@ class Game:
             #     self.display.infoPane.updateDecision("ye")
             ##idx = agentIndex - agentIndex % 2 + 1
             ##self.display.update( self.state.makeObservation(idx).data )
+=======
+            ###idx = agentIndex - agentIndex % 2 + 1
+            ###self.display.update( self.state.makeObservation(idx).data )
+>>>>>>> b43efcbc01fcf282e4e4c8a965c805839bcc8aa3
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)

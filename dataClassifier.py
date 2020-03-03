@@ -16,10 +16,10 @@
 # code for data classification
 
 import mostFrequent
-# import naiveBayes
+import naiveBayes
 import perceptron
 import perceptron_pacman
-# import mira
+import mira
 import samples
 import sys
 import util
@@ -124,7 +124,9 @@ def enhancedPacmanFeatures(state, action):
     """
     features = util.Counter()
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    successor = state.generateSuccessor(0, action)
+    foodCount = successor.getFood().count()
+    features['foodCount'] = foodCount
     return features
 
 

@@ -12,7 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-STUDENT_CODE_DEFAULT = 'multiAgents.py'
-PROJECT_TEST_CLASSES = 'multiagentTestClasses.py'
-PROJECT_NAME = 'Project 2: Multiagent search'
+STUDENT_CODE_DEFAULT = 'naiveBayes.py,perceptron.py,mira.py,dataClassifier.py,answers.py,perceptron_pacman.py'
+PROJECT_TEST_CLASSES = 'classificationTestClasses.py'
+PROJECT_NAME = 'Project 5: Classification'
 BONUS_PIC = False
