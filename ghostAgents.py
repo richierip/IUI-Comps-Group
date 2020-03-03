@@ -79,3 +79,46 @@ class DirectionalGhost( GhostAgent ):
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
         return dist
+
+
+class WhimsicalGhost( GhostAgent ):
+    "A ghost that targets a square lying 2* the vector between Blinky's position and a space 2 in front of Pacman."
+    def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
+        self.index = index
+        self.prob_attack = prob_attack
+        self.prob_scaredFlee = prob_scaredFlee
+
+    def getDistribution( self, state ):
+        # Read variables from state
+        ghostState = state.getGhostState( self.index )
+        legalActions = state.getLegalActions( self.index )
+        pos = state.getGhostPosition( self.index )
+        isScared = ghostState.scaredTimer > 0
+
+        speed = 1
+        if isScared: speed = 0.5
+
+        actionVectors = [Actions.directionToVector( a, speed ) for a in legalActions]
+        newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
+
+        blinkyPosition = state.getGhostPosition(1)
+        frontPacman = self.getTargetSquare(state, state.getPacmanPosition(), 2)
+
+        target = (2*frontPacman[0]-blinkyPosition[0], 2*frontPacman[1]-blinkyPosition[1])
+
+        # Select best actions given the state
+        distancesToTarget = [manhattanDistance( pos, target ) for pos in newPositions]
+        if isScared:
+            bestScore = max( distancesToTarget )
+            bestProb = self.prob_scaredFlee
+        else:
+            bestScore = min( distancesToTarget )
+            bestProb = self.prob_attack
+        bestActions = [action for action, distance in zip( legalActions, distancesToTarget ) if distance == bestScore]
+
+        # Construct distribution
+        dist = util.Counter()
+        for a in bestActions: dist[a] = bestProb / len(bestActions)
+        for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
+        dist.normalize()
+        return dist

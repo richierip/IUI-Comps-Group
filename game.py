@@ -21,6 +21,7 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
 from util import *
+from graphicsUtils import *
 import time, os
 import traceback
 import sys
@@ -641,7 +642,7 @@ class Game:
             else:
                 observation = self.state.deepCopy()
 
-            # Solicit an action
+            # Solicit an action, based on an observation (current state).
             action = None
             self.mute(agentIndex)
             if self.catchExceptions:
@@ -708,8 +709,20 @@ class Game:
 
             # Change the display
             self.display.update( self.state.data )
+<<<<<<< HEAD
+
+            # Update decision display
+            ''' For some random probability, (e.g. choose one in every ten moves) 
+            getDecision (presumably from pacman state data)'''
+            # r = random.randint(1,100)
+            # if r == 1:
+            #     self.display.infoPane.updateDecision("ye")
+            ##idx = agentIndex - agentIndex % 2 + 1
+            ##self.display.update( self.state.makeObservation(idx).data )
+=======
             ###idx = agentIndex - agentIndex % 2 + 1
             ###self.display.update( self.state.makeObservation(idx).data )
+>>>>>>> b43efcbc01fcf282e4e4c8a965c805839bcc8aa3
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)
@@ -733,4 +746,7 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
+        # key = wait_for_rating(["y", "n"])
+        # if key == "y":
+        #     self.run()
         self.display.finish()

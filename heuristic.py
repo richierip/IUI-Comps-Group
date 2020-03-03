@@ -54,8 +54,8 @@ def distanceDiff(cur_state, next_state, obj_loc):
 
     # Creates tuple for each object w/ absolute distance and direction
     for obj in obj_loc:
-        cur_dist = len(BFS.BFS(cur_pac, int(obj), cur_state))
-        next_dist = len(BFS.BFS(next_pac, int(obj), next_state))
+        cur_dist = len(BFS.BFS(cur_pac, (int(obj[0]), int(obj[1])), cur_state))
+        next_dist = len(BFS.BFS(next_pac, (int(obj[0]), int(obj[1])), next_state))
         if next_dist - cur_dist >= 0:
             diff.append((next_dist, 1))
         else:
