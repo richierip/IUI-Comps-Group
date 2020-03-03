@@ -61,6 +61,8 @@ SCARED_COLOR = formatColor(1,1,1)
 GHOST_VEC_COLORS = map(colorToVector, GHOST_COLORS)
 
 PACMAN_COLOR = formatColor(255.0/255.0,255.0/255.0,61.0/255)
+TEST_COLOR = formatColor(0.0/255.0,255.0/255.0,61.0/255)
+TEST_COLOR2 = formatColor(0,0,0)
 PACMAN_SCALE = 0.5
 #pacman_speed = 0.25
 
@@ -92,6 +94,8 @@ class InfoPane:
         self.height = INFO_PANE_HEIGHT
         self.fontSize = 24
         self.textColor = PACMAN_COLOR
+        self.decisionColor = TEST_COLOR
+        self.decisionTitleColor = TEST_COLOR2
         self.drawPane()
 
     def toScreen(self, pos, y = None):
@@ -108,8 +112,8 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
-        self.decTitle = text(self.toScreen(self.width - 300, -self.base + 25), self.textColor, "Decision:", "Times", self.fontSize-10, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 45), self.textColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
+        self.decTitle = text(self.toScreen(self.width - 230, -self.base + 20), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 65), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -145,6 +149,7 @@ class InfoPane:
 
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
+        #print("here")
         changeText(self.decision, decision)
         rating = wait_for_rating(["1","2","3","4"])
         #do something with the rating here (save to file?/add to file?)

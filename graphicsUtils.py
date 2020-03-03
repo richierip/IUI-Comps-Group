@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -132,6 +132,15 @@ def wait_for_click():
 def draw_background():
     corners = [(0,0), (0, _canvas_ys), (_canvas_xs, _canvas_ys), (_canvas_xs, 0)]
     polygon(corners, _bg_color, fillColor=_bg_color, filled=True, smoothed=False)
+    ######
+    #testing here to see if we can draw a separate window for decisions
+    ### NEED TO GENERALIZE THIS TO WORK IN ALL LAYOUTS
+
+    yellowHighlight = [(615,5), (615, _canvas_ys - 5), (_canvas_xs - 5, _canvas_ys - 5), (_canvas_xs - 5, 5)]
+    polygon(yellowHighlight, formatColor(255.0/255.0,255.0/255.0,61.0/255), fillColor=formatColor(255.0/255.0,255.0/255.0,61.0/255), filled=True, smoothed=False)
+
+    testCorners = [(620,10), (620, _canvas_ys - 10), (_canvas_xs - 10, _canvas_ys - 10), (_canvas_xs - 10, 10)]
+    polygon(testCorners, formatColor(0,0,0), fillColor=formatColor(255, 255, 255), filled=True, smoothed=False)
 
 def _destroy_window(event=None):
     sys.exit(0)
