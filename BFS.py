@@ -49,6 +49,9 @@ def coinGrouping(xy, gameStateData):
 					coinGroups[neighbor] = coinGroup(neighbor, gameStateData)
 					for coin in coinGroups[neighbor]:
 						seen.add(coin)
+	for coinGroup in coinGroups.keys():
+		#print("closest: " + str(coinGroup) + ", size: " + str(len(coinGroups[coinGroup])))
+		pass
 	return coinGroups
 
 
