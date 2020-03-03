@@ -129,7 +129,6 @@ class AgentState:
         self.scaredTimer = 0
         self.numCarrying = 0
         self.numReturned = 0
-        self.respawned = False
 
     def __str__( self ):
         if self.isPacman:
@@ -615,9 +614,6 @@ class Game:
         while not self.gameOver:
             # Fetch the next agent
             agent = self.agents[agentIndex]
-            #pacstate = self.state.getPacmanState()
-            #print self.state.getLegalActions()
-            #print pacstate.getPosition(), pacstate.getDirection()
             move_time = 0
             skip_action = False
             # Generate an observation of the state
@@ -705,13 +701,6 @@ class Game:
 
             # Change the display
             self.display.update( self.state.data )
-
-            # Update decision display
-            ''' For some random probability, (e.g. choose one in every ten moves) 
-            getDecision (presumably from pacman state data)'''
-            # r = random.randint(1,100)
-            # if r == 1:
-            #self.display.infoPane.updateDecision("ye")
             ###idx = agentIndex - agentIndex % 2 + 1
             ###self.display.update( self.state.makeObservation(idx).data )
 

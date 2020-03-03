@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -25,9 +25,8 @@ class Layout:
     """
 
     def __init__(self, layoutText):
-        self.width = len(layoutText[0]) + 10
+        self.width = len(layoutText[0])
         self.height= len(layoutText)
-        self.boardwidth = len(layoutText[0])
         self.walls = Grid(self.width, self.height, False)
         self.food = Grid(self.width, self.height, False)
         self.capsules = []
@@ -108,7 +107,7 @@ class Layout:
         """
         maxY = self.height - 1
         for y in range(self.height):
-            for x in range(self.boardwidth):
+            for x in range(self.width):
                 layoutChar = layoutText[maxY - y][x]
                 self.processLayoutChar(x, y, layoutChar)
         self.agentPositions.sort()
