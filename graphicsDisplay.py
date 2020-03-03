@@ -86,6 +86,17 @@ WALL_RADIUS = 0.15
 #         self.decTitle = "Decision:"
 #         self.decision = ""
 #         self.option1 =
+
+#This really needs to be here and not inside the class, trust me
+def firstChoice():
+    print("Option 1")
+
+def secondChoice():
+    print("Option 2")
+
+def thirdChoice():
+    print("Option 3")
+
 class InfoPane:
     def __init__(self, layout, gridSize):
         self.gridSize = gridSize
@@ -115,6 +126,13 @@ class InfoPane:
         self.decTitle = text(self.toScreen(self.width - 230, -self.base + 20), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
         self.decision = text(self.toScreen(self.width - 300, -self.base + 65), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
+        #top = Tkinter.Tk()
+        B = Tkinter.Button( text ="First", command = firstChoice)
+        B.place(x = self.width - 100, y = 240)
+        B = Tkinter.Button( text ="Second", command = secondChoice)
+        B.place(x = self.width - 100, y = 265)
+        B = Tkinter.Button( text ="Third", command = thirdChoice)
+        B.place(x = self.width - 100, y = 290)
 
     def initializeGhostDistances(self, distances):
         self.ghostDistanceText = []
