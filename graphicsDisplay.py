@@ -79,6 +79,11 @@ CAPSULE_SIZE = 0.25
 # Drawing walls
 WALL_RADIUS = 0.15
 
+# class decisionText:
+#     def __init__(self):
+#         self.decTitle = "Decision:"
+#         self.decision = ""
+#         self.option1 =
 class InfoPane:
     def __init__(self, layout, gridSize):
         self.gridSize = gridSize
@@ -125,7 +130,6 @@ class InfoPane:
 
     def parseDecision(self, decision):
         words = decision.split(" ")
-        print(words)
         newstring = words[0]
         sentenceLength = len(newstring) # Why this line?
         for word in words[1:]:
@@ -137,21 +141,15 @@ class InfoPane:
                 sentenceLength += len(word)
 
         newstring += "\n\nRate this decision!\n(1) This is garbage\n(2) Less garbage\n(3) Decent"
-        # for i in range(0, len(decision), 29):
-        #     newstring += decision[i:i+29] + "\n"
-        print(newstring)
         return newstring
 
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
         changeText(self.decision, decision)
         rating = wait_for_rating(["1","2","3","4"])
+        #do something with the rating here (save to file?/add to file?)
         changeText(self.decision, "")
 
-    def setTeam(self, isBlue):
-        text = "RED TEAM"
-        if isBlue: text = "BLUE TEAM"
-        self.teamText = text( self.toScreen(300, 0  ), self.textColor, text, "Times", self.fontSize, "bold")
 
     def updateGhostDistances(self, distances):
         if len(distances) == 0: return
@@ -300,10 +298,10 @@ class PacmanGraphics:
         outlineColor = PACMAN_COLOR
         fillColor = PACMAN_COLOR
 
-        if self.capture:
-            outlineColor = TEAM_COLORS[index % 2]
-            fillColor = GHOST_COLORS[index]
-            width = PACMAN_CAPTURE_OUTLINE_WIDTH
+        # if self.capture:
+        #     outlineColor = TEAM_COLORS[index % 2]
+        #     fillColor = GHOST_COLORS[index]
+        #     width = PACMAN_CAPTURE_OUTLINE_WIDTH
 
         return [circle(screen_point, PACMAN_SCALE * self.gridSize,
                        fillColor = fillColor, outlineColor = outlineColor,

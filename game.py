@@ -644,7 +644,7 @@ class Game:
             else:
                 observation = self.state.deepCopy()
 
-            # Solicit an action
+            # Solicit an action, based on an observation (current state).
             action = None
             self.mute(agentIndex)
             if self.catchExceptions:
