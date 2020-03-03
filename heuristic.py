@@ -2,6 +2,7 @@
 
 import game
 import BFS
+import util
 
 
 # Generates the other game states possible from current position
@@ -12,6 +13,33 @@ def genAltGameStates(gameState, nextMove):
         if move != nextMove:
             alt_games.append(gameState.generateSuccessor(0, move))
     return alt_games
+
+
+# Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
+# [ghost dist, ghost scared dist, scared timer, capsule, food groups]
+def neuralDistances(state, action):
+    factors = gatherFactors(state.generateSuccessor(0, action))
+
+    features = util.Counter()
+    pacman = factors["pacman_loc"]
+    for i in range(factors["ghost_locs"]):
+        if factors["scared"][i] > 0:
+            features["ghost " + str(i)] = 0
+            features["ghost " + str(i) + " scared"] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+            features["ghost " + str(i) + " timer"] = factors["scared"][i]
+        else:
+            features["ghost " + str(i)] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+            features["ghost " + str(i) + " scared"] = 0
+            features["ghost " + str(i) + " timer"] = 0
+
+    for i in range(len(factors["capsule_locs"])):
+        features["capsule" + str(i)] = BFS.BFS(pacman, factors["capsule_locs"][i], state)
+
+    # TODO THIS
+    # food_groups = BFS.coinGrouping(pacman, state)
+    # for i in range(3):
+    #     features["food group " + str(i) + " dist"] = food_groups[i][0]
+    #     features["food group " + str(i) + " size"] = food_groups[i][1]
 
 
 # Gathers important data from game in dict to be used in heursitic generation
