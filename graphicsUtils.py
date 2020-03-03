@@ -136,10 +136,10 @@ def draw_background():
     #testing here to see if we can draw a separate window for decisions
     ### NEED TO GENERALIZE THIS TO WORK IN ALL LAYOUTS
 
-    yellowHighlight = [(615,5), (615, _canvas_ys - 5), (_canvas_xs - 5, _canvas_ys - 5), (_canvas_xs - 5, 5)]
+    yellowHighlight = [(_canvas_xs - 315,5), (_canvas_xs - 315, _canvas_ys - 5), (_canvas_xs - 5, _canvas_ys - 5), (_canvas_xs - 5, 5)]
     polygon(yellowHighlight, formatColor(255.0/255.0,255.0/255.0,61.0/255), fillColor=formatColor(255.0/255.0,255.0/255.0,61.0/255), filled=True, smoothed=False)
 
-    testCorners = [(620,10), (620, _canvas_ys - 10), (_canvas_xs - 10, _canvas_ys - 10), (_canvas_xs - 10, 10)]
+    testCorners = [(_canvas_xs - 310,10), (_canvas_xs - 310, _canvas_ys - 10), (_canvas_xs - 10, _canvas_ys - 10), (_canvas_xs - 10, 10)]
     polygon(testCorners, formatColor(0,0,0), fillColor=formatColor(255, 255, 255), filled=True, smoothed=False)
 
 def _destroy_window(event=None):
