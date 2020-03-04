@@ -167,7 +167,6 @@ class InfoPane:
 
     def updateDecision(self, decision):
         decision = self.parseDecision(decision)
-        #print("here")
         changeText(self.decision, decision)
         rating = wait_for_rating(["1","2","3","4"])
         #do something with the rating here (save to file?/add to file?)
@@ -330,6 +329,20 @@ class PacmanGraphics:
                        fillColor = fillColor, outlineColor = outlineColor,
                        endpoints = endpoints,
                        width = width)]
+
+    def drawPrevPacman(self, pacman):
+        position = self.getPosition(pacman)
+        screen_point = self.to_screen(position)
+        endpoints = self.getEndpoints(self.getDirection(pacman))
+
+        width = PACMAN_OUTLINE_WIDTH
+        outlineColor = PACMAN_COLOR
+
+        return circle(screen_point, PACMAN_SCALE * self.gridSize,
+                       outlineColor = outlineColor,
+                       fillColor = None,
+                       endpoints = endpoints,
+                       width = width)
 
     def getEndpoints(self, direction, position=(0,0)):
         x, y = position

@@ -701,11 +701,15 @@ class Game:
                     return
             else:
                 # TODO Placeholder todo just so I (Adam) can bookmark this
+                nextState = self.state.generateSuccessor( agentIndex, action )
                 if agentIndex == 0 and heuristic.threshold(self.state, self.state.generateSuccessor(0, action)):
-                    #self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+                    pacman = nextState.getPacmanState()
+                    shadow = self.display.drawPrevPacman(pacman)
+                    self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+                    remove_from_screen(shadow)
                     pass
+                self.state = nextState
 
-                self.state = self.state.generateSuccessor( agentIndex, action )
 
             # Change the display
             self.display.update( self.state.data )
