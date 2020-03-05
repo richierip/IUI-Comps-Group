@@ -35,7 +35,7 @@ def neuralDistances(state, action):
     for i in range(len(factors["capsule_locs"])):
         features["capsule" + str(i)] = BFS.BFS(pacman, factors["capsule_locs"][i], state)
 
-    food_groups = BFS.coinGroup3sc(pacman, state)
+    food_groups = BFS.coinGroup3s(pacman, state)
     while len(food_groups) < 3:
         food_groups.append((0,0))
     
