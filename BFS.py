@@ -119,7 +119,7 @@ def coinGroup3s(xy, gameStateData):
 	for key in coinGroups:
 		rlist.append((len(BFS(xy,key, gameStateData)), len(coinGroups[key])))
 	
-	return rdict
+	return rlist
 
 
 
