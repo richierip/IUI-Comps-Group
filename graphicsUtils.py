@@ -164,8 +164,8 @@ def draw_background():
     outerPane = round_rectangle(_canvas_xs - 315,25,_canvas_xs - 5,_canvas_ys - 5)
     innerPane = round_rectangle(_canvas_xs - 310,30,_canvas_xs - 10,_canvas_ys - 10)
 
-    polygon(outerPane, formatColor(255.0/255.0,255.0/255.0,61.0/255), fillColor=formatColor(255.0/255.0,255.0/255.0,61.0/255), filled=True, smoothed=True)
-    polygon(innerPane, formatColor(0,0,0), fillColor=formatColor(255, 255, 255), filled=True, smoothed=True)
+    polygon(outerPane, formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0), formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0), filled=True, smoothed=True)
+    polygon(innerPane, formatColor(0,0,0), fillColor=formatColor(230, 230, 230), filled=True, smoothed=True)
 
 def _destroy_window(event=None):
     sys.exit(0)

@@ -61,8 +61,8 @@ SCARED_COLOR = formatColor(1,1,1)
 GHOST_VEC_COLORS = map(colorToVector, GHOST_COLORS)
 
 PACMAN_COLOR = formatColor(255.0/255.0,255.0/255.0,61.0/255)
-TEST_COLOR = formatColor(0.0/255.0,255.0/255.0,61.0/255)
-TEST_COLOR2 = formatColor(0,0,0)
+TEST_COLOR2 = formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0)
+TEST_COLOR = formatColor(0,0,0)
 PACMAN_SCALE = 0.5
 #pacman_speed = 0.25
 
