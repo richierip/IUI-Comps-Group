@@ -27,6 +27,7 @@ import traceback
 import sys
 import heuristic
 import BFS
+import textDisplay
 
 #######################
 # Parts worth reading #
@@ -703,10 +704,11 @@ class Game:
                 # TODO Placeholder todo just so I (Adam) can bookmark this
                 nextState = self.state.generateSuccessor( agentIndex, action )
                 if agentIndex == 0 and heuristic.threshold(self.state, self.state.generateSuccessor(0, action)):
-                    pacman = nextState.getPacmanState()
-                    shadow = self.display.drawPrevPacman(pacman)
-                    self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
-                    remove_from_screen(shadow)
+                    if not isinstance(self.display, textDisplay.NullGraphics):
+                        pacman = nextState.getPacmanState()
+                        shadow = self.display.drawPrevPacman(pacman)
+                        self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+                        remove_from_screen(shadow)
                     pass
                 self.state = nextState
 
