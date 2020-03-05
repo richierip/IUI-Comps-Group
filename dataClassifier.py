@@ -24,64 +24,13 @@ import samples
 import sys
 import util
 from pacman import GameState
+from heuristic import neuralDistances
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
 DIGIT_DATUM_HEIGHT=28
 FACE_DATUM_WIDTH=60
 FACE_DATUM_HEIGHT=70
-
-
-def basicFeatureExtractorDigit(datum):
-    """
-    Returns a set of pixel features indicating whether
-    each pixel in the provided datum is white (0) or gray/black (1)
-    """
-    a = datum.getPixels()
-
-    features = util.Counter()
-    for x in range(DIGIT_DATUM_WIDTH):
-        for y in range(DIGIT_DATUM_HEIGHT):
-            if datum.getPixel(x, y) > 0:
-                features[(x,y)] = 1
-            else:
-                features[(x,y)] = 0
-    return features
-
-def basicFeatureExtractorFace(datum):
-    """
-    Returns a set of pixel features indicating whether
-    each pixel in the provided datum is an edge (1) or no edge (0)
-    """
-    a = datum.getPixels()
-
-    features = util.Counter()
-    for x in range(FACE_DATUM_WIDTH):
-        for y in range(FACE_DATUM_HEIGHT):
-            if datum.getPixel(x, y) > 0:
-                features[(x,y)] = 1
-            else:
-                features[(x,y)] = 0
-    return features
-
-def enhancedFeatureExtractorDigit(datum):
-    """
-    Your feature extraction playground.
-
-    You should return a util.Counter() of features
-    for this datum (datum is of type samples.Datum).
-
-    ## DESCRIBE YOUR ENHANCED FEATURES HERE...
-
-    ##
-    """
-    features =  basicFeatureExtractorDigit(datum)
-
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
-    return features
-
 
 
 def basicFeatureExtractorPacman(state):
@@ -122,28 +71,14 @@ def enhancedPacmanFeatures(state, action):
     For each state, this function is called with each legal action.
     It should return a counter with { <feature name> : <feature value>, ... }
     """
-    features = util.Counter()
+    # features = util.Counter()
     "*** YOUR CODE HERE ***"
-    successor = state.generateSuccessor(0, action)
-    foodCount = successor.getFood().count()
-    features['foodCount'] = foodCount
+    # successor = state.generateSuccessor(0, action)
+    # foodCount = successor.getFood().count()
+    # features['foodCount'] = foodCount
+    features = neuralDistances(state, action)
     return features
 
-
-def contestFeatureExtractorDigit(datum):
-    """
-    Specify features to use for the minicontest
-    """
-    features =  basicFeatureExtractorDigit(datum)
-    return features
-
-def enhancedFeatureExtractorFace(datum):
-    """
-    Your feature extraction playground for faces.
-    It is your choice to modify this.
-    """
-    features =  basicFeatureExtractorFace(datum)
-    return features
 
 def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage):
     """
