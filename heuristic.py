@@ -132,6 +132,7 @@ def compare(cur_state, next_state):
 # A large weight means something good ex: moving away from a ghost, towards a scared ghost, etc.
 # A negative weight implies something bad
 def weight(factors):
+    # [(weight, explanation, direction), ...]
     weights = []
 
     # Weight Ghosts
@@ -139,13 +140,13 @@ def weight(factors):
         # 7/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
         cur_weight = 12 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][1]))
         # direction *-1 bc it is good to move away from ghosts
-        weights.append((cur_weight, "Ghost " + str(i) + " which is " + str(factors["ghosts"][i][0]) + " moves away", \
+        weights.append((cur_weight, "Ghost " + str(i) + " which is " + str(factors["ghosts"][i][0] - 2) + " moves away", \
                         factors["ghosts"][i][1]))
 
     # Weight Food Groups
     for food in factors["food_groups"]:
-        # 80/(distance*towards_away*-1) -1 bc towards shrinks distance but good
-        cur_weight = 80 / float(max(food[0], 1) * food[1] * -1 * factors["food"])
+        # 80/(distance*towards_away*-1*total food) -1 bc towards shrinks distance but good
+        cur_weight = (6 / float(max(food[0], 1) * food[1] * -1)) + 10/float(factors["food"] * food[1] * -1)
         weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
 
     # Weight Capsules
@@ -172,7 +173,7 @@ def genExplanation(factors):
         explanation += "Moving towards " + good[1]
     if bad[0] < -1:
         explanation += " even though "
-        if bad[1] == 1:
+        if bad[2] == 1:
             explanation += "moving away from " + bad[1]
         else:
             explanation += "moving towards " + bad[1]
