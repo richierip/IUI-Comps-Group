@@ -5,6 +5,8 @@ import game
 # TODO bfs fails with half distances when ghosts run away
 def BFS(xy1, xy2, gameStateData):
 	q = Queue()
+	xy1 = (int(xy1[0]), int(xy1[1]))
+	xy2 = (int(xy2[0]), int(xy2[1]))
 	q.push(xy1)
 	seen = {xy1: None}
 	done = False
