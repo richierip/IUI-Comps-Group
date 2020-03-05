@@ -91,7 +91,7 @@ def coinGroup(xy, gameStateData):
 	return seenCoin
 
 # returns the closest 3 coinGroups
-# format: {distance : numCoins, distance1 : numCoins1}
+# format: [(distance , numCoins), (distance1 : numCoins1)]
 # if less than 3, returns only first 2 or 1.
 def coinGroup3s(xy, gameStateData):
 	food = gameStateData.getFood().asList()
@@ -115,9 +115,9 @@ def coinGroup3s(xy, gameStateData):
 		for neighbor in neighbors:
 			if neighbor not in seen:
 				q.push(neighbor)
-	rdict = {}
+	rlist = []
 	for key in coinGroups:
-		rdict[BFS(xy,key, gameStateData)] = len(coinGroups[key])
+		rlist.append((len(BFS(xy,key, gameStateData)), len(coinGroups[key])))
 	
 	return rdict
 
