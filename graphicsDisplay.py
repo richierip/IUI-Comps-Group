@@ -162,7 +162,7 @@ class InfoPane:
                 newstring += " " + word
                 sentenceLength += len(word)
 
-        newstring += "\n\nRate this decision!\n(1) This is garbage\n(2) Less garbage\n(3) Decent"
+        newstring += "\n\nRate this decision!\n(1) Rating number 1\n(2) Rating number 2\n(3) Rating number 3"
         return newstring
 
     def updateDecision(self, decision):
