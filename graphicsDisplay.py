@@ -127,12 +127,13 @@ class InfoPane:
         self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
         #top = Tkinter.Tk()
-        B = Tkinter.Button( text ="First", command = firstChoice)
-        B.place(x = self.width - 100, y = 240)
-        B = Tkinter.Button( text ="Second", command = secondChoice)
-        B.place(x = self.width - 100, y = 265)
-        B = Tkinter.Button( text ="Third", command = thirdChoice)
-        B.place(x = self.width - 100, y = 290)
+        #
+        # B = Tkinter.Button( text ="First", command = firstChoice)
+        # B.place(x = self.width - 100, y = 240)
+        # B = Tkinter.Button( text ="Second", command = secondChoice)
+        # B.place(x = self.width - 100, y = 265)
+        # B = Tkinter.Button( text ="Third", command = thirdChoice)
+        # B.place(x = self.width - 100, y = 290)
 
     def initializeGhostDistances(self, distances):
         self.ghostDistanceText = []
