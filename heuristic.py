@@ -171,7 +171,7 @@ def genExplanation(factors):
     bad = min(factors)
 
     # No immediate threat or benefit detected
-    if good[0] < 1 and bad[0] > -1:
+    if good[0] < 1:
         #TODO Remove print statement
 
         for factor in factors:
@@ -182,10 +182,11 @@ def genExplanation(factors):
             if "food" in factor[1] and (factor[2] == 1 or factor[3] == 0):
                 food.append(factor)
 
-        # If there is no logical reason for moving that direction (no food group or benefit)
+        # Gets most relevant food group that Pac Man is moving towards
         try:
             nearest = max(food)
         except:
+            # If there is no logical reason for moving that direction (no food group or benefit)
             return "No benefit or threat detected"
 
         # Returns moving towards a food group
@@ -195,22 +196,18 @@ def genExplanation(factors):
             return "No immediate benefit or threat: Moving towards " + nearest[1]
 
     # A benefit is detected
-    if good[0] >= 1:
-        if good[2] == 1:
-            explanation += "Moving away from " + good[1]
-        else:
-            explanation += "Moving towards " + good[1]
+    if good[2] == 1:
+        explanation += "Moving away from " + good[1]
+    else:
+        explanation += "Moving towards " + good[1]
 
     # A threat was detected
     if bad[0] < -1:
-        if good[0] >= 1:
-            explanation += " even though m"
-        else:
-            explanation += "M"
+        explanation += " even though moving "
         if bad[2] == 1:
-            explanation += "oving away from " + bad[1]
+            explanation += "away from " + bad[1]
         else:
-            explanation += "oving towards " + bad[1]
+            explanation += "towards " + bad[1]
     #TODO Remove print statement
     print "DECISION"
     for factor in factors:
