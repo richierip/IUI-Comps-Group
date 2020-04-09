@@ -77,6 +77,8 @@ def enhancedPacmanFeatures(state, action):
     # foodCount = successor.getFood().count()
     # features['foodCount'] = foodCount
     features = neuralDistances(state, action)
+    # print("features: ",features.items())
+    # it looks like 'capsule 0' is the problem; its values is a list of values not an int 
     return features
 
 

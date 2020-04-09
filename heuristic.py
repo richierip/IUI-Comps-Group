@@ -32,8 +32,9 @@ def neuralDistances(state, action):
             features["ghost " + str(i) + " scared"] = 0
             features["ghost " + str(i) + " timer"] = 0
 
-    for i in range(len(factors["capsule_locs"])):
-        features["capsule" + str(i)] = BFS.BFS(pacman, factors["capsule_locs"][i], state)
+    # for i in range(len(factors["capsule_locs"])):
+    #     features["capsule" + str(i)] = BFS.BFS(pacman, factors["capsule_locs"][i], state)
+    # this returns locations but i need distances 
 
     food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
     while len(food_groups) < 3:
