@@ -5,6 +5,12 @@ import BFS
 import util
 
 
+# TODO
+# Fix distances in explanation (Probably also +1)
+# Fix capsule weighting (maybe weight coin grouping by middle or something so distance + total/2 or something)
+# Brandon thing - distance to capsule not location
+
+
 # Generates the other game states possible from current position
 def genAltGameStates(gameState, nextMove):
     moves = gameState.getLegalActions(0)
@@ -32,9 +38,8 @@ def neuralDistances(state, action):
             features["ghost " + str(i) + " scared"] = 0
             features["ghost " + str(i) + " timer"] = 0
 
-    # for i in range(len(factors["capsule_locs"])):
-    #     features["capsule" + str(i)] = BFS.BFS(pacman, factors["capsule_locs"][i], state)
-    # this returns locations but i need distances 
+    for i in range(len(factors["capsule_locs"])):
+        features["capsule" + str(i)] = len(BFS.BFS(pacman, factors["capsule_locs"][i], state))
 
     food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
     while len(food_groups) < 3:
@@ -68,7 +73,7 @@ def gatherFactors(state):
 def foodGroupDiff(food, cur_pac, next_pac, state):
     diff = []
     for foodkey in food.keys():
-        cur_dist = len(BFS.BFS(cur_pac, foodkey, state))
+        cur_dist = len(BFS.BFS(cur_pac, foodkey, state)) - 1
         next_dist = len(BFS.BFS(next_pac, foodkey, state))
         if next_dist - cur_dist > 0:
             diff.append((next_dist, 1, len(food[foodkey])))
@@ -122,7 +127,7 @@ def compare(cur_state, next_state):
 
     diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"])
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
-    diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(), next_state), \
+    diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(), cur_state), \
                                          cur_state.getPacmanPosition(), next_state.getPacmanPosition(), next_state)
     diffs['food'] = next_factors["num_food"]
     diffs['capsules'] = distanceDiff(cur_state, next_state, cur_factors["capsule_locs"])
@@ -138,22 +143,23 @@ def weight(factors):
 
     # Weight Ghosts
     for i in range(len(factors["ghosts"])):
-        # 7/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
-        cur_weight = 12 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][1]))
+        # 10/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
+        cur_weight = 8 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][1]))
         # direction *-1 bc it is good to move away from ghosts
-        weights.append((cur_weight, "Ghost " + str(i) + " which is " + str(factors["ghosts"][i][0] - 2) + " moves away", \
+        weights.append((cur_weight, "ghost " + str(i) + " which is " + str(factors["ghosts"][i][0] - 2) + " moves away", \
                         factors["ghosts"][i][1]))
 
     # Weight Food Groups
+    # Food tuple has extra value for distance from food
     for food in factors["food_groups"]:
-        # 80/(distance*towards_away*-1*total food) -1 bc towards shrinks distance but good
-        cur_weight = (6 / float(max(food[0], 1) * food[1] * -1)) + 10/float(factors["food"] * food[1] * -1)
-        weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1]))
+        # 6/(distance towards center of food*towards_away*-1 + 5/total food) -1 bc towards shrinks distance but good
+        cur_weight = (5 / float(max(food[0] + min(food[2]/2, 6), 1) * food[1] * -1)) + 5/float(factors["food"] * food[1] * -1)
+        weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1], food[0]))
 
     # Weight Capsules
     for capsule in factors["capsules"]:
         # 6/(distance*towards_away*-1) -1 bc towards shrinks distance but good
-        cur_weight = 6 / float((capsule[0] * capsule[1] * -1))
+        cur_weight = 6 / float((max(capsule[0], 1) * capsule[1] * -1))
         weights.append((cur_weight, "capsule " + str(capsule[0]) + " moves away", capsule[1]))
     return weights
 
@@ -164,20 +170,48 @@ def genExplanation(factors):
     good = max(factors)
     bad = min(factors)
 
-    # No explanation is good
+    # No immediate threat or benefit detected
     if good[0] < 1:
-        return "No immediate threats or benefits. Collecting coins..."
+        #TODO Remove print statement
 
+        for factor in factors:
+            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+        # Finds nearest food group and says moving towards it
+        food = []
+        for factor in factors:
+            if "food" in factor[1] and (factor[2] == 1 or factor[3] == 0):
+                food.append(factor)
+
+        # Gets most relevant food group that Pac Man is moving towards
+        try:
+            nearest = max(food)
+        except:
+            # If there is no logical reason for moving that direction (no food group or benefit)
+            return "No benefit or threat detected"
+
+        # Returns moving towards a food group
+        if nearest[3] == 0:
+            return "No immediate benefit or threat: Eating " + nearest[1]
+        else:
+            return "No immediate benefit or threat: Moving towards " + nearest[1]
+
+    # A benefit is detected
     if good[2] == 1:
         explanation += "Moving away from " + good[1]
     else:
         explanation += "Moving towards " + good[1]
+
+    # A threat was detected
     if bad[0] < -1:
-        explanation += " even though "
+        explanation += " even though moving "
         if bad[2] == 1:
-            explanation += "moving away from " + bad[1]
+            explanation += "away from " + bad[1]
         else:
-            explanation += "moving towards " + bad[1]
+            explanation += "towards " + bad[1]
+    #TODO Remove print statement
+    print "DECISION"
+    for factor in factors:
+        print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
     print explanation
     return explanation
 
