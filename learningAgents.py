@@ -253,6 +253,7 @@ class ReinforcementAgent(ValueEstimationAgent):
             self.lastWindowAccumRewards = 0.0
             self.episodeStartTime = time.time()
 
+        print self.episodesSoFar
         if self.episodesSoFar == self.numTraining:
             msg = 'Training Done (turning off epsilon and alpha)'
             print '%s\n%s' % (msg,'-' * len(msg))

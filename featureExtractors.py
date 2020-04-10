@@ -108,36 +108,40 @@ class SimpleExtractor(FeatureExtractor):
     # [ghost dist, ghost scared dist, scared timer, capsule, food groups]
     def getFeatures(self, state, action):
         factors = heuristic.gatherFactors(state.generateSuccessor(0, action))
+        walls = state.getWalls()
 
         features = util.Counter()
+        features["bias"] = 1.0
+
         pacman = factors["pacman_loc"]
         for i in range(len(factors["ghost_locs"])):
+            pac_len = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
             if factors["scared"][i] > 0:
                 features["ghost " + str(i) + " up to 5"] = 0
                 features["ghost " + str(i) + " past 5"] = 0
-                features["ghost " + str(i) + " scared up to 5"] = \
-                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) % 5
+                features["ghost " + str(i) + " scared up to 5"] = min(pac_len, 5)
                 features["ghost " + str(i) + " scared past 5"] = \
-                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) - features["ghost " + str(i) + " scared up to 5"]
+                    float(pac_len - features["ghost " + str(i) + " scared up to 5"]) / (walls.width * walls.height)
                 features["ghost " + str(i) + " timer"] = factors["scared"][i]
             else:
-                features["ghost " + str(i) + " up to 5"] = \
-                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) % 5
+                features["ghost " + str(i) + " up to 5"] = min(pac_len, 5)
                 features["ghost " + str(i) + " past 5"] = \
-                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) - features[
-                        "ghost " + str(i) + " scared up to 5"]
+                    float(pac_len - features["ghost " + str(i) + " up to 5"]) / (walls.width * walls.height)
                 features["ghost " + str(i) + " scared up to 5"] = 0
                 features["ghost " + str(i) + " scared past 5"] = 0
                 features["ghost " + str(i) + " timer"] = 0
 
         for i in range(len(factors["capsule_locs"])):
-            features["capsule" + str(i)] = len(BFS.BFS(pacman, factors["capsule_locs"][i], state))
+            features["capsule" + str(i)] = \
+                float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))) / (walls.width * walls.height)
 
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
         while len(food_groups) < 3:
             food_groups.append((0, 0))
 
         for i in range(3):
-            features["food group " + str(i) + " dist"] = food_groups[i][0]
-            features["food group " + str(i) + " size"] = food_groups[i][1]
+            features["food group " + str(i) + " dist"] = float(food_groups[i][0]) / (walls.width * walls.height)
+            features["food group " + str(i) + " size"] = float(food_groups[i][1]) / (walls.width * walls.height)
+
+        features.divideAll(10.0)
         return features
