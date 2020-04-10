@@ -16,6 +16,8 @@
 
 from game import Directions, Actions
 import util
+import heuristic
+import BFS
 
 class FeatureExtractor:
     def getFeatures(self, state, action):
@@ -72,7 +74,7 @@ class SimpleExtractor(FeatureExtractor):
     - whether a ghost is one step away
     """
 
-    def getFeatures(self, state, action):
+    def getFeatures2(self, state, action):
         # extract the grid of food and wall locations and get the ghost locations
         food = state.getFood()
         walls = state.getWalls()
@@ -100,4 +102,42 @@ class SimpleExtractor(FeatureExtractor):
             # will diverge wildly
             features["closest-food"] = float(dist) / (walls.width * walls.height)
         features.divideAll(10.0)
+        return features
+
+    # Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
+    # [ghost dist, ghost scared dist, scared timer, capsule, food groups]
+    def getFeatures(self, state, action):
+        factors = heuristic.gatherFactors(state.generateSuccessor(0, action))
+
+        features = util.Counter()
+        pacman = factors["pacman_loc"]
+        for i in range(len(factors["ghost_locs"])):
+            if factors["scared"][i] > 0:
+                features["ghost " + str(i) + " up to 5"] = 0
+                features["ghost " + str(i) + " past 5"] = 0
+                features["ghost " + str(i) + " scared up to 5"] = \
+                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) % 5
+                features["ghost " + str(i) + " scared past 5"] = \
+                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) - features["ghost " + str(i) + " scared up to 5"]
+                features["ghost " + str(i) + " timer"] = factors["scared"][i]
+            else:
+                features["ghost " + str(i) + " up to 5"] = \
+                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) % 5
+                features["ghost " + str(i) + " past 5"] = \
+                    len(BFS.BFS(pacman, factors["ghost_locs"][i], state)) - features[
+                        "ghost " + str(i) + " scared up to 5"]
+                features["ghost " + str(i) + " scared up to 5"] = 0
+                features["ghost " + str(i) + " scared past 5"] = 0
+                features["ghost " + str(i) + " timer"] = 0
+
+        for i in range(len(factors["capsule_locs"])):
+            features["capsule" + str(i)] = len(BFS.BFS(pacman, factors["capsule_locs"][i], state))
+
+        food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
+        while len(food_groups) < 3:
+            food_groups.append((0, 0))
+
+        for i in range(3):
+            features["food group " + str(i) + " dist"] = food_groups[i][0]
+            features["food group " + str(i) + " size"] = food_groups[i][1]
         return features
