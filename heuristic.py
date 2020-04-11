@@ -153,7 +153,7 @@ def weight(factors):
     # Food tuple has extra value for distance from food
     for food in factors["food_groups"]:
         # 6/(distance towards center of food*towards_away*-1 + 5/total food) -1 bc towards shrinks distance but good
-        cur_weight = (5 / float(max(food[0] + min(food[2]/2, 6), 1) * food[1] * -1)) + 5/float(factors["food"] * food[1] * -1)
+        cur_weight = (5 / float(max(food[0] + min(food[2]/2, 6), 1) * food[1] * -1)) + 5/float(max(factors["food"] * food[1] * -1), 1)
         weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1], food[0]))
 
     # Weight Capsules

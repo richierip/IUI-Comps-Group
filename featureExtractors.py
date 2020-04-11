@@ -116,22 +116,31 @@ class SimpleExtractor(FeatureExtractor):
         pacman = factors["pacman_loc"]
         for i in range(len(factors["ghost_locs"])):
             pac_len = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-            if pac_len <= 8:
-                features["ghost-8"] = 1
-            if pac_len <= 7:
-                features["ghost-7"] = 1
-            if pac_len <= 6:
-                features["ghost-6"] = 1
-            if pac_len <= 5:
-                features["ghost-5"] = 1
-            if pac_len <= 4:
-                features["ghost-4"] = 1
-            if pac_len <= 3:
-                features["ghost-3"] = 1
-            if pac_len <= 2:
-                features["ghost-2"] = 1
-            if pac_len <= 1:
-                features["ghost-1"] = 1
+            if factors["scared"][i] > 0:
+                features["ghost " + str(i) + " scared"] = 1
+                if pac_len <= 7:
+                    features["scared-ghost-7"] = 1
+                if pac_len <= 5:
+                    features["scared-ghost-5"] = 1
+                if pac_len <= 3:
+                    features["scared-ghost-3"] = 1
+                if pac_len <= 2:
+                    features["scared-ghost-2"] = 1
+                if pac_len <= 1:
+                    features["scared-ghost-1"] = 1
+                if pac_len <= 0:
+                    features["scared-ghost-0"] = 1
+            else:
+                if pac_len <= 7:
+                    features["ghost-7"] = 1
+                if pac_len <= 5:
+                    features["ghost-5"] = 1
+                if pac_len <= 3:
+                    features["ghost-3"] = 1
+                if pac_len <= 2:
+                    features["ghost-2"] = 1
+                if pac_len <= 1:
+                    features["ghost-1"] = 1
 
             # if factors["scared"][i] > 0:
             #     features["ghost " + str(i) + " up to 5"] = 0
@@ -148,9 +157,9 @@ class SimpleExtractor(FeatureExtractor):
             # features["ghost " + str(i) + " scared past 5"] = 0
             # features["ghost " + str(i) + " timer"] = 0
         #
-        # for i in range(len(factors["capsule_locs"])):
-        #     features["capsule" + str(i)] = \
-        #         float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))) / (walls.width * walls.height)
+        for i in range(len(factors["capsule_locs"])):
+            features["capsule" + str(i)] = \
+                float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))) / (walls.width * walls.height)
 
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
         food_groups.sort()
