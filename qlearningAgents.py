@@ -129,6 +129,21 @@ class QLearningAgent(ReinforcementAgent):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
+    def save(self, weights):
+        with open('weightData.txt', 'w') as file:
+            for key, value in weights.items():
+                file.write(key + ":" + str(value) + "\n")
+
+    def loadWeights(self):
+        loadedWeights = util.Counter()
+        with open("weightData.txt") as file:
+            for line in file:
+                if line != "\n":
+                    (key, value) = line.split(":")
+                    loadedWeights[key] = float(value[:-2])
+
+        return loadedWeights
+
 
 class PacmanQAgent(QLearningAgent):
     "Exactly the same as QLearningAgent, but with different default parameters"
@@ -201,6 +216,10 @@ class ApproximateQAgent(PacmanQAgent):
         for featureKey in features:
             self.weights[featureKey] += self.alpha * difference * features[featureKey]
 
+
+
+
+
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
@@ -211,4 +230,10 @@ class ApproximateQAgent(PacmanQAgent):
             # you might want to print your weights here for debugging
             "*** YOUR CODE HERE ***"
 
-            #print(self.weights)
+            self.save(self.weights)
+            print(self.weights)
+            print(type(self.weights), len(self.weights))
+            print("----------------------------")
+            print(self.loadWeights())
+            print(type(self.loadWeights()), len(self.loadWeights()))
+

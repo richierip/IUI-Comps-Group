@@ -1,0 +1,19 @@
+ghost 1 up to 5:-3.24766859613
+ghost 1 timer:-198.689982464
+food group 2 size:-4.9270953122
+ghost 1 scared past 5:-0.402955380812
+food group 1 dist:-0.736683855185
+capsule1:0.631732259814
+capsule0:-1.80703036187
+ghost 0 past 5:0.169756709948
+ghost 0 timer:152.941850869
+ghost 0 up to 5:-61.4765283714
+ghost 0 scared up to 5:-15.2291767551
+ghost 0 scared past 5:0.051494865239
+food group 0 dist:-1.06050713592
+bias:-33.550003716
+food group 0 size:0.907782821252
+food group 1 size:-1.87722030159
+ghost 1 past 5:0.155992676354
+food group 2 dist:-0.527932441988
+ghost 1 scared up to 5:-87.282714835
