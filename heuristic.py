@@ -175,7 +175,10 @@ def genExplanation(factors):
         #TODO Remove print statement
 
         for factor in factors:
-            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+            try:
+                print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
+            except:
+                print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
         # Finds nearest food group and says moving towards it
         food = []
         for factor in factors:
@@ -211,7 +214,10 @@ def genExplanation(factors):
     #TODO Remove print statement
     print "DECISION"
     for factor in factors:
-        print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+        try:
+            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
+        except:
+            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
     print explanation
     return explanation
 
