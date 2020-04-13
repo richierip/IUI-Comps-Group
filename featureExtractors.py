@@ -114,33 +114,39 @@ class SimpleExtractor(FeatureExtractor):
         features["bias"] = 1.0
 
         pacman = factors["pacman_loc"]
+        closest_ghost = walls.width * walls.height
+        closest_scared_ghost = walls.width * walls.height
         for i in range(len(factors["ghost_locs"])):
-            pac_len = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
             if factors["scared"][i] > 0:
-                features["ghost " + str(i) + " scared"] = 1
-                if pac_len <= 7:
-                    features["scared-ghost-7"] = 1
-                if pac_len <= 5:
-                    features["scared-ghost-5"] = 1
-                if pac_len <= 3:
-                    features["scared-ghost-3"] = 1
-                if pac_len <= 2:
-                    features["scared-ghost-2"] = 1
-                if pac_len <= 1:
-                    features["scared-ghost-1"] = 1
-                if pac_len <= 0:
-                    features["scared-ghost-0"] = 1
+                closest_scared_ghost = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), closest_scared_ghost)
             else:
-                if pac_len <= 7:
-                    features["ghost-7"] = 1
-                if pac_len <= 5:
-                    features["ghost-5"] = 1
-                if pac_len <= 3:
+                closest_ghost = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), closest_ghost)
+
+        # Scared ghosts
+        if closest_scared_ghost <= 7:
+            features["scared-ghost-7"] = 1
+            if closest_scared_ghost <= 5:
+                features["scared-ghost-5"] = 1
+                if closest_scared_ghost <= 3:
+                    features["scared-ghost-3"] = 1
+                    if closest_scared_ghost <= 2:
+                        features["scared-ghost-2"] = 1
+                        if closest_scared_ghost <= 1:
+                            features["scared-ghost-1"] = 1
+                            if closest_scared_ghost <= 0:
+                                features["scared-ghost-0"] = 1
+
+        # Ghosts
+        if closest_ghost <= 7:
+            features["ghost-7"] = 1
+            if closest_ghost <= 5:
+                features["ghost-5"] = 1
+                if closest_ghost <= 3:
                     features["ghost-3"] = 1
-                if pac_len <= 2:
-                    features["ghost-2"] = 1
-                if pac_len <= 1:
-                    features["ghost-1"] = 1
+                    if closest_ghost <= 2:
+                        features["ghost-2"] = 1
+                        if closest_ghost <= 1:
+                            features["ghost-1"] = 1
 
             # if factors["scared"][i] > 0:
             #     features["ghost " + str(i) + " up to 5"] = 0
