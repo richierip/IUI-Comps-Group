@@ -188,7 +188,10 @@ class ApproximateQAgent(PacmanQAgent):
     def __init__(self, extractor='IdentityExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
-        self.weights = util.Counter()
+        #self.weights = util.Counter()
+        # Automatically loads weights if any were previously saved, otherwise initializes empty.
+        self.weights = self.loadWeights()
+        #print(self.weights)
 
     def getWeights(self):
         return self.weights
@@ -230,10 +233,10 @@ class ApproximateQAgent(PacmanQAgent):
             # you might want to print your weights here for debugging
             "*** YOUR CODE HERE ***"
 
-            self.save(self.weights)
-            print(self.weights)
-            print(type(self.weights), len(self.weights))
-            print("----------------------------")
-            print(self.loadWeights())
-            print(type(self.loadWeights()), len(self.loadWeights()))
+            # self.save(self.weights)
+            # print(self.weights)
+            # print(type(self.weights), len(self.weights))
+            # print("----------------------------")
+            # print(self.loadWeights())
+            # print(type(self.loadWeights()), len(self.loadWeights()))
 
