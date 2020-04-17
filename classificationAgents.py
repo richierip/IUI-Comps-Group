@@ -44,15 +44,18 @@ class DummyOptions:
 
 
 import perceptron_pacman
-
+# so this is where the pacman.py call goes to, and it looks like it links from here
+# into perceptron_pacman
 class ClassifierAgent(Agent):
     def __init__(self, trainingData=None, validationData=None, classifierType="perceptron", agentToClone=None, numTraining=3):
         from dataClassifier import runClassifier, enhancedFeatureExtractorPacman
         legalLabels = ['Stop', 'West', 'East', 'North', 'South']
         if(classifierType == "perceptron"):
+            # here's the actual perceptron part
             classifier = perceptron_pacman.PerceptronClassifierPacman(legalLabels,numTraining)
         self.classifier = classifier
-        self.featureFunction = enhancedFeatureExtractorPacman
+        #looks like enhanced Feature extractor is in dataClassifier
+        self.featureFunction = enhancedFeatureExtractorPacman 
         args = {'featureFunction': self.featureFunction,
                 'classifier':self.classifier,
                 'printImage':None,

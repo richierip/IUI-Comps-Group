@@ -51,6 +51,8 @@ def basicFeatureExtractorPacman(state):
         features[action] = featureCounter
     return features, state.getLegalActions()
 
+
+# this is what the code in classification agents is calling
 def enhancedFeatureExtractorPacman(state):
     """
     Your feature extraction playground.
@@ -66,6 +68,7 @@ def enhancedFeatureExtractorPacman(state):
         features[action] = util.Counter(features[action], **enhancedPacmanFeatures(state, action))
     return features, state.getLegalActions()
 
+# this is calling code from heuristic
 def enhancedPacmanFeatures(state, action):
     """
     For each state, this function is called with each legal action.
