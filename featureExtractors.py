@@ -120,7 +120,18 @@ class SimpleExtractor(FeatureExtractor):
             if factors["scared"][i] > 0:
                 closest_scared_ghost = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), closest_scared_ghost)
             else:
-                closest_ghost = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), closest_ghost)
+                path = BFS.BFS(pacman, factors["ghost_locs"][i], state)
+                try:
+                    nextGhostState = state.generateSuccessor(i+1, state.getGhostState(i+1).getDirection())
+                    nextGhostPosition = nextGhostState.getGhostState(i+1).getPosition()
+                except:
+                    nextGhostPosition = None
+
+                #Checks if ghost is a threat (either is on shortest path towards you or is within x spaces)
+                #Only consider as closest ghost if it is a threat and is closer than others.
+                if (len(path) > 1 and path[-2] == nextGhostPosition) or len(path) < 2:
+                    closest_ghost = min(len(path), closest_ghost)
+
 
         # Scared ghosts
         if closest_scared_ghost <= 7:

@@ -191,7 +191,6 @@ class ApproximateQAgent(PacmanQAgent):
         #self.weights = util.Counter()
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
         self.weights = self.loadWeights()
-        #print(self.weights)
 
     def getWeights(self):
         return self.weights

@@ -716,16 +716,6 @@ class Game:
             # Change the display
             self.display.update( self.state.data )
 
-            # Update decision display
-            ''' For some random probability, (e.g. choose one in every ten moves) 
-            getDecision (presumably from pacman state data)'''
-            # r = random.randint(1,100)
-            # if r == 1:
-            #     self.display.infoPane.updateDecision("ye")
-            ##idx = agentIndex - agentIndex % 2 + 1
-            ##self.display.update( self.state.makeObservation(idx).data )
-            ###idx = agentIndex - agentIndex % 2 + 1
-            ###self.display.update( self.state.makeObservation(idx).data )
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)
@@ -749,7 +739,5 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
-        # key = wait_for_rating(["y", "n"])
-        # if key == "y":
-        #     self.run()
+
         self.display.finish()
