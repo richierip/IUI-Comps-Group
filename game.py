@@ -614,6 +614,7 @@ class Game:
 
         agentIndex = self.startingIndex
         numAgents = len( self.agents )
+        is_stopped = True
 
         while not self.gameOver:
             # Fetch the next agent
@@ -702,14 +703,21 @@ class Game:
                     return
             else:
                 # TODO Placeholder todo just so I (Adam) can bookmark this
-                nextState = self.state.generateSuccessor( agentIndex, action )
-                if agentIndex == 0 and heuristic.threshold(self.state, self.state.generateSuccessor(0, action)):
+                nextState = self.state.generateSuccessor(agentIndex, action)
+                if agentIndex == 0 and \
+                        (heuristic.threshold(self.state, self.state.generateSuccessor(0, action)) or
+                         ((action == 'Stop' and is_stopped is False) or (action != 'Stop' and is_stopped))):
                     if not isinstance(self.display, textDisplay.NullGraphics):
                         pacman = nextState.getPacmanState()
                         shadow = self.display.drawPrevPacman(pacman)
                         self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
                         remove_from_screen(shadow)
                     pass
+                if agentIndex == 0:
+                    if action == 'Stop':
+                        is_stopped = True
+                    else:
+                        is_stopped = False
                 self.state = nextState
 
 

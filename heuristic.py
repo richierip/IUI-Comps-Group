@@ -4,7 +4,6 @@ import game
 import BFS
 import util
 
-
 # TODO
 # Fix distances in explanation (Probably also +1)
 # Fix capsule weighting (maybe weight coin grouping by middle or something so distance + total/2 or something)
@@ -43,8 +42,8 @@ def neuralDistances(state, action):
 
     food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
     while len(food_groups) < 3:
-        food_groups.append((0,0))
-    
+        food_groups.append((0, 0))
+
     for i in range(3):
         features["food group " + str(i) + " dist"] = food_groups[i][0]
         features["food group " + str(i) + " size"] = food_groups[i][1]
@@ -152,8 +151,8 @@ def weight(factors):
     # Weight Food Groups
     # Food tuple has extra value for distance from food
     for food in factors["food_groups"]:
-        # 6/(distance towards center of food*towards_away*-1 + 5/total food) -1 bc towards shrinks distance but good
-        cur_weight = (5 / float(max(food[0] + min(food[2]/2, 6), 1) * food[1] * -1)) + 5/float(max(factors["food"] * food[1] * -1, 1))
+        # 5/(distance away + to center) + 5/total food
+        cur_weight = ((5/float(max(food[0] + min(food[2] / 2, 6), 1))) + 5/float(max(factors["food"], 1))) * food[1] * -1
         weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1], food[0]))
 
     # Weight Capsules
@@ -165,20 +164,32 @@ def weight(factors):
 
 
 # Generates explanation from given factors
-def genExplanation(factors):
+def genExplanation(factors, moving):
     explanation = ""
     good = max(factors)
     bad = min(factors)
 
+    # Not moving at all
+    if not moving:
+        ghosts = []
+        for factor in factors:
+            if "ghost" in factor[1] and factor[0] > 1:
+                ghosts.append(factor)
+        if len(ghosts) > 0:
+            return "Not moving because of " + ghosts[0][1]
+        else:
+            return "No immediate benefit or threat: Standing still"
+
     # No immediate threat or benefit detected
     if good[0] < 1:
-        #TODO Remove print statement
+        # TODO Remove print statement
 
-        for factor in factors:
-            try:
-                print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
-            except:
-                print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+        # for factor in factors:
+        #     try:
+        #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
+        #     except:
+        #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+
         # Finds nearest food group and says moving towards it
         food = []
         for factor in factors:
@@ -211,14 +222,14 @@ def genExplanation(factors):
             explanation += "away from " + bad[1]
         else:
             explanation += "towards " + bad[1]
-    #TODO Remove print statement
-    print "DECISION"
-    for factor in factors:
-        try:
-            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
-        except:
-            print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
-    print explanation
+    # TODO Remove print statement
+    # print "DECISION"
+    # for factor in factors:
+    #     try:
+    #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
+    #     except:
+    #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+    # print explanation
     return explanation
 
 
@@ -233,23 +244,27 @@ def newExplanation(cur_state, nextMove):
     factors = compare(cur_state, next_state)
     weighted_factors = weight(factors)
 
+    moving = not bool(next_state.getPacmanPosition() == cur_state.getPacmanPosition())
+
     # Returns generated explanation
-    return genExplanation(weighted_factors)
+    #TODO REMOVE
+    features = getFeatures(cur_state, nextMove)
+    print features
+    return genExplanation(weighted_factors, moving)
 
 
 # Determines if we generate a new explanation
 # Needs to check reverse or if there are more than two legal moves
 def threshold(gameState, nextGameState):
+    old_direction = gameState.getPacmanState().getDirection()
+    new_direction = nextGameState.getPacmanState().getDirection()
     # TODO 3 because of stop. If we remove stop, needs to change. Just check at end
     # Checks if at an intersection with more than one choice
     if len(gameState.getLegalActions(0)) > 3:
         return True
 
     # Checks if player reverses.
-    old_direction = gameState.getPacmanState().getDirection()
-    new_direction = nextGameState.getPacmanState().getDirection()
-    if (bool(old_direction == 'Stop') != bool(new_direction == 'Stop')) or \
-            (old_direction == game.Actions.reverseDirection(new_direction) and old_direction != 'Stop'):
+    if old_direction == game.Actions.reverseDirection(new_direction) and old_direction != 'Stop':
         return True
     return False
 
@@ -328,3 +343,82 @@ def threshold(gameState, nextGameState):
 #
 # 	return altGameStates # {"left": gameStateLeft, "right":gameStateRight, "up": None, ...}
 #
+
+
+# Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
+# [ghost dist, ghost scared dist, scared timer, capsule, food groups]
+def getFeatures(state, action):
+    factors = gatherFactors(state.generateSuccessor(0, action))
+    walls = state.getWalls()
+
+    features = util.Counter()
+    features["bias"] = 1.0
+
+    arena_size = walls.height * walls.width
+    pacman = factors["pacman_loc"]
+    closest_ghost = arena_size
+    closest_scared_ghost = arena_size
+
+    for i in range(len(factors["ghost_locs"])):
+        cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+        if factors["scared"][i] > 0:
+            closest_scared_ghost = min(cur_distance, closest_scared_ghost)
+        else:
+            closest_ghost = min(cur_distance, closest_ghost)
+
+    # Scared ghosts
+    if closest_scared_ghost <= 7:
+        features["scared-ghost-7"] = 1
+        if closest_scared_ghost <= 5:
+            features["scared-ghost-5"] = 1
+            if closest_scared_ghost <= 3:
+                features["scared-ghost-3"] = 1
+                # BFS can be off by one. Check inserted to be more specific at close range
+                closest_scared_ghost = \
+                    min(
+                        min(int(util.manhattanDistance(pacman, ghost)) for ghost in factors["ghost_locs"]),
+                        closest_scared_ghost)
+                if closest_scared_ghost <= 2:
+                    features["scared-ghost-2"] = 1
+                    if closest_scared_ghost <= 1:
+                        features["can eat scared ghost"] = 1
+                        if closest_scared_ghost <= .5:
+                            features["eating scared ghost"] = 1
+
+    # Ghosts
+    if closest_ghost <= 1:
+        features["ghost-1"] = 1
+    elif closest_ghost <= 2:
+        features["ghost-2"] = 1
+    elif closest_ghost <= 3:
+        features["ghost-3"] = 1
+    elif closest_ghost <= 5:
+        features["ghost-5"] = 1
+    elif closest_ghost <= 7:
+        features["ghost-7"] = 1
+
+    # Capsules
+    capsules = []
+    for i in range(len(factors["capsule_locs"])):
+        capsules.append(float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))) / arena_size)
+    capsules.sort()
+    for i in range(len(capsules)):
+        features["capsule " + str(i) + " dist"] = capsules[i]
+        if capsules[i] == 0:
+            features["eating capsule"] = 1
+
+    # Food groups
+    food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
+    food_groups.sort()
+
+    for i in range(len(food_groups)):
+        features["food group " + str(i) + " dist"] = \
+            float(food_groups[i][0]) / (arena_size + (i+1)*20)
+        # Big or small
+        if food_groups[i][1] < 5:
+            features["food group " + str(i) + " size"] = 1
+        else:
+            features["food group " + str(i) + " size"] = 0
+
+    features.divideAll(10.0)
+    return features

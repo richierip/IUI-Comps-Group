@@ -69,8 +69,6 @@ def coinGrouping(xy, gameStateData):
 	return coinGroups
 
 
-					
-	
 # given a coin location, adds all coins connected to it to a set.
 def coinGroup(xy, gameStateData):
 	food = gameStateData.getFood().asList()
@@ -91,6 +89,7 @@ def coinGroup(xy, gameStateData):
 					seenCoin.add(neighbor)
 					q.push(neighbor)
 	return seenCoin
+
 
 # returns the closest 3 coinGroups
 # format: [(distance , numCoins), (distance1 : numCoins1)]
