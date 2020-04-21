@@ -19,6 +19,7 @@ import util
 import heuristic
 import BFS
 
+
 class FeatureExtractor:
     def getFeatures(self, state, action):
         """
@@ -28,11 +29,13 @@ class FeatureExtractor:
         """
         util.raiseNotDefined()
 
+
 class IdentityExtractor(FeatureExtractor):
     def getFeatures(self, state, action):
         feats = util.Counter()
-        feats[(state,action)] = 1.0
+        feats[(state, action)] = 1.0
         return feats
+
 
 class CoordinateExtractor(FeatureExtractor):
     def getFeatures(self, state, action):
@@ -42,6 +45,7 @@ class CoordinateExtractor(FeatureExtractor):
         feats['y=%d' % state[0]] = 1.0
         feats['action=%s' % action] = 1.0
         return feats
+
 
 def closestFood(pos, food, walls):
     """
@@ -61,9 +65,10 @@ def closestFood(pos, food, walls):
         # otherwise spread out from the location to its neighbours
         nbrs = Actions.getLegalNeighbors((pos_x, pos_y), walls)
         for nbr_x, nbr_y in nbrs:
-            fringe.append((nbr_x, nbr_y, dist+1))
+            fringe.append((nbr_x, nbr_y, dist + 1))
     # no food found
     return None
+
 
 class SimpleExtractor(FeatureExtractor):
     """
@@ -90,7 +95,8 @@ class SimpleExtractor(FeatureExtractor):
         next_x, next_y = int(x + dx), int(y + dy)
 
         # count the number of ghosts 1-step away
-        features["#-of-ghosts-1-step-away"] = sum((next_x, next_y) in Actions.getLegalNeighbors(g, walls) for g in ghosts)
+        features["#-of-ghosts-1-step-away"] = sum(
+            (next_x, next_y) in Actions.getLegalNeighbors(g, walls) for g in ghosts)
 
         # if there is no danger of ghosts then add the food feature
         if not features["#-of-ghosts-1-step-away"] and food[next_x][next_y]:
@@ -124,18 +130,17 @@ class SimpleExtractor(FeatureExtractor):
                 closest_scared_ghost = min(cur_distance, closest_scared_ghost)
             else:
                 closest_ghost = min(cur_distance, closest_ghost)
-                path = BFS.BFS(pacman, factors["ghost_locs"][i], state)
-                try:
-                    nextGhostState = state.generateSuccessor(i+1, state.getGhostState(i+1).getDirection())
-                    nextGhostPosition = nextGhostState.getGhostState(i+1).getPosition()
-                except:
-                    nextGhostPosition = None
-
-                #Checks if ghost is a threat (either is on shortest path towards you or is within x spaces)
-                #Only consider as closest ghost if it is a threat and is closer than others.
-                if (len(path) > 1 and path[-2] == nextGhostPosition) or len(path) < 2:
-                    closest_ghost = min(len(path), closest_ghost)
-
+                # path = BFS.BFS(pacman, factors["ghost_locs"][i], state)
+                # try:
+                #     nextGhostState = state.generateSuccessor(i + 1, state.getGhostState(i + 1).getDirection())
+                #     nextGhostPosition = nextGhostState.getGhostState(i + 1).getPosition()
+                # except:
+                #     nextGhostPosition = None
+                #
+                # # Checks if ghost is a threat (either is on shortest path towards you or is within x spaces)
+                # # Only consider as closest ghost if it is a threat and is closer than others.
+                # if (len(path) > 1 and path[-2] == nextGhostPosition) or len(path) < 2:
+                #     closest_ghost = min(len(path), closest_ghost)
 
         # Scared ghosts
         if closest_scared_ghost <= 7:
@@ -150,7 +155,6 @@ class SimpleExtractor(FeatureExtractor):
                             features["can eat scared ghost"] = 1
                             if closest_scared_ghost <= 0:
                                 features["eating scared ghost"] = 1
-                                print "HIT"
 
         # Ghosts
         if closest_ghost <= 7:
@@ -164,63 +168,24 @@ class SimpleExtractor(FeatureExtractor):
                         if closest_ghost <= 1:
                             features["ghost-1"] = 1
 
-        # # Scared ghosts
-        # if closest_scared_ghost <= 7:
-        #     features["scared-ghost-7"] = 1
-        #     if closest_scared_ghost <= 5:
-        #         features["scared-ghost-5"] = 1
-        #         if closest_scared_ghost <= 3:
-        #             features["scared-ghost-3"] = 1
-        #             # BFS can be off by one. Check inserted to be more specific at close range
-        #             closest_scared_ghost = \
-        #                 min(
-        #                     min(util.manhattanDistance(pacman, ghost) for ghost in factors["ghost_locs"]),
-        #                     closest_scared_ghost)
-        #             if closest_scared_ghost <= 2:
-        #                 features["scared-ghost-2"] = 1
-        #                 if closest_scared_ghost <= 1:
-        #                     features["can eat scared ghost"] = 1
-        #                     if closest_scared_ghost <= .5:
-        #                         features["eating scared ghost"] = 1
-        #
-        # # Ghosts
-        # if closest_ghost <= 7:
-        #     features["ghost-7"] = 1
-        #     if closest_ghost <= 5:
-        #         features["ghost-5"] = 1
-        #         if closest_ghost <= 3:
-        #             features["ghost-3"] = 1
-        #             if closest_ghost <= 2:
-        #                 features["ghost-2"] = 1
-        #                 if closest_ghost <= 1:
-        #                     features["ghost-1"] = 1
-
-            # if factors["scared"][i] > 0:
-            #     features["ghost " + str(i) + " up to 5"] = 0
-            #     features["ghost " + str(i) + " past 5"] = 0
-            #     features["ghost " + str(i) + " scared up to 5"] = min(pac_len, 5)
-            #     features["ghost " + str(i) + " scared past 5"] = \
-            #         float(pac_len - features["ghost " + str(i) + " scared up to 5"]) / (walls.width * walls.height)
-            #     features["ghost " + str(i) + " timer"] = factors["scared"][i]
-            # else:
-            # features["ghost " + str(i) + " up to 5"] = min(pac_len, 5)
-            # features["ghost " + str(i) + " past 5"] = \
-            #     float(pac_len - features["ghost " + str(i) + " up to 5"]) / (walls.width * walls.height)
-            # features["ghost " + str(i) + " scared up to 5"] = 0
-            # features["ghost " + str(i) + " scared past 5"] = 0
-            # features["ghost " + str(i) + " timer"] = 0
+        # for i in range(len(factors["ghost_locs"])):
+        #     cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+        #     if factors["scared"][i] > 0:
+        #         features["ghost " + str(i) + " scared dist"] = min(cur_distance, 7)
+        #     else:
+        #         features["ghost " + str(i) + " dist"] = min(cur_distance, 7)
 
         # Capsules
         capsules = []
         for i in range(len(factors["capsule_locs"])):
-            capsules.append([float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))), factors["capsule_locs"][i]])
+            capsules.append(
+                [float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))), factors["capsule_locs"][i]])
         capsules.sort()
         for i in range(len(capsules)):
-            if capsules[i][0] <= 0:
+            if capsules[i][0] == 0:
                 features["eating capsule"] = 1
             else:
                 features["capsule " + str(i) + " dist"] = capsules[i][0] / arena_size
-
 
         # Food groups
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
@@ -228,12 +193,13 @@ class SimpleExtractor(FeatureExtractor):
 
         for i in range(len(food_groups)):
             features["food group " + str(i) + " dist"] = \
-                float(food_groups[i][0]) / (arena_size + (i+1)*20)
+                float(food_groups[i][0]) / (arena_size + (i + 1) * 20)
             # Big or small
             if food_groups[i][1] < 5:
                 features["food group " + str(i) + " size"] = 1
             else:
                 features["food group " + str(i) + " size"] = 0
-
+            if food_groups[i][0] == 0:
+                features["eating"] = 1
         features.divideAll(10.0)
         return features
