@@ -25,6 +25,7 @@ import sys
 import util
 from pacman import GameState
 from heuristic import neuralDistances
+from featureExtractors import SimpleExtractor
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -79,8 +80,10 @@ def enhancedPacmanFeatures(state, action):
     # successor = state.generateSuccessor(0, action)
     # foodCount = successor.getFood().count()
     # features['foodCount'] = foodCount
-    features = neuralDistances(state, action)
-    # print("features: ",features.items())
+    #features = neuralDistances(state, action)
+    featureExtract = SimpleExtractor()
+    features = featureExtract.getFeatures(state, action)
+    #print("features: ",features.items())
     # it looks like 'capsule 0' is the problem; its values is a list of values not an int 
     return features
 
