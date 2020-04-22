@@ -54,7 +54,11 @@ class PerceptronClassifierPacman(PerceptronClassifier):
                 label = trainingLabels[i]
                 score = util.Counter()
                 for move in legal_moves:
-                    score[move] = self.weights * datum[move]
-                a_prime = score.argMax()
+                    score[move] = self.weights * datum[move] 
+                    # The score for a particular move is calculated by
+                    # multiplying the binary input by the initialized weight 
+                a_prime = score.argMax() 
+                # find the argument that produced the produced the highest score
                 self.weights += datum[label]
                 self.weights -= datum[a_prime]
+                # adjust weights accordingly 
