@@ -441,10 +441,6 @@ class GhostRules:
             state.data.scoreChange += 200
             # Need some method of keeping ghost still/placing it somewhere unreachable until timer
             # decrements
-            # upOne = Configuration((10, ghostState.start.pos[1] + 1), ghostState.start.direction)
-            # t = Timer(3, GhostRules.placeGhost, [state])
-            # t.start()
-            # ghostState.respawned = True
             GhostRules.placeGhost(state, ghostState)
             ghostState.scaredTimer = 0
             # Added for first-person
@@ -462,11 +458,6 @@ class GhostRules:
     def placeGhost(state, ghostState):
         ghostState.configuration = ghostState.start
     placeGhost = staticmethod( placeGhost )
-
-    def liberate( ghostState):
-        print(ghostState)
-        upOne = Configuration((10, ghostState.start.pos[1]+1), ghostState.start.direction)
-    liberate = staticmethod( liberate )
 
 #############################
 # FRAMEWORK TO START A GAME #
