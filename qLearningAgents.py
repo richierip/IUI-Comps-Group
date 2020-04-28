@@ -187,7 +187,11 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights = self.loadWeights("weightData.txt")
         except:
             self.weights = util.Counter()
-        # self.decisionWeights = self.loadWeights("decisionsWeights.txt")
+        try:
+            self.decisionWeights = self.loadWeights("decisionWeights.txt")
+        except:
+            self.decisionWeights = self.weights.copy()
+
 
     def getWeights(self):
         return self.weights
@@ -211,32 +215,31 @@ class ApproximateQAgent(PacmanQAgent):
 
         return combinations
 
-    def updateDecisionWeights(self, rating, combinations):
+    def updateDecisionWeights(self, state, action, rating, combinations):
+        features = self.featExtractor.getFeatures(state, action)
         #Do something if no options given
         if rating is 0 or None:
-            pass
+            return
+
         #Do something if all options were bad (None of the above)
         if rating == "4" or int(rating) > len(combinations):
-            pass
             for i in range(3):
                 # Top 3 should be negative with high exploration rate
-                #featureKey = combinations[i][0]
-                #self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
-
+                featureKey = combinations[i][0]
+                self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
+            return
 
         bestIndex = int(rating) - 1
         for i in range(len(combinations)):
             featureKey = combinations[i][0]
             #If best option
             if i == bestIndex:
-                #self.decisionWeights[featureKey] += self.alpha*1*features[featureKey] # TODO Update a valuable learning algorithm
-                pass
+                self.decisionWeights[featureKey] += self.alpha*1*features[featureKey]
             #If one of top 3 choices but not best
             elif i < 3:
-                pass
-                #self.decisionWeights[featureKey] += self.alpha*-1*features[featureKey]
+                self.decisionWeights[featureKey] += self.alpha*-1*features[featureKey]
 
-
+        print(self.decisionWeights)
 
     def update(self, state, action, nextState, reward):
         """
@@ -258,6 +261,7 @@ class ApproximateQAgent(PacmanQAgent):
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
+        self.save(self.decisionWeights, "decisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # did we finish training?
@@ -265,10 +269,10 @@ class ApproximateQAgent(PacmanQAgent):
             # you might want to print your weights here for debugging
             "*** YOUR CODE HERE ***"
 
-            self.save(self.weights, "weightData.txt")
-            # print(self.weights*self.featExtractor.getFeatures)
-            print self.weights
-            print(type(self.weights), len(self.weights))
-            print("----------------------------")
-            print(self.loadWeights("weightData.txt"))
+            # self.save(self.weights, "weightData.txt")
+            # # print(self.weights*self.featExtractor.getFeatures)
+            # print self.weights
+            # print(type(self.weights), len(self.weights))
+            # print("----------------------------")
+            # print(self.loadWeights("weightData.txt"))
             # print(type(self.loadWeights()), len(self.loadWeights()))

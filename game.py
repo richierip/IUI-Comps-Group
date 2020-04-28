@@ -722,7 +722,7 @@ class Game:
                                                   key=lambda x: x[1], reverse=True)
                             rating = self.display.infoPane.updateDecisionQLearning(heuristic.newExplanation(self.state, action),
                                                                           combinations)
-                            agent.updateDecisionWeights(rating, combinations)
+                            agent.updateDecisionWeights(self.state, action, rating, combinations)
 
                         # Updates display with generic heuristic generation
                         else:
