@@ -120,13 +120,13 @@ class InfoPane:
 
         x = self.gridSize + x # Margin
         y = self.base + y
-        return x,y
+        return x, y
 
     def drawPane(self):
         self.decTitle = text(self.toScreen(self.width - 230, -self.base + 30), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL", None), "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
-        #top = Tkinter.Tk()
+        # top = Tkinter.Tk()
         #
         # B = Tkinter.Button( text ="First", command = firstChoice)
         # B.place(x = self.width - 100, y = 240)
@@ -151,7 +151,8 @@ class InfoPane:
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
-    def parseDecision(self, decision, options):
+    # Parser for Q Learning Pacman training
+    def parseDecisionQLearning(self, decision, options):
         words = decision.split(" ")
         newstring = words[0]
         sentenceLength = len(newstring) # Why this line?
@@ -171,8 +172,9 @@ class InfoPane:
             newstring += "\n(%d) None of the above" % (min(len(options)+1, 4))
         return newstring
 
-    def updateDecision(self, decision, options):
-        decision = self.parseDecision(decision, options)
+    # Update display for Q Learning training
+    def updateDecisionQLearning(self, decision, options):
+        decision = self.parseDecisionQLearning(decision, options)
         changeText(self.decision, decision)
         if options is not None:
             if len(options) > 1:
@@ -187,6 +189,30 @@ class InfoPane:
         else:
             changeText(self.decision, "")
         return rating
+
+    # Simple parser
+    def parseDecision(self, decision):
+        words = decision.split(" ")
+        newstring = words[0]
+        sentenceLength = len(newstring)  # Why this line?
+        for word in words[1:]:
+            if sentenceLength + len(word) + 1 > 21:  # was 29
+                newstring += "\n" + word
+                sentenceLength = len(word)
+            else:
+                newstring += " " + word
+                sentenceLength += len(word)
+
+        newstring += "\n\nRate this decision!\n(1) Rating number 1\n(2) Rating number 2\n(3) Rating number 3"
+        return newstring
+
+    # Simple update decision method
+    def updateDecision(self, decision):
+        decision = self.parseDecision(decision)
+        changeText(self.decision, decision)
+        rating = wait_for_rating(["1", "2", "3", "4"])
+        # do something with the rating here (save to file?/add to file?)
+        changeText(self.decision, "")
 
 
     def updateGhostDistances(self, distances):

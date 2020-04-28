@@ -1,22 +1,22 @@
-capsule 0 dist:0.113681877493
-bias:67.7880844207
-eating scared ghost:25.5462944111
-food group 1 dist:0.208614780044
-food group 0 dist:-1.30248898732
-food group 0 size:39.9469950962
-food group 2 size:11.2513818709
-eating:128.660470621
-scared-ghost-7:72.240252785
-scared-ghost-5:79.4071574196
-scared-ghost-3:78.389491727
-scared-ghost-2:76.7579336268
-can eat scared ghost:25.5462944111
-capsule 1 dist:-0.0106771804023
-food group 2 dist:0.34170314212
-eating capsule:-1.08444172537
-food group 1 size:7.25212549013
-ghost-1:-29.7414688434
-ghost-3:-49.5694618329
-ghost-2:-49.7158683454
-ghost-5:-42.4886060592
-ghost-7:-18.7850152517
+capsule 0 dist:-0.241254501588
+bias:101.400843835
+eating scared ghost:44.1956399905
+food group 1 dist:0.30006969235
+food group 0 dist:-1.79144235361
+food group 0 size:72.4476075161
+food group 2 size:15.0510306617
+eating:174.912059628
+scared-ghost-7:110.675496135
+scared-ghost-5:117.94076923
+scared-ghost-3:118.02808834
+scared-ghost-2:118.999846378
+can eat scared ghost:44.1956399905
+capsule 1 dist:-0.818664176422
+food group 2 dist:0.501533844445
+eating capsule:-1.79519990737
+food group 1 size:14.3352785632
+ghost-1:-68.7517626093
+ghost-3:-98.0350908924
+ghost-2:-98.7677635873
+ghost-5:-86.5874386638
+ghost-7:-48.5030893391
