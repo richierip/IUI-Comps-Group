@@ -129,14 +129,14 @@ class QLearningAgent(ReinforcementAgent):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
-    def save(self, weights):
-        with open('weightData.txt', 'w') as file:
+    def save(self, weights, fileName):
+        with open(fileName, 'w') as file:
             for key, value in weights.items():
                 file.write(key + ":" + str(value) + "\n")
 
-    def loadWeights(self):
+    def loadWeights(self, fileName):
         loadedWeights = util.Counter()
-        with open("weightData.txt") as file:
+        with open(fileName) as file:
             for line in file:
                 if line != "\n":
                     (key, value) = line.split(":")
@@ -185,12 +185,13 @@ class ApproximateQAgent(PacmanQAgent):
        and update.  All other QLearningAgent functions
        should work as is.
     """
-    def __init__(self, extractor='IdentityExtractor', **args):
+    def __init__(self, extractor='SimpleExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
-        # self.weights = self.loadWeights()
+        self.weights = self.loadWeights("weightData.txt")
+        #self.decisionWeights = self.loadWeights("decisionsWeights.txt")
 
     def getWeights(self):
         return self.weights
@@ -201,6 +202,39 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         return self.weights * self.featExtractor.getFeatures(state, action)
+
+    def getInputWeightCombinations(self, state, action):
+        wKeys = self.weights.keys()
+        combinations = []
+        features = self.featExtractor.getFeatures(state, action)
+
+        for k, v in features.items():
+            if k in wKeys and k != "bias":
+                inputWeightCombo = v * self.weights[k]
+                combinations.append((k, inputWeightCombo))
+
+        return combinations
+
+    def updateDecisionWeights(self, rating, combinations):
+        #Do something if no options given
+        if rating is 0 or None:
+            pass
+        #Do something if all options were bad (None of the above)
+        if int(rating) > len(combinations):
+            pass
+
+        bestIndex = int(rating) - 1
+
+        for i in range(len(combinations)):
+            featureKey = combinations[i][0]
+            if i == bestIndex:
+                #self.decisionWeights[featureKey] += 1 # TODO Update a valuable learning algorithm
+                pass
+            else:
+                pass
+                #self.decisionWeights[featureKey] += -1
+
+
 
     def update(self, state, action, nextState, reward):
         """
@@ -219,9 +253,6 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights[featureKey] += self.alpha * difference * features[featureKey]
 
 
-
-
-
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
@@ -233,7 +264,7 @@ class ApproximateQAgent(PacmanQAgent):
             "*** YOUR CODE HERE ***"
 
             # self.save(self.weights)
-            # print(self.weights)
+            # print(self.weights*self.featExtractor.getFeatures)
             # print(type(self.weights), len(self.weights))
             # print("----------------------------")
             # print(self.loadWeights())

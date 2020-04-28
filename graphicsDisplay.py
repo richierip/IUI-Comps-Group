@@ -124,7 +124,7 @@ class InfoPane:
 
     def drawPane(self):
         self.decTitle = text(self.toScreen(self.width - 230, -self.base + 30), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL", None), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
         #top = Tkinter.Tk()
         #
@@ -151,7 +151,7 @@ class InfoPane:
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
-    def parseDecision(self, decision):
+    def parseDecision(self, decision, options):
         words = decision.split(" ")
         newstring = words[0]
         sentenceLength = len(newstring) # Why this line?
@@ -162,16 +162,33 @@ class InfoPane:
             else:
                 newstring += " " + word
                 sentenceLength += len(word)
-
-        newstring += "\n\nRate this decision!\n(1) Rating number 1\n(2) Rating number 2\n(3) Rating number 3"
+        if options is not None:
+            if len(options) > 2:
+                newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])
+            elif len(options) == 2:
+                newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s" % (
+                options[0][0], options[1][0])
+            newstring += "\n(%d) None of the above" % (min(len(options)+1, 4))
         return newstring
 
-    def updateDecision(self, decision):
-        decision = self.parseDecision(decision)
+    def updateDecision(self, decision, options):
+        decision = self.parseDecision(decision, options)
         changeText(self.decision, decision)
-        rating = wait_for_rating(["1","2","3","4"])
+        if options is not None:
+            if len(options) > 1:
+                rating = wait_for_rating([str(i) for i in list(range(1, min(5,len(options)+2)))])
+            elif options is not None and len(options) == 1:
+                rating = 1
+            else:
+                pass
         #do something with the rating here (save to file?/add to file?)
-        changeText(self.decision, "")
+            if rating == "4" or int(rating) >= len(options):
+                changeText(self.decision, "Chose none")
+            else:
+                changeText(self.decision, "Chose %s" % (options[int(rating)-1][0]))
+        else:
+            changeText(self.decision, "")
+        return rating
 
 
     def updateGhostDistances(self, distances):

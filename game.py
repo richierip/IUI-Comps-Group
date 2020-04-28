@@ -639,6 +639,7 @@ class Game:
                         self.unmute()
                         return
                 else:
+                    # TODO Updates the weights here (-> observeTransition() in LearningAgents)
                     observation = agent.observationFunction(self.state.deepCopy())
                 self.unmute()
             else:
@@ -710,7 +711,9 @@ class Game:
                     if not isinstance(self.display, textDisplay.NullGraphics):
                         pacman = nextState.getPacmanState()
                         shadow = self.display.drawPrevPacman(pacman)
-                        self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+                        combinations = sorted(agent.getInputWeightCombinations(self.state, action), key=lambda x: x[1], reverse=True)
+                        rating = self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action), combinations)
+                        agent.updateDecisionWeights(rating, combinations)
                         remove_from_screen(shadow)
                     pass
                 if agentIndex == 0:
