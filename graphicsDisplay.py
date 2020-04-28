@@ -177,10 +177,8 @@ class InfoPane:
         if options is not None:
             if len(options) > 1:
                 rating = wait_for_rating([str(i) for i in list(range(1, min(5,len(options)+2)))])
-            elif options is not None and len(options) == 1:
-                rating = 1
             else:
-                pass
+                rating = 1
         #do something with the rating here (save to file?/add to file?)
             if rating == "4" or int(rating) >= len(options):
                 changeText(self.decision, "Chose none")

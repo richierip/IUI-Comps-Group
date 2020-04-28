@@ -190,7 +190,7 @@ class ApproximateQAgent(PacmanQAgent):
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
-        self.weights = self.loadWeights("weightData.txt")
+        #self.weights = self.loadWeights("weightData.txt")
         #self.decisionWeights = self.loadWeights("decisionsWeights.txt")
 
     def getWeights(self):
@@ -220,11 +220,10 @@ class ApproximateQAgent(PacmanQAgent):
         if rating is 0 or None:
             pass
         #Do something if all options were bad (None of the above)
-        if int(rating) > len(combinations):
+        if rating == "4" or int(rating) > len(combinations):
             pass
 
         bestIndex = int(rating) - 1
-
         for i in range(len(combinations)):
             featureKey = combinations[i][0]
             if i == bestIndex:
