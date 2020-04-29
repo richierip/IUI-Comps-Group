@@ -639,6 +639,7 @@ class Game:
                         self.unmute()
                         return
                 else:
+                    # TODO Updates the weights here (-> observeTransition() in LearningAgents)
                     observation = agent.observationFunction(self.state.deepCopy())
                 self.unmute()
             else:
@@ -675,7 +676,7 @@ class Game:
                             return
 
                     self.totalAgentTimes[agentIndex] += move_time
-                    #print "Agent: %d, time: %f, total: %f" % (agentIndex, move_time, self.totalAgentTimes[agentIndex])
+                    # print "Agent: %d, time: %f, total: %f" % (agentIndex, move_time, self.totalAgentTimes[agentIndex])
                     if self.totalAgentTimes[agentIndex] > self.rules.getMaxTotalTime(agentIndex):
                         print >>sys.stderr, "Agent %d ran out of time! (time: %1.2f)" % (agentIndex, self.totalAgentTimes[agentIndex])
                         self.agentTimeout = True
@@ -704,26 +705,43 @@ class Game:
             else:
                 # TODO Placeholder todo just so I (Adam) can bookmark this
                 nextState = self.state.generateSuccessor(agentIndex, action)
+
+                # Determines if pacman has actively made a new move (start to stop or at intersection)
                 if agentIndex == 0 and \
                         (heuristic.threshold(self.state, self.state.generateSuccessor(0, action)) or
                          ((action == 'Stop' and is_stopped is False) or (action != 'Stop' and is_stopped))):
+
+                    # Updates the display
                     if not isinstance(self.display, textDisplay.NullGraphics):
                         pacman = nextState.getPacmanState()
                         shadow = self.display.drawPrevPacman(pacman)
-                        self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+
+                        # For approximate Q learning agent training
+                        if "ApproximateQAgent" in str(agent):
+                            combinations = sorted(agent.getInputWeightCombinations(self.state, action),
+                                                  key=lambda x: x[1], reverse=True)
+                            rating = self.display.infoPane.updateDecisionQLearning(heuristic.newExplanation(self.state, action),
+                                                                          combinations)
+                            agent.updateDecisionWeights(self.state, action, rating, combinations)
+
+                        # Updates display with generic heuristic generation
+                        else:
+                            self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+
                         remove_from_screen(shadow)
                     pass
+
+                # Check in place to determine if pacman is starting or stopping. Updating values
                 if agentIndex == 0:
                     if action == 'Stop':
                         is_stopped = True
                     else:
                         is_stopped = False
-                self.state = nextState
 
+                self.state = nextState
 
             # Change the display
             self.display.update( self.state.data )
-
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)

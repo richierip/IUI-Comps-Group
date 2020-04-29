@@ -249,7 +249,7 @@ def newExplanation(cur_state, nextMove):
     # Returns generated explanation
     #TODO REMOVE
     features = getFeatures(cur_state, nextMove)
-    print features
+    # print features
     return genExplanation(weighted_factors, moving)
 
 

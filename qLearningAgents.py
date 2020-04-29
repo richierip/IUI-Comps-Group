@@ -21,19 +21,16 @@ import random,util,math
 class QLearningAgent(ReinforcementAgent):
     """
       Q-Learning Agent
-
       Functions you should fill in:
         - computeValueFromQValues
         - computeActionFromQValues
         - getQValue
         - getAction
         - update
-
       Instance variables you have access to
         - self.epsilon (exploration prob)
         - self.alpha (learning rate)
         - self.discount (discount rate)
-
       Functions you should use
         - self.getLegalActions(state)
           which returns legal actions for a state
@@ -97,7 +94,6 @@ class QLearningAgent(ReinforcementAgent):
           take the best policy action otherwise.  Note that if there are
           no legal actions, which is the case at the terminal state, you
           should choose None as the action.
-
           HINT: You might want to use util.flipCoin(prob)
           HINT: To pick randomly from a list, use random.choice(list)
         """
@@ -116,7 +112,6 @@ class QLearningAgent(ReinforcementAgent):
           The parent class calls this to observe a
           state = action => nextState and reward transition.
           You should do your Q-Value update here
-
           NOTE: You should never call this function,
           it will be called on your behalf
         """
@@ -129,14 +124,14 @@ class QLearningAgent(ReinforcementAgent):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
-    def save(self, weights):
-        with open('weightData.txt', 'w') as file:
+    def save(self, weights, fileName):
+        with open(fileName, 'w') as file:
             for key, value in weights.items():
                 file.write(key + ":" + str(value) + "\n")
 
-    def loadWeights(self):
+    def loadWeights(self, fileName):
         loadedWeights = util.Counter()
-        with open("weightData.txt") as file:
+        with open(fileName) as file:
             for line in file:
                 if line != "\n":
                     (key, value) = line.split(":")
@@ -153,7 +148,6 @@ class PacmanQAgent(QLearningAgent):
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
             python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
-
         alpha    - learning rate
         epsilon  - exploration rate
         gamma    - discount factor
@@ -180,17 +174,24 @@ class PacmanQAgent(QLearningAgent):
 class ApproximateQAgent(PacmanQAgent):
     """
        ApproximateQLearningAgent
-
        You should only have to overwrite getQValue
        and update.  All other QLearningAgent functions
        should work as is.
     """
-    def __init__(self, extractor='IdentityExtractor', **args):
+    def __init__(self, extractor='SimpleExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
-        self.weights = util.Counter()
+        # self.weights = util.Counter()
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
-        # self.weights = self.loadWeights()
+        try:
+            self.weights = self.loadWeights("weightData.txt")
+        except:
+            self.weights = util.Counter()
+        try:
+            self.decisionWeights = self.loadWeights("decisionWeights.txt")
+        except:
+            self.decisionWeights = self.weights.copy()
+
 
     def getWeights(self):
         return self.weights
@@ -201,6 +202,44 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         return self.weights * self.featExtractor.getFeatures(state, action)
+
+    def getInputWeightCombinations(self, state, action):
+        wKeys = self.weights.keys()
+        combinations = []
+        features = self.featExtractor.getFeatures(state, action)
+
+        for k, v in features.items():
+            if k in wKeys and k != "bias":
+                inputWeightCombo = v * self.weights[k]
+                combinations.append((k, inputWeightCombo))
+
+        return combinations
+
+    def updateDecisionWeights(self, state, action, rating, combinations):
+        features = self.featExtractor.getFeatures(state, action)
+        #Do something if no options given
+        if rating is 0 or None:
+            return
+
+        #Do something if all options were bad (None of the above)
+        if rating == "4" or int(rating) > len(combinations):
+            for i in range(3):
+                # Top 3 should be negative with high exploration rate
+                featureKey = combinations[i][0]
+                self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
+            return
+
+        bestIndex = int(rating) - 1
+        for i in range(len(combinations)):
+            featureKey = combinations[i][0]
+            #If best option
+            if i == bestIndex:
+                self.decisionWeights[featureKey] += self.alpha*1*features[featureKey]
+            #If one of top 3 choices but not best
+            elif i < 3:
+                self.decisionWeights[featureKey] += self.alpha*-1*features[featureKey]
+
+        print(self.decisionWeights)
 
     def update(self, state, action, nextState, reward):
         """
@@ -219,12 +258,10 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights[featureKey] += self.alpha * difference * features[featureKey]
 
 
-
-
-
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
+        self.save(self.decisionWeights, "decisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # did we finish training?
@@ -232,10 +269,10 @@ class ApproximateQAgent(PacmanQAgent):
             # you might want to print your weights here for debugging
             "*** YOUR CODE HERE ***"
 
-            # self.save(self.weights)
-            # print(self.weights)
+            # self.save(self.weights, "weightData.txt")
+            # # print(self.weights*self.featExtractor.getFeatures)
+            # print self.weights
             # print(type(self.weights), len(self.weights))
             # print("----------------------------")
-            # print(self.loadWeights())
+            # print(self.loadWeights("weightData.txt"))
             # print(type(self.loadWeights()), len(self.loadWeights()))
-
