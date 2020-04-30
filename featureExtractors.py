@@ -89,22 +89,32 @@ class SimpleExtractor(FeatureExtractor):
 
         # Finds closest scared and closest non-scared ghost
         for i in range(len(factors["ghost_locs"])):
-            cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+            # Ghost is scared
             if factors["scared"][i] > 0:
+                cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
                 closest_scared_ghost = min(cur_distance, closest_scared_ghost)
+
+            # Ghost is not scared
+            # Need to determine if ghost is facing/is a threat to pacman
             else:
+                # Find all potential moves for ghost
+                legal_ghost_actions = state.getLegalActions(i + 1)
+                legal_ghost_moves = []
+                for action in legal_ghost_actions:
+                    next_state = state.generateSuccessor(i + 1, action)
+                    legal_ghost_moves.append(next_state.getGhostPosition(i+1))
+
+                possible_actions = Actions.getLegalNeighbors(state.getGhostPosition(i+1), state.getWalls())
+
+                # Find all non-potential moves for a ghost
+                illegal_moves = []
+                for possible_action in possible_actions:
+                    if possible_action not in legal_ghost_moves:
+                        illegal_moves.append(possible_action)
+
+                # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
+                cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves))
                 closest_ghost = min(cur_distance, closest_ghost)
-                # path = BFS.BFS(pacman, factors["ghost_locs"][i], state)
-                # try:
-                #     nextGhostState = state.generateSuccessor(i + 1, state.getGhostState(i + 1).getDirection())
-                #     nextGhostPosition = nextGhostState.getGhostState(i + 1).getPosition()
-                # except:
-                #     nextGhostPosition = None
-                #
-                # # Checks if ghost is a threat (either is on shortest path towards you or is within x spaces)
-                # # Only consider as closest ghost if it is a threat and is closer than others.
-                # if (len(path) > 1 and path[-2] == nextGhostPosition) or len(path) < 2:
-                #     closest_ghost = min(len(path), closest_ghost)
 
         # Scared ghost values
         if closest_scared_ghost <= 7:

@@ -716,8 +716,9 @@ class Game:
                         pacman = nextState.getPacmanState()
                         shadow = self.display.drawPrevPacman(pacman)
 
-                        # For approximate Q learning agent training
-                        if "ApproximateQAgent" in str(agent):
+                        # For approximate Q learning agent explanation training
+                        TRAINING = False
+                        if "ApproximateQAgent" in str(agent) and TRAINING:
                             combinations = sorted(agent.getInputWeightCombinations(self.state, action),
                                                   key=lambda x: x[1], reverse=True)
                             rating = self.display.infoPane.updateDecisionQLearning(heuristic.newExplanation(self.state, action),
