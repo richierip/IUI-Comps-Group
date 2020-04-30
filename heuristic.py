@@ -236,6 +236,7 @@ def genExplanation(factors, moving):
 # Main function to be called. Gets heuristics and generates explanation
 # Returns string of explanation
 # nextMove = East, West, etc.
+
 def newExplanation(cur_state, nextMove):
     # Next state chosen by game (chosen by AI)
     next_state = cur_state.generateSuccessor(0, nextMove)
@@ -248,7 +249,7 @@ def newExplanation(cur_state, nextMove):
 
     # Returns generated explanation
     #TODO REMOVE
-    features = getFeatures(cur_state, nextMove)
+    #features = getFeatures(cur_state, nextMove)
     # print features
     return genExplanation(weighted_factors, moving)
 
@@ -344,7 +345,7 @@ def threshold(gameState, nextGameState):
 # 	return altGameStates # {"left": gameStateLeft, "right":gameStateRight, "up": None, ...}
 #
 
-
+'''
 # Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
 # [ghost dist, ghost scared dist, scared timer, capsule, food groups]
 def getFeatures(state, action):
@@ -422,3 +423,4 @@ def getFeatures(state, action):
 
     features.divideAll(10.0)
     return features
+'''
