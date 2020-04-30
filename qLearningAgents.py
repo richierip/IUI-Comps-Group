@@ -124,6 +124,7 @@ class QLearningAgent(ReinforcementAgent):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
+    # Saves given weights to a file with fileName
     def save(self, weights, fileName):
         with open(fileName, 'w') as file:
             for key, value in weights.items():
@@ -182,19 +183,27 @@ class ApproximateQAgent(PacmanQAgent):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
         # self.weights = util.Counter()
+
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
         try:
             self.weights = self.loadWeights("weightData.txt")
         except:
             self.weights = util.Counter()
+
+        # Loads explanation weights
         try:
             self.decisionWeights = self.loadWeights("decisionWeights.txt")
+        # If none found uses loaded weights for movement
         except:
             self.decisionWeights = self.weights.copy()
 
-
+    # Returns weights for movement
     def getWeights(self):
         return self.weights
+
+    # Returns weights for decisions
+    def getDecisionWeights(self):
+        return self.decisionWeights
 
     def getQValue(self, state, action):
         """
@@ -203,6 +212,7 @@ class ApproximateQAgent(PacmanQAgent):
         """
         return self.weights * self.featExtractor.getFeatures(state, action)
 
+    # Returns input weight combinations for explanation generation
     def getInputWeightCombinations(self, state, action):
         wKeys = self.weights.keys()
         combinations = []
@@ -215,13 +225,14 @@ class ApproximateQAgent(PacmanQAgent):
 
         return combinations
 
+    # Updates weights for decision NN
     def updateDecisionWeights(self, state, action, rating, combinations):
         features = self.featExtractor.getFeatures(state, action)
-        #Do something if no options given
+        # Do something if no options given
         if rating is 0 or None:
             return
 
-        #Do something if all options were bad (None of the above)
+        # Do something if all options were bad (None of the above)
         if rating == "4" or int(rating) > len(combinations):
             for i in range(3):
                 # Top 3 should be negative with high exploration rate
@@ -232,10 +243,10 @@ class ApproximateQAgent(PacmanQAgent):
         bestIndex = int(rating) - 1
         for i in range(len(combinations)):
             featureKey = combinations[i][0]
-            #If best option
+            # If best option
             if i == bestIndex:
                 self.decisionWeights[featureKey] += self.alpha*1*features[featureKey]
-            #If one of top 3 choices but not best
+            # If one of top 3 choices but not best
             elif i < 3:
                 self.decisionWeights[featureKey] += self.alpha*-1*features[featureKey]
 
@@ -264,15 +275,12 @@ class ApproximateQAgent(PacmanQAgent):
         self.save(self.decisionWeights, "decisionWeights.txt")
         PacmanQAgent.final(self, state)
 
-        # did we finish training?
+        # If training is finished
         if self.episodesSoFar == self.numTraining:
-            # you might want to print your weights here for debugging
-            "*** YOUR CODE HERE ***"
-
+            # # Save weights for movement
             # self.save(self.weights, "weightData.txt")
-            # # print(self.weights*self.featExtractor.getFeatures)
+
             # print self.weights
             # print(type(self.weights), len(self.weights))
             # print("----------------------------")
-            # print(self.loadWeights("weightData.txt"))
-            # print(type(self.loadWeights()), len(self.loadWeights()))
+            print "Done"

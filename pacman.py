@@ -634,6 +634,13 @@ def replayGame( layout, actions, display ):
 
     display.finish()
 
+# Saves given weights to a file with fileName
+def saveWeights(weights, fileName):
+    with open(fileName, 'w') as file:
+        for key, value in weights.items():
+            file.write(key + ":" + str(value) + "\n")
+
+# Main method for running all games
 def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
     import __main__
     __main__.__dict__['_display'] = display
@@ -670,6 +677,10 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         print 'Scores:       ', ', '.join([str(score) for score in scores])
         print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
         print 'Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins])
+
+    # Saving Q Learning agent explanations
+    if "ApproximateQAgent" in str(pacman):
+        saveWeights(pacman.getDecisionWeights(), "decisionWeights.txt")
 
     return games
 
