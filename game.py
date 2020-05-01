@@ -32,7 +32,7 @@ import textDisplay
 #######################
 # Parts worth reading #
 #######################
-
+TRAINING = True
 class Agent:
     """
     An agent must define a getAction method, but may also define the
@@ -717,7 +717,6 @@ class Game:
                         shadow = self.display.drawPrevPacman(pacman)
 
                         # For approximate Q learning agent explanation training
-                        TRAINING = False
                         if "ApproximateQAgent" in str(agent) and TRAINING:
                             combinations = sorted(agent.getInputWeightCombinations(self.state, action),
                                                   key=lambda x: x[1], reverse=True)
@@ -725,9 +724,12 @@ class Game:
                                                                           combinations)
                             agent.updateDecisionWeights(self.state, action, rating, combinations)
 
-                        # Updates display with generic heuristic generation
+                        # Updates display with generic heuristic generation and neural network decision
                         else:
-                            self.display.infoPane.updateDecision(heuristic.newExplanation(self.state, action))
+                            d1 = heuristic.newExplanation(self.state, action)
+                            d2 = sorted(agent.getInputWeightCombinations(self.state, action),
+                                                  key=lambda x: x[1], reverse=True)[0][0]
+                            self.display.infoPane.updateDecision([d1, d2])
 
                         remove_from_screen(shadow)
                     pass

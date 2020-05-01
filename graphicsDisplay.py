@@ -154,8 +154,8 @@ class InfoPane:
     # Parser for Q Learning Pacman training
     def parseDecisionQLearning(self, decision, options):
         words = decision.split(" ")
-        newstring = words[0]
-        sentenceLength = len(newstring) # Why this line?
+        newstring = "Decision 1:\n" + words[0]
+        sentenceLength = len(words[0]) # Why this line?
         for word in words[1:]:
             if sentenceLength + len(word) + 1 > 21: # was 29
                 newstring += "\n" + word
@@ -203,13 +203,18 @@ class InfoPane:
                 newstring += " " + word
                 sentenceLength += len(word)
 
-        newstring += "\n\nRate this decision!\n(1) Rating number 1\n(2) Rating number 2\n(3) Rating number 3"
+        newstring += "\n\n"
         return newstring
 
     # Simple update decision method
-    def updateDecision(self, decision):
-        decision = self.parseDecision(decision)
-        changeText(self.decision, decision)
+    def updateDecision(self, decisions):
+        allDecisions = ""
+        i = 1
+        for decision in decisions:
+            allDecisions += "Decision %d:\n" % i
+            allDecisions += self.parseDecision(decision)
+            i += 1
+        changeText(self.decision, allDecisions)
         rating = wait_for_rating(["1", "2", "3", "4"])
         # do something with the rating here (save to file?/add to file?)
         changeText(self.decision, "")
