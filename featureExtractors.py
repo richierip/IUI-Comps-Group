@@ -30,46 +30,6 @@ class FeatureExtractor:
         util.raiseNotDefined()
 
 
-# class IdentityExtractor(FeatureExtractor):
-#     def getFeatures(self, state, action):
-#         feats = util.Counter()
-#         feats[(state, action)] = 1.0
-#         return feats
-
-
-# class CoordinateExtractor(FeatureExtractor):
-#     def getFeatures(self, state, action):
-#         feats = util.Counter()
-#         feats[state] = 1.0
-#         feats['x=%d' % state[0]] = 1.0
-#         feats['y=%d' % state[0]] = 1.0
-#         feats['action=%s' % action] = 1.0
-#         return feats
-
-
-# def closestFood(pos, food, walls):
-#     """
-#     closestFood -- this is similar to the function that we have
-#     worked on in the search project; here its all in one place
-#     """
-#     fringe = [(pos[0], pos[1], 0)]
-#     expanded = set()
-#     while fringe:
-#         pos_x, pos_y, dist = fringe.pop(0)
-#         if (pos_x, pos_y) in expanded:
-#             continue
-#         expanded.add((pos_x, pos_y))
-#         # if we find a food at this location then exit
-#         if food[pos_x][pos_y]:
-#             return dist
-#         # otherwise spread out from the location to its neighbours
-#         nbrs = Actions.getLegalNeighbors((pos_x, pos_y), walls)
-#         for nbr_x, nbr_y in nbrs:
-#             fringe.append((nbr_x, nbr_y, dist + 1))
-#     # no food found
-#     return None
-
-
 class SimpleExtractor(FeatureExtractor):
     """
     Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size, etc.
@@ -84,15 +44,25 @@ class SimpleExtractor(FeatureExtractor):
 
         arena_size = walls.height * walls.width
         pacman = state.generateSuccessor(0, action).getPacmanPosition()
-        closest_ghost = arena_size
-        closest_scared_ghost = arena_size
 
         # Finds closest scared and closest non-scared ghost
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
                 cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-                closest_scared_ghost = min(cur_distance, closest_scared_ghost)
+                # Scared ghost values
+                if cur_distance <= 7:
+                    features["scared-ghost-7-away"] += 1
+                    if cur_distance <= 5:
+                        features["scared-ghost-5-away"] += 1
+                        if cur_distance <= 3:
+                            features["scared-ghost-3-away"] += 1
+                            if cur_distance <= 2:
+                                features["scared-ghost-2-away"] += 1
+                                if cur_distance <= 1:
+                                    features["can-eat-scared-ghost"] += 1
+                                    if cur_distance <= 0:
+                                        features["eating-scared-ghost"] += 1
 
             # Ghost is not scared
             # Need to determine if ghost is facing/is a threat to pacman
@@ -114,40 +84,19 @@ class SimpleExtractor(FeatureExtractor):
 
                 # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
                 cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves))
-                closest_ghost = min(cur_distance, closest_ghost)
 
-        # Scared ghost values
-        if closest_scared_ghost <= 7:
-            features["scared-ghost-7"] = 1
-            if closest_scared_ghost <= 5:
-                features["scared-ghost-5"] = 1
-                if closest_scared_ghost <= 3:
-                    features["scared-ghost-3"] = 1
-                    if closest_scared_ghost <= 2:
-                        features["scared-ghost-2"] = 1
-                        if closest_scared_ghost <= 1:
-                            features["can eat scared ghost"] = 1
-                            if closest_scared_ghost <= 0:
-                                features["eating scared ghost"] = 1
-
-        # Ghost values
-        if closest_ghost <= 7:
-            features["ghost-7"] = 1
-            if closest_ghost <= 5:
-                features["ghost-5"] = 1
-                if closest_ghost <= 3:
-                    features["ghost-3"] = 1
-                    if closest_ghost <= 2:
-                        features["ghost-2"] = 1
-                        if closest_ghost <= 1:
-                            features["ghost-1"] = 1
-
-        # for i in range(len(factors["ghost_locs"])):
-        #     cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-        #     if factors["scared"][i] > 0:
-        #         features["ghost " + str(i) + " scared dist"] = min(cur_distance, 7)
-        #     else:
-        #         features["ghost " + str(i) + " dist"] = min(cur_distance, 7)
+                # Ghost values
+                if cur_distance <= 7:
+                    features["ghost-7-away"] += 1
+                    if cur_distance <= 5:
+                        features["ghost-5-away"] += 1
+                        if cur_distance <= 3:
+                            features["ghost-3-away"] += 1
+                            if cur_distance <= 2:
+                                print "HIT"
+                                features["ghost-2-away"] += 1
+                                if cur_distance <= 1:
+                                    features["ghost-1-away"] += 1
 
         # Capsule values: distances sorted
         capsules = []
@@ -211,3 +160,40 @@ class SimpleExtractor(FeatureExtractor):
     #         features["closest-food"] = float(dist) / (walls.width * walls.height)
     #     features.divideAll(10.0)
     #     return features
+
+# class IdentityExtractor(FeatureExtractor):
+#     def getFeatures(self, state, action):
+#         feats = util.Counter()
+#         feats[(state, action)] = 1.0
+#         return feats
+
+# class CoordinateExtractor(FeatureExtractor):
+#     def getFeatures(self, state, action):
+#         feats = util.Counter()
+#         feats[state] = 1.0
+#         feats['x=%d' % state[0]] = 1.0
+#         feats['y=%d' % state[0]] = 1.0
+#         feats['action=%s' % action] = 1.0
+#         return feats
+
+# def closestFood(pos, food, walls):
+#     """
+#     closestFood -- this is similar to the function that we have
+#     worked on in the search project; here its all in one place
+#     """
+#     fringe = [(pos[0], pos[1], 0)]
+#     expanded = set()
+#     while fringe:
+#         pos_x, pos_y, dist = fringe.pop(0)
+#         if (pos_x, pos_y) in expanded:
+#             continue
+#         expanded.add((pos_x, pos_y))
+#         # if we find a food at this location then exit
+#         if food[pos_x][pos_y]:
+#             return dist
+#         # otherwise spread out from the location to its neighbours
+#         nbrs = Actions.getLegalNeighbors((pos_x, pos_y), walls)
+#         for nbr_x, nbr_y in nbrs:
+#             fringe.append((nbr_x, nbr_y, dist + 1))
+#     # no food found
+#     return None

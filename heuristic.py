@@ -83,15 +83,36 @@ def foodGroupDiff(food, cur_pac, next_pac, state):
 
 # Calculates differences between pacman and objective such as ghosts
 # Returns [(absolute distance, direction), ...]
-def distanceDiff(cur_state, next_state, obj_loc):
+def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
     diff = []
     cur_pac = cur_state.getPacmanPosition()
     next_pac = next_state.getPacmanPosition()
 
     # Creates tuple for each object w/ absolute distance and direction
-    for obj in obj_loc:
-        cur_dist = len(BFS.BFS(cur_pac, (int(obj[0]), int(obj[1])), cur_state))
-        next_dist = len(BFS.BFS(next_pac, (int(obj[0]), int(obj[1])), next_state))
+    for i in range(len(obj_loc)):
+        # Non-scared ghost
+        if ghosts and scared[i][1] == 1:
+            # Find all potential moves for ghost
+            legal_ghost_actions = cur_state.getLegalActions(i + 1)
+            legal_ghost_moves = []
+            for action in legal_ghost_actions:
+                next_state = cur_state.generateSuccessor(i + 1, action)
+                legal_ghost_moves.append(next_state.getGhostPosition(i + 1))
+
+            possible_actions = game.Actions.getLegalNeighbors(cur_state.getGhostPosition(i + 1), cur_state.getWalls())
+
+            # Find all non-potential moves for a ghost
+            illegal_moves = []
+            for possible_action in possible_actions:
+                if possible_action not in legal_ghost_moves:
+                    illegal_moves.append(possible_action)
+            cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state, illegal_moves))
+            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state, (int(obj_loc[i][0]), int(obj_loc[i][1]))))
+
+        else:
+            cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state))
+            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state))
+
         if next_dist - cur_dist >= 0:
             diff.append((next_dist, 1))
         else:
@@ -124,8 +145,9 @@ def compare(cur_state, next_state):
     cur_factors = gatherFactors(cur_state)
     next_factors = gatherFactors(next_state)
 
-    diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"])
+    diffs["pac_loc"] = next_state.getPacmanPosition()
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
+    diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"], True, diffs["scared"])
     diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(), cur_state), \
                                          cur_state.getPacmanPosition(), next_state.getPacmanPosition(), next_state)
     diffs['food'] = next_factors["num_food"]
@@ -236,7 +258,6 @@ def genExplanation(factors, moving):
 # Main function to be called. Gets heuristics and generates explanation
 # Returns string of explanation
 # nextMove = East, West, etc.
-
 def newExplanation(cur_state, nextMove):
     # Next state chosen by game (chosen by AI)
     next_state = cur_state.generateSuccessor(0, nextMove)
@@ -248,9 +269,6 @@ def newExplanation(cur_state, nextMove):
     moving = not bool(next_state.getPacmanPosition() == cur_state.getPacmanPosition())
 
     # Returns generated explanation
-    #TODO REMOVE
-    #features = getFeatures(cur_state, nextMove)
-    # print features
     return genExplanation(weighted_factors, moving)
 
 
@@ -259,7 +277,6 @@ def newExplanation(cur_state, nextMove):
 def threshold(gameState, nextGameState):
     old_direction = gameState.getPacmanState().getDirection()
     new_direction = nextGameState.getPacmanState().getDirection()
-    # TODO 3 because of stop. If we remove stop, needs to change. Just check at end
     # Checks if at an intersection with more than one choice
     if len(gameState.getLegalActions(0)) > 3:
         return True

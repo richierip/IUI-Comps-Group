@@ -15,8 +15,11 @@
 from game import *
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
+import operator
+import random, util, math
+import heuristic
+import re
 
-import random,util,math
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -35,11 +38,12 @@ class QLearningAgent(ReinforcementAgent):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
+
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
 
-        #Initializes q values with dictionary intitialized to 0s.
+        # Initializes q values with dictionary intitialized to 0s.
         self.qValues = util.Counter()
 
     def getQValue(self, state, action):
@@ -48,11 +52,10 @@ class QLearningAgent(ReinforcementAgent):
           Should return 0.0 if we have never seen a state
           or the Q node value otherwise
         """
-        if not self.qValues.has_key((state,action)):
-            self.qValues[(state, action)]= 0.0
+        if not self.qValues.has_key((state, action)):
+            self.qValues[(state, action)] = 0.0
 
         return self.qValues[(state, action)]
-
 
     def computeValueFromQValues(self, state):
         """
@@ -84,8 +87,6 @@ class QLearningAgent(ReinforcementAgent):
         for action in actions:
             qActions[action] = self.getQValue(state, action)
         return qActions.argMax()
-
-
 
     def getAction(self, state):
         """
@@ -144,7 +145,7 @@ class QLearningAgent(ReinforcementAgent):
 class PacmanQAgent(QLearningAgent):
     "Exactly the same as QLearningAgent, but with different default parameters"
 
-    def __init__(self, epsilon=0.05,gamma=0.8,alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
         """
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
@@ -167,8 +168,8 @@ class PacmanQAgent(QLearningAgent):
         informs parent of action for Pacman.  Do not change or remove this
         method.
         """
-        action = QLearningAgent.getAction(self,state)
-        self.doAction(state,action)
+        action = QLearningAgent.getAction(self, state)
+        self.doAction(state, action)
         return action
 
 
@@ -179,6 +180,7 @@ class ApproximateQAgent(PacmanQAgent):
        and update.  All other QLearningAgent functions
        should work as is.
     """
+
     def __init__(self, extractor='SimpleExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
@@ -245,12 +247,42 @@ class ApproximateQAgent(PacmanQAgent):
             featureKey = combinations[i][0]
             # If best option
             if i == bestIndex:
-                self.decisionWeights[featureKey] += self.alpha*1*features[featureKey]
+                self.decisionWeights[featureKey] += self.alpha * 1 * features[featureKey]
             # If one of top 3 choices but not best
             elif i < 3:
-                self.decisionWeights[featureKey] += self.alpha*-1*features[featureKey]
+                self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
 
         print(self.decisionWeights)
+
+    # Takes in state and action returns the most important factor(s)
+    # Returns list of highest weight*input combinations in readable form
+    # [(interpretable explanation, original key), ...]
+    def generateFeatureExplanation(self, state, action, num_factors=1):
+        features = self.featExtractor.getFeatures(state, action)
+
+        # Find input weight combinations
+        combinations = util.Counter()
+        for key, value in features.items():
+            if key not in ["bias"]:
+                combinations[key] = value * self.weights[key]
+
+        # Add in newly generated ghost weights
+        explainatory_combinations = combineGhostValues(combinations, features)
+        explainatory_combinations = sorted(explainatory_combinations.items(), key=operator.itemgetter(1))
+        explainatory_combinations.reverse()
+
+        explanations = []
+        for i in range(num_factors):
+            # Find biggest differences between current and next state
+            next_state = state.generateSuccessor(0, action)
+            factors = heuristic.compare(state, next_state)
+
+            # Generate explanations most important features and append
+            explanations.append(
+                [interpret(explainatory_combinations[i][0], factors, state),
+                 explainatory_combinations[i][0]])
+
+        return explanations
 
     def update(self, state, action, nextState, reward):
         """
@@ -268,7 +300,6 @@ class ApproximateQAgent(PacmanQAgent):
         for featureKey in features:
             self.weights[featureKey] += self.alpha * difference * features[featureKey]
 
-
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
@@ -284,3 +315,92 @@ class ApproximateQAgent(PacmanQAgent):
             # print(type(self.weights), len(self.weights))
             # print("----------------------------")
             print "Done"
+
+
+# Combines distance ghost weights into one weight for each ghost
+# Returns original combinations but ghost values have been replaced
+def combineGhostValues(combinations, features):
+    # Get new values for each ghost
+    ghosts = util.Counter()
+    for key, value in combinations.items():
+        if 'ghost' in key and features[key] > 0:
+            if "scared" in key:
+                for i in range(int(value*10)):
+                    ghosts["scared-ghost-num-" + str(i)] += value / (features[key]*10)
+            else:
+                for i in range(int(value*10)):
+                    ghosts["ghost-num-" + str(i)] += value / (features[key]*10)
+
+    # Remove all ghost weights
+    for key, weight in combinations.items():
+        if "ghost" in key:
+            del combinations[key]
+
+    # Add new ghost weights
+    for key, value in ghosts.items():
+        combinations[key] = value
+
+    return combinations
+
+
+# Takes in a factor and retuns an interpretable sentence about it
+def interpret(cur_factor, factors, state):
+    # Get number from factor. Bc everything is sorted by distance, factor num corresponds with factors
+    num = re.search(r'\d+', cur_factor)
+    if num is None:
+        if cur_factor is "eating":
+            return "No important factor. Eating..."
+        else:
+            return "UNKNOWN INPUT: " + str(cur_factor)
+    else:
+        num = int(num.group())
+        # Ghosts
+        if "ghost" in cur_factor:
+
+            # Sort scared and non scared
+            ghosts = []
+            scared_ghosts = []
+            for i in range(len(factors["ghosts"])):
+                if factors["scared"][i][1] == 1:
+                    ghosts.append(factors["ghosts"][i])
+                else:
+                    scared_ghosts.append(factors["ghosts"][i])
+
+            # Scared ghosts
+            if "scared" in cur_factor:
+                scared_ghosts.sort()
+                if scared_ghosts[num][1] == -1:
+                    return "Moving towards scared ghost which is " + str(scared_ghosts[num][0] + " moves away.")
+                else:
+                    return "Moving away from scared ghost which is " + str(scared_ghosts[num][0] + " moves away.")
+
+            # Non-scared ghosts
+            else:
+                ghosts.sort()
+                if ghosts[num][1] == -1:
+                    return "Moving towards ghost which is " + str(ghosts[num][0] + " moves away.")
+                else:
+                    return "Moving away from ghost which is " + str(ghosts[num][0] + " moves away.")
+
+        # Food
+        elif "food" in cur_factor:
+            food_groups = BFS.coinGroup3s((int(factors["pac_loc"][0]), int(factors["pac_loc"][1])), state)
+            food_groups.sort()
+            if "size" in cur_factor:
+                return "SIZE of food group with " + str(food_groups[num][1]) + " pieces " + \
+                       str(food_groups[num][0]) + " moves away."
+            else:
+                return "DISTANCE of food group with " + str(food_groups[num][1]) + " pieces " + \
+                       str(food_groups[num][0]) + " moves away."
+
+        # Capsule
+        elif "capsule" in cur_factor:
+            capsules = factors["capsules"]
+            capsules.sort()
+            if capsules[num][1] == -1:
+                return "Moving towards capsule which is " + str(capsules[num][0]) + " moves away."
+            else:
+                return "Moving away from capsule which is " + str(capsules[num][0]) + " moves away."
+
+        else:
+            return "UNKNOWN INPUT: " + str(cur_factor)
