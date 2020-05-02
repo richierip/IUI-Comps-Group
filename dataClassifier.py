@@ -27,7 +27,7 @@ from pacman import GameState
 from heuristic import neuralDistances
 from featureExtractors import SimpleExtractor
 
-import pickle
+
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -307,7 +307,7 @@ MAP_AGENT_TO_PATH_OF_SAVED_GAMES = {
 
 
 
-def runClassifier(args, options):
+def runClassifier(args, options, didLoadFromFile=False):
     featureFunction = args['featureFunction']
     classifier = args['classifier']
     printImage = args['printImage']
@@ -333,59 +333,30 @@ def runClassifier(args, options):
         rawTestData = samples.loadDataFile("digitdata/testimages", numTest,DIGIT_DATUM_WIDTH,DIGIT_DATUM_HEIGHT)
         testLabels = samples.loadLabelsFile("digitdata/testlabels", numTest)
 
-    # save the perceptron
-    if options.classifier == "perceptron":
-        try:
-            classifier = pickle.load(open("perceptron.pkl", "rb"))
-            print("loaded perceptron from file")
-            perceptron_loaded = True
-        except:
-            perceptron_loaded = False
+    
+    if not didLoadFromFile:
 
-
-
-            # Extract features
-            print "Extracting features..."
-            trainingData = map(featureFunction, rawTrainingData)
-            validationData = map(featureFunction, rawValidationData)
-            testData = map(featureFunction, rawTestData)
-
-            # Conduct training and testing
-            print "Training..."
-            classifier.train(trainingData, trainingLabels, validationData, validationLabels)
-            print "Validating..."
-            guesses = classifier.classify(validationData)
-            correct = [guesses[i] == validationLabels[i] for i in range(len(validationLabels))].count(True)
-            print str(correct), ("correct out of " + str(len(validationLabels)) + " (%.1f%%).") % (100.0 * correct / len(validationLabels))
-            print "Testing..."
-            guesses = classifier.classify(testData)
-            correct = [guesses[i] == testLabels[i] for i in range(len(testLabels))].count(True)
-            print str(correct), ("correct out of " + str(len(testLabels)) + " (%.1f%%).") % (100.0 * correct / len(testLabels))
-            analysis(classifier, guesses, testLabels, testData, rawTestData, printImage)
-    else:
         # Extract features
-            print "Extracting features..."
-            trainingData = map(featureFunction, rawTrainingData)
-            validationData = map(featureFunction, rawValidationData)
-            testData = map(featureFunction, rawTestData)
+        print "Extracting features..."
+        trainingData = map(featureFunction, rawTrainingData)
+        validationData = map(featureFunction, rawValidationData)
+        testData = map(featureFunction, rawTestData)
 
-            # Conduct training and testing
-            print "Training..."
-            classifier.train(trainingData, trainingLabels, validationData, validationLabels)
-            print "Validating..."
-            guesses = classifier.classify(validationData)
-            correct = [guesses[i] == validationLabels[i] for i in range(len(validationLabels))].count(True)
-            print str(correct), ("correct out of " + str(len(validationLabels)) + " (%.1f%%).") % (100.0 * correct / len(validationLabels))
-            print "Testing..."
-            guesses = classifier.classify(testData)
-            correct = [guesses[i] == testLabels[i] for i in range(len(testLabels))].count(True)
-            print str(correct), ("correct out of " + str(len(testLabels)) + " (%.1f%%).") % (100.0 * correct / len(testLabels))
-            analysis(classifier, guesses, testLabels, testData, rawTestData, printImage)
-            
-    #store the perceptron
-    if options.classifier == "perceptron" and not perceptron_loaded:
-        pickle.dump(classifier,open("perceptron.pkl","wb"))
-        print("saving perceptron to file")
+        # Conduct training and testing
+        print "Training..."
+        classifier.train(trainingData, trainingLabels, validationData, validationLabels)
+        print "Validating..."
+        guesses = classifier.classify(validationData)
+        correct = [guesses[i] == validationLabels[i] for i in range(len(validationLabels))].count(True)
+        print str(correct), ("correct out of " + str(len(validationLabels)) + " (%.1f%%).") % (100.0 * correct / len(validationLabels))
+        print "Testing..."
+        guesses = classifier.classify(testData)
+        correct = [guesses[i] == testLabels[i] for i in range(len(testLabels))].count(True)
+        print str(correct), ("correct out of " + str(len(testLabels)) + " (%.1f%%).") % (100.0 * correct / len(testLabels))
+        analysis(classifier, guesses, testLabels, testData, rawTestData, printImage)
+
+    
+    
 
 
     # do odds ratio computation if specified at command line
@@ -406,6 +377,7 @@ def runClassifier(args, options):
             features_weights = classifier.findHighWeightFeatures(l)
             print ("=== Features with high weight for label %d ==="%l)
             printImage(features_weights)
+    
 
 if __name__ == '__main__':
     # Read input

@@ -33,6 +33,7 @@ from game import Agent
 import random
 import game
 import util
+import pickle
 
 class DummyOptions:
     def __init__(self):
@@ -50,9 +51,19 @@ class ClassifierAgent(Agent):
     def __init__(self, trainingData=None, validationData=None, classifierType="perceptron", agentToClone=None, numTraining=3):
         from dataClassifier import runClassifier, enhancedFeatureExtractorPacman
         legalLabels = ['Stop', 'West', 'East', 'North', 'South']
+        
+        didLoadFromFile = False
+
         if(classifierType == "perceptron"):
-            # here's the actual perceptron part
-            classifier = perceptron_pacman.PerceptronClassifierPacman(legalLabels,numTraining)
+            try:
+                classifier = pickle.load(open("perceptron.pkl", "rb"))
+                print("loaded perceptron from file")
+                didLoadFromFile = True
+            except:
+                # here's the actual perceptron part
+                print("perceptron.pkl not found")
+                classifier = perceptron_pacman.PerceptronClassifierPacman(legalLabels,numTraining)
+                
         self.classifier = classifier
         #looks like enhanced Feature extractor is in dataClassifier
         self.featureFunction = enhancedFeatureExtractorPacman 
@@ -65,12 +76,16 @@ class ClassifierAgent(Agent):
         }
         options = DummyOptions()
         options.classifier = classifierType
-        runClassifier(args, options)
+        runClassifier(args, options, didLoadFromFile=didLoadFromFile)
+
+        if not didLoadFromFile:
+            pickle.dump(classifier,open("perceptron.pkl","wb"))
+            print("saving perceptron to file")
+
     def getAction(self, state):
         from dataClassifier import runClassifier, enhancedFeatureExtractorPacman
         features = self.featureFunction(state)
-        
-        action =  self.classifier.classify([features])[0]
+        action = self.classifier.classify([features])[0]
 
         return action
 
