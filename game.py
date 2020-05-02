@@ -756,8 +756,11 @@ class Game:
                         # Updates display with generic heuristic generation and neural network decision
                         else:
                             d1 = heuristic.newExplanation(self.state, action)
-                            d2 = sorted(agent.getInputWeightCombinations(self.state, action),
-                                        key=lambda x: x[1], reverse=True)[0][0]
+                            if "ClassifierAgent" not in str(agent):
+                                d2 = sorted(agent.getInputWeightCombinations(self.state, action),
+                                                      key=lambda x: x[1], reverse=True)[0][0]
+                            else:
+                                d2 = ""
                             self.display.infoPane.updateDecision([d1, d2])
 
                         remove_from_screen(shadow)
