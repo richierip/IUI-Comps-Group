@@ -782,11 +782,16 @@ class Game:
                         # Updates display with generic heuristic generation and neural network decision
                         else:
                             d1 = heuristic.newExplanation(self.state, action)
-                            if "ClassifierAgent" not in str(agent):
-                                d2 = sorted(agent.getInputWeightCombinations(self.state, action), 
-                                                                key=lambda x: x[1], reverse=True)[0][0]
-                                                    
-                            else: 
+
+                            # Approximate Q Learning Explanation
+                            try:
+                                d2 = sorted(agent.getInputWeightCombinations(self.state, action),
+                                            key=lambda x: x[1], reverse=True)[0][0]
+                            except:
+                                d2 = ""
+
+                            # Perceptron Explanation
+                            try:
                                 def PerceptronInputWeight(self, state, action):
                                     wKeys = agent.classifier.weights.keys()
                                     combinations = []
@@ -800,10 +805,12 @@ class Game:
                                             combinations.append((k, inputWeightCombo))
 
                                     return combinations
-                                d2 = ""
-                                d2 = sorted(PerceptronInputWeight(self, self.state, action), 
+                                d3 = sorted(PerceptronInputWeight(self, self.state, action),
                                                               key=lambda x: x[1], reverse=True)[0][0]
-                            self.display.infoPane.updateDecision([d1, d2])
+                            except:
+                                d3 = ""
+
+                            self.display.infoPane.updateDecision([d1, d2, d3])
 
                         remove_from_screen(shadow)
                     pass
