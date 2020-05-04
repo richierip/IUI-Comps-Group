@@ -28,7 +28,8 @@ import sys
 import heuristic
 import BFS
 import textDisplay
-#from perceptron_pacman import PerceptronInputWeight
+import featureExtractors
+# from perceptron_pacman import PerceptronInputWeight
 
 #######################
 # Parts worth reading #
@@ -591,11 +592,34 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
+    # def PerceptronInputWeight(self, state, action):
+    #     wKeys = self.weights.keys()
+    #     combinations = []
+    #     features = self.featExtractor.getFeatures(state, action)
+
+    #     for k, v in features.items():
+    #         if k in wKeys and k != "bias":
+    #             inputWeightCombo = v * self.weights[k]
+    #             combinations.append((k, inputWeightCombo))
+
+    #     return combinations
 
     def run(self):
         """
         Main control loop for game play.
         """
+        # def PerceptronInputWeight(self, state, action):
+        #     print(str(agent))
+        #     wKeys = self.agents[0].weights.keys()
+        #     combinations = []
+        #     features = self.featExtractor.getFeatures(state, action)
+
+        #     for k, v in features.items():
+        #         if k in wKeys and k != "bias":
+        #             inputWeightCombo = v * self.weights[k]
+        #             combinations.append((k, inputWeightCombo))
+
+        #     return combinations
         self.display.initialize(self.state.data)
         self.numMoves = 0
 
@@ -763,9 +787,22 @@ class Game:
                                                                 key=lambda x: x[1], reverse=True)[0][0]
                                                     
                             else: 
+                                def PerceptronInputWeight(self, state, action):
+                                    wKeys = agent.classifier.weights.keys()
+                                    combinations = []
+                                    features = featureExtractors.simpleExtractor.getFeatures(state, action)
+                                    # problem here ^^
+                                    # getFeatures(state, action)
+
+                                    for k, v in features.items():
+                                        if k in wKeys and k != "bias":
+                                            inputWeightCombo = v * agent.classifier.weights[k]
+                                            combinations.append((k, inputWeightCombo))
+
+                                    return combinations
                                 d2 = ""
-                                #d2 = sorted(PerceptronInputWeight(self.state, action), 
-                                #                               key=lambda x: x[1], reverse=True)[0][0]
+                                d2 = sorted(PerceptronInputWeight(self, self.state, action), 
+                                                              key=lambda x: x[1], reverse=True)[0][0]
                             self.display.infoPane.updateDecision([d1, d2])
 
                         remove_from_screen(shadow)

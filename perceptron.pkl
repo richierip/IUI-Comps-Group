@@ -1,0 +1,121 @@
+(iperceptron_pacman
+PerceptronClassifierPacman
+p0
+(dp1
+S'features'
+p2
+(lp3
+S'foodCount'
+p4
+aS'food group 0 dist'
+p5
+aS'bias'
+p6
+aS'food group 0 size'
+p7
+aS'capsule 1 dist'
+p8
+aS'capsule 0 dist'
+p9
+asS'legalLabels'
+p10
+(lp11
+S'Stop'
+p12
+aS'West'
+p13
+aS'East'
+p14
+aS'North'
+p15
+aS'South'
+p16
+asS'type'
+p17
+S'perceptron'
+p18
+sS'weights'
+p19
+ccopy_reg
+_reconstructor
+p20
+(cutil
+Counter
+p21
+c__builtin__
+dict
+p22
+(dp23
+S'eating'
+p24
+F0.4
+sS'scared-ghost-3-away'
+p25
+F0.30000000000000016
+sS'ghost-7-away'
+p26
+F-2.7755575615628914e-17
+sS'capsule 0 dist'
+p27
+F-0.0009090909090908872
+sg6
+F0.0
+sS'ghost-5-away'
+p28
+F2.7755575615628914e-17
+sS'scared-ghost-2-away'
+p29
+F0.30000000000000004
+sS'eating-scared-ghost'
+p30
+F0.0
+sS'food group 2 dist'
+p31
+F-0.0028571428571428224
+sS'capsule 1 dist'
+p32
+F-1.3877787807814457e-17
+sg4
+I0
+sS'eating capsule'
+p33
+F0.4
+sS'food group 1 dist'
+p34
+F-0.056923076923077055
+sS'food group 1 size'
+p35
+F-2.7755575615628914e-17
+sS'ghost-1-away'
+p36
+F-0.30000000000000004
+sS'scared-ghost-7-away'
+p37
+F2.7755575615628914e-17
+sS'ghost-3-away'
+p38
+F0.10000000000000003
+sS'food group 0 dist'
+p39
+F-0.12416666666666681
+sS'ghost-2-away'
+p40
+F-0.5
+sS'food group 0 size'
+p41
+F-0.20000000000000004
+sS'can-eat-scared-ghost'
+p42
+F0.0
+sS'food group 2 size'
+p43
+F2.7755575615628914e-17
+sS'scared-ghost-5-away'
+p44
+F2.7755575615628914e-17
+stp45
+Rp46
+sS'max_iterations'
+p47
+I3
+sb.

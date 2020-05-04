@@ -24,6 +24,7 @@ class PerceptronClassifierPacman(PerceptronClassifier):
     def __init__(self, legalLabels, maxIterations):
         PerceptronClassifier.__init__(self, legalLabels, maxIterations)
         self.weights = util.Counter()
+        self.datum = util.Counter()
 
     def classify(self, data ):
         """

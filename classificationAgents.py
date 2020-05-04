@@ -89,5 +89,8 @@ class ClassifierAgent(Agent):
 
         return action
 
+def featureFunction(self, state):
+    return self.featureFunction(state)
+
 def scoreEvaluation(state):
     return state.getScore()
