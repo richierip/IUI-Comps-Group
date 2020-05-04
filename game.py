@@ -28,6 +28,7 @@ import sys
 import heuristic
 import BFS
 import textDisplay
+#from perceptron_pacman import PerceptronInputWeight
 
 #######################
 # Parts worth reading #
@@ -590,6 +591,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
+
     def run(self):
         """
         Main control loop for game play.
@@ -757,10 +759,13 @@ class Game:
                         else:
                             d1 = heuristic.newExplanation(self.state, action)
                             if "ClassifierAgent" not in str(agent):
-                                d2 = sorted(agent.getInputWeightCombinations(self.state, action),
-                                                      key=lambda x: x[1], reverse=True)[0][0]
-                            else:
+                                d2 = sorted(agent.getInputWeightCombinations(self.state, action), 
+                                                                key=lambda x: x[1], reverse=True)[0][0]
+                                                    
+                            else: 
                                 d2 = ""
+                                #d2 = sorted(PerceptronInputWeight(self.state, action), 
+                                #                               key=lambda x: x[1], reverse=True)[0][0]
                             self.display.infoPane.updateDecision([d1, d2])
 
                         remove_from_screen(shadow)

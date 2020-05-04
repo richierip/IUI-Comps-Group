@@ -62,3 +62,18 @@ class PerceptronClassifierPacman(PerceptronClassifier):
                 self.weights += datum[label]
                 self.weights -= datum[a_prime]
                 # adjust weights accordingly 
+
+    # Returns input weight combinations for explanation generation
+
+    ## Not yet utilized
+    def PerceptronInputWeight(self, state, action):
+        wKeys = self.weights.keys()
+        combinations = []
+        features = self.featExtractor.getFeatures(state, action)
+
+        for k, v in features.items():
+            if k in wKeys and k != "bias":
+                inputWeightCombo = v * self.weights[k]
+                combinations.append((k, inputWeightCombo))
+
+        return combinations
