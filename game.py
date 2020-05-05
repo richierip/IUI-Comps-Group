@@ -28,7 +28,7 @@ import sys
 import heuristic
 import BFS
 import textDisplay
-import featureExtractors
+# import featureExtractors
 # from perceptron_pacman import PerceptronInputWeight
 
 #######################
@@ -790,7 +790,9 @@ class Game:
                                 def PerceptronInputWeight(self, state, action):
                                     wKeys = agent.classifier.weights.keys()
                                     combinations = []
-                                    features = featureExtractors.simpleExtractor.getFeatures(state, action)
+                                    import featureExtractors
+                                    featureExtract = featureExtractors.SimpleExtractor()
+                                    features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
                                     # problem here ^^
                                     # getFeatures(state, action)
 
