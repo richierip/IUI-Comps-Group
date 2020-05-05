@@ -798,9 +798,7 @@ class Game:
                                     import featureExtractors
                                     featureExtract = featureExtractors.SimpleExtractor()
                                     features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
-                                    # problem here ^^
-                                    # getFeatures(state, action)
-
+                                    
                                     for k, v in features.items():
                                         if k in wKeys and k != "bias":
                                             inputWeightCombo = v * agent.classifier.weights[k]
