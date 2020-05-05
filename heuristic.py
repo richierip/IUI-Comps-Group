@@ -15,36 +15,6 @@ def genAltGameStates(gameState, nextMove):
     return alt_games
 
 
-# Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
-# [ghost dist, ghost scared dist, scared timer, capsule, food groups]
-def neuralDistances(state, action):
-    factors = gatherFactors(state.generateSuccessor(0, action))
-
-    features = util.Counter()
-    pacman = factors["pacman_loc"]
-    for i in range(len(factors["ghost_locs"])):
-        if factors["scared"][i] > 0:
-            features["ghost " + str(i)] = 0
-            features["ghost " + str(i) + " scared"] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-            features["ghost " + str(i) + " timer"] = factors["scared"][i]
-        else:
-            features["ghost " + str(i)] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-            features["ghost " + str(i) + " scared"] = 0
-            features["ghost " + str(i) + " timer"] = 0
-
-    for i in range(len(factors["capsule_locs"])):
-        features["capsule" + str(i)] = len(BFS.BFS(pacman, factors["capsule_locs"][i], state))
-
-    food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
-    while len(food_groups) < 3:
-        food_groups.append((0, 0))
-
-    for i in range(3):
-        features["food group " + str(i) + " dist"] = food_groups[i][0]
-        features["food group " + str(i) + " size"] = food_groups[i][1]
-    return features
-
-
 # Gathers important data from game in dict to be used in heursitic generation
 # Pacman loc (x,y)
 # Ghost locations [(x,y), ...]
@@ -78,7 +48,7 @@ def foodGroupDiff(food, cur_pac, next_pac, state):
 
 # Calculates differences between pacman and objective such as ghosts
 # Returns [(absolute distance, direction), ...]
-def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
+def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared_list=None):
     diff = []
     cur_pac = cur_state.getPacmanPosition()
     next_pac = next_state.getPacmanPosition()
@@ -86,7 +56,7 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
     # Creates tuple for each object w/ absolute distance and direction
     for i in range(len(obj_loc)):
         # Non-scared ghost
-        if ghosts and scared[i][1] == 1:
+        if ghosts and scared_list[i][0] == 1:
             # Find all potential moves for ghost
             legal_ghost_actions = cur_state.getLegalActions(i + 1)
             legal_ghost_moves = []
@@ -102,7 +72,7 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
                 if possible_action not in legal_ghost_moves:
                     illegal_moves.append(possible_action)
             cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state, illegal_moves))
-            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state, (int(obj_loc[i][0]), int(obj_loc[i][1]))))
+            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state, [(int(obj_loc[i][0]), int(obj_loc[i][1]))]))
 
         else:
             cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state))
@@ -116,16 +86,16 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
 
 
 # Finds the difference for all ghost timers
-# [(total timer, timer=-1/no timer=1), ...]
+# [(timer=-1/no timer=1, total timer), ...]
 def scaredDiff(cur_timer, next_timer):
     diff = []
 
     # Creates tuple for each ghost w/ absolute time and time difference
     for i in range(len(cur_timer)):
         if next_timer[i] > 0:
-            diff.append((next_timer[i], -1))
+            diff.append((-1, next_timer[i]))
         else:
-            diff.append((next_timer[i], 1))
+            diff.append((1, next_timer[i]))
     return diff
 
 
@@ -161,9 +131,9 @@ def weight(factors):
     # Weight Ghosts
     for i in range(len(factors["ghosts"])):
         # 10/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
-        cur_weight = 8 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][1]))
+        cur_weight = 8 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][0]))
         # direction *-1 bc it is good to move away from ghosts
-        if factors["scared"][i][1] == 1:
+        if factors["scared"][i][0] == 1:
             weights.append((cur_weight,
                             factors["ghosts"][i][0] - 2,
                             factors["ghosts"][i][1],
@@ -190,7 +160,7 @@ def weight(factors):
 
 
 # Generates explanation from given a good and bad factor
-def genExplanation(good, bad):
+def genExplanation(good, bad=None):
     explanation = ""
     if good[2] == 1:
         explanation += "Moving away from "
@@ -203,7 +173,7 @@ def genExplanation(good, bad):
         explanation += good[3] + " which is " + str(good[1]) + " moves away"
 
     # A threat was detected
-    if bad[0] < -1:
+    if bad is not None and bad[0] < -1:
         explanation += " even though moving "
         if bad[2] == 1:
             explanation += "away from "
@@ -305,6 +275,34 @@ def threshold(gameState, nextGameState):
         return True
     return False
 
+
+# Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
+# [ghost dist, ghost scared dist, scared timer, capsule, food groups]
+def neuralDistances(state, action):
+    factors = gatherFactors(state.generateSuccessor(0, action))
+
+    features = util.Counter()
+    pacman = factors["pacman_loc"]
+    for i in range(len(factors["ghost_locs"])):
+        if factors["scared"][i] > 0:
+            features["ghost " + str(i) + " scared"] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+            features["ghost " + str(i) + " timer"] = factors["scared"][i][1]
+        else:
+            features["ghost " + str(i)] = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+
+    for i in range(len(factors["capsule_locs"])):
+        features["capsule" + str(i)] = len(BFS.BFS(pacman, factors["capsule_locs"][i], state))
+
+    food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
+    while len(food_groups) < 3:
+        food_groups.append((0, 0))
+
+    for i in range(3):
+        features["food group " + str(i) + " dist"] = food_groups[i][0]
+        features["food group " + str(i) + " size"] = food_groups[i][1]
+    return features
+
+
 #
 # 	comparison = compare(gameState, lastGameState)
 # 	if comparison is over threshold:
@@ -380,83 +378,3 @@ def threshold(gameState, nextGameState):
 #
 # 	return altGameStates # {"left": gameStateLeft, "right":gameStateRight, "up": None, ...}
 #
-
-'''
-# Used in neural network. Generates ghost distances, capsule distances, closest 3 foods and size.
-# [ghost dist, ghost scared dist, scared timer, capsule, food groups]
-def getFeatures(state, action):
-    factors = gatherFactors(state.generateSuccessor(0, action))
-    walls = state.getWalls()
-
-    features = util.Counter()
-    features["bias"] = 1.0
-
-    arena_size = walls.height * walls.width
-    pacman = factors["pacman_loc"]
-    closest_ghost = arena_size
-    closest_scared_ghost = arena_size
-
-    for i in range(len(factors["ghost_locs"])):
-        cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
-        if factors["scared"][i] > 0:
-            closest_scared_ghost = min(cur_distance, closest_scared_ghost)
-        else:
-            closest_ghost = min(cur_distance, closest_ghost)
-
-    # Scared ghosts
-    if closest_scared_ghost <= 7:
-        features["scared-ghost-7"] = 1
-        if closest_scared_ghost <= 5:
-            features["scared-ghost-5"] = 1
-            if closest_scared_ghost <= 3:
-                features["scared-ghost-3"] = 1
-                # BFS can be off by one. Check inserted to be more specific at close range
-                closest_scared_ghost = \
-                    min(
-                        min(int(util.manhattanDistance(pacman, ghost)) for ghost in factors["ghost_locs"]),
-                        closest_scared_ghost)
-                if closest_scared_ghost <= 2:
-                    features["scared-ghost-2"] = 1
-                    if closest_scared_ghost <= 1:
-                        features["can eat scared ghost"] = 1
-                        if closest_scared_ghost <= .5:
-                            features["eating scared ghost"] = 1
-
-    # Ghosts
-    if closest_ghost <= 1:
-        features["ghost-1"] = 1
-    elif closest_ghost <= 2:
-        features["ghost-2"] = 1
-    elif closest_ghost <= 3:
-        features["ghost-3"] = 1
-    elif closest_ghost <= 5:
-        features["ghost-5"] = 1
-    elif closest_ghost <= 7:
-        features["ghost-7"] = 1
-
-    # Capsules
-    capsules = []
-    for i in range(len(factors["capsule_locs"])):
-        capsules.append(float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))) / arena_size)
-    capsules.sort()
-    for i in range(len(capsules)):
-        features["capsule " + str(i) + " dist"] = capsules[i]
-        if capsules[i] == 0:
-            features["eating capsule"] = 1
-
-    # Food groups
-    food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
-    food_groups.sort()
-
-    for i in range(len(food_groups)):
-        features["food group " + str(i) + " dist"] = \
-            float(food_groups[i][0]) / (arena_size + (i+1)*20)
-        # Big or small
-        if food_groups[i][1] < 5:
-            features["food group " + str(i) + " size"] = 1
-        else:
-            features["food group " + str(i) + " size"] = 0
-
-    features.divideAll(10.0)
-    return features
-'''

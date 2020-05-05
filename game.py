@@ -34,7 +34,7 @@ import textDisplay
 #######################
 # Parts worth reading #
 #######################
-TRAINING = True
+TRAINING = False
 
 
 class Agent:
@@ -171,6 +171,8 @@ class AgentState:
     def getDirection(self):
         return self.configuration.getDirection()
 
+    def getScaredTimer(self):
+        return self.scaredTimer
 
 class Grid:
     """

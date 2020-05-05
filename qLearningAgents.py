@@ -254,35 +254,46 @@ class ApproximateQAgent(PacmanQAgent):
 
         print(self.decisionWeights)
 
-    # Takes in state, action, and number of features needed
-    # Returns list of highest weight*input combinations in readable form
-    # [(interpretable explanation, original key), ...]
-    def generateFeatureExplanation(self, state, action, num_factors=1):
-        features = self.featExtractor.getFeatures(state, action)
-
-        # Find input weight combinations
-        combinations = util.Counter()
-        for key, value in features.items():
-            if key not in ["bias"]:
-                combinations[key] = value * self.weights[key]
-
-        # Create and add in newly generated ghost weights
-        explainatory_combinations = combineGhostValues(combinations, features)
-        explainatory_combinations = sorted(explainatory_combinations.items(), key=operator.itemgetter(1))
-        explainatory_combinations.reverse()
-
-        # Find biggest differences between current and next state
+    @staticmethod
+    # Takes in state and action and key for key factor
+    # Returns most likely explanation
+    def generateFeatureExplanation(good_key, state, action, num_factors=1):
         next_state = state.generateSuccessor(0, action)
-        differences = heuristic.compare(state, next_state)
+        moving = not bool(next_state.getPacmanPosition() == state.getPacmanPosition())
+        good = interpretKey(good_key, state, action)
 
-        # Generate explanations for most important features and append tuple (explainable explanation, original key)
-        explanations = []
-        for i in range(num_factors):
-            explanations.append(
-                [interpret(explainatory_combinations[i][0], differences, state),
-                 explainatory_combinations[i][0]])
+        if not moving and "ghost" in good_key:
+            return heuristic.genNotMovingExplanation([good])
+        elif not moving:
+            return "NOT Moving for unknown reason"
+        else:
+            return heuristic.genExplanation(good)
 
-        return explanations
+        # features = self.featExtractor.getFeatures(state, action)
+        #
+        # # Find input weight combinations
+        # combinations = util.Counter()
+        # for key, value in features.items():
+        #     if key not in ["bias"]:
+        #         combinations[key] = value * self.weights[key]
+        #
+        # # Create and add in newly generated ghost weights
+        # explainatory_combinations = combineGhostValues(combinations, features)
+        # explainatory_combinations = sorted(explainatory_combinations.items(), key=operator.itemgetter(1))
+        # explainatory_combinations.reverse()
+        #
+        # # Find biggest differences between current and next state
+        # next_state = state.generateSuccessor(0, action)
+        # differences = heuristic.compare(state, next_state)
+        #
+        # # Generate explanations for most important features and append tuple (explainable explanation, original key)
+        # explanations = []
+        # for i in range(num_factors):
+        #     explanations.append(
+        #         [interpret(explainatory_combinations[i][0], differences, state),
+        #          explainatory_combinations[i][0]])
+        #
+        # return explanations
 
     def update(self, state, action, nextState, reward):
         """
@@ -343,17 +354,63 @@ def combineGhostValues(combinations, features):
     return combinations
 
 
-# Takes in a factor and retuns an interpretable sentence about it
+# Takes in a key and makes a best guess about object it is referring to
+def interpretKey(key, state, action):
+    next_state = state.generateSuccessor(0, action)
+
+    if "ghost" in key:
+        num = int(re.search(r'\d', key).group())
+        cur_ghost_position = state.getGhostPositions()[num]
+
+        # Ghost info
+        # heuristic.distanceDiff(state, next state, list w/ current pos, ghost=True, [(scared, timer)])[0]
+        cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(0, 0)])[0]
+        timer = state.getGhostState(num + 1).getScaredTimer()
+
+        # Scared or not scared
+        # (arbitrary weight, distance, towards=-1/away=1, type)
+        if timer == 0:
+            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "ghost " + str(num))
+        else:
+            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared ghost " + str(num))
+        return cur_ghost
+
+    elif "food" in key and "small" in key:
+        cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state), key=lambda x: x[1])[0]
+
+        # (arbitrary weight, distance, towards=-1, type, size)
+        cur_food = (1, cur_food_group_info[0], -1, "small food group", cur_food_group_info[1])
+        return cur_food
+
+    elif "food" in key:
+        cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))[0]
+
+        # (arbitrary weight, distance, towards=-1, type, size)
+        cur_food = (1, cur_food_group_info[0], -1, "food group", cur_food_group_info[1])
+        return cur_food
+
+    elif "capsule" in key:
+        cur_capsule_info = sorted(heuristic.distanceDiff(state, next_state, state.getCapsules()))[0]
+
+        # (arbitrary weight, distance, towards=-1, type, size)
+        cur_capsule = (1, cur_capsule_info[0], cur_capsule_info[1], "capsule")
+        return cur_capsule
+
+
+# Takes in an input factor (i.e. ghost distnace) and retuns an interpretable sentence about it
 def interpret(cur_factor, factors, state):
+    pass
     # Get number from factor. Bc everything is sorted by distance, factor num corresponds with factors
-    num = re.search(r'\d+', cur_factor)
+    try:
+        num = int(re.search(r'\d+', cur_factor).group())
+    except:
+        num = None
     if num is None:
         if cur_factor is "eating":
             return "No important factor. Eating..."
         else:
             return "UNKNOWN INPUT: " + str(cur_factor)
     else:
-        num = int(num.group())
         # Ghosts
         if "ghost" in cur_factor:
 
@@ -361,7 +418,7 @@ def interpret(cur_factor, factors, state):
             ghosts = []
             scared_ghosts = []
             for i in range(len(factors["ghosts"])):
-                if factors["scared"][i][1] == 1:
+                if factors["scared"][i][0] == 1:
                     ghosts.append(factors["ghosts"][i])
                 else:
                     scared_ghosts.append(factors["ghosts"][i])

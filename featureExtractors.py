@@ -38,14 +38,48 @@ class SimpleExtractor(FeatureExtractor):
     def getFeatures(self, state, action):
         factors = heuristic.gatherFactors(state)
         walls = state.getWalls()
+        arena_size = walls.height * walls.width
+        pacman = state.generateSuccessor(0, action).getPacmanPosition()
 
         features = util.Counter()
         features["bias"] = 1.0
 
+        # Ghosts
+        self.getFeatureGhosts(factors, features, pacman, state)
+
+        # Capsule values: distances sorted
+        self.getFeatureCapsule(arena_size, factors, features, pacman, state)
+
+        # Food groups: Finds 3 closest food groups
+        self.getFeatureFood(arena_size, features, pacman, state)
+
+        features.divideAll(10.0)
+        return features
+
+    # Feature extractor for explanations
+    # Similar to getFeatures() but adds features for movement towards=-1/away=1
+    # Ghost distance for each ghost is one variable
+    def getFeaturesExplanations(self, state, action):
+        factors = heuristic.gatherFactors(state)
+        walls = state.getWalls()
         arena_size = walls.height * walls.width
         pacman = state.generateSuccessor(0, action).getPacmanPosition()
 
-        # Finds closest scared and closest non-scared ghost
+        features = util.Counter()
+        features["bias"] = 1.0
+
+        # Ghosts
+        self.getFeatureGhostsSeperate(factors, features, pacman, state)
+
+        # Capsules
+        self.getFeatureCapsule(arena_size, factors, features, pacman, state)
+
+        # Food
+        self.getFeatureFood(arena_size, features, pacman, state)
+
+    @staticmethod
+    # Finds close scared and non-scared ghosts
+    def getFeatureGhosts(factors, features, pacman, state):
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
@@ -72,9 +106,9 @@ class SimpleExtractor(FeatureExtractor):
                 legal_ghost_moves = []
                 for action in legal_ghost_actions:
                     next_state = state.generateSuccessor(i + 1, action)
-                    legal_ghost_moves.append(next_state.getGhostPosition(i+1))
+                    legal_ghost_moves.append(next_state.getGhostPosition(i + 1))
 
-                possible_actions = Actions.getLegalNeighbors(state.getGhostPosition(i+1), state.getWalls())
+                possible_actions = Actions.getLegalNeighbors(state.getGhostPosition(i + 1), state.getWalls())
 
                 # Find all non-potential moves for a ghost
                 illegal_moves = []
@@ -97,7 +131,9 @@ class SimpleExtractor(FeatureExtractor):
                                 if cur_distance <= 1:
                                     features["ghost-1-away"] += 1
 
-        # Capsule values: distances sorted
+    @staticmethod
+    # Returns capsule distances sorted by distance
+    def getFeatureCapsule(arena_size, factors, features, pacman, state):
         capsules = []
         for i in range(len(factors["capsule_locs"])):
             capsules.append(
@@ -109,10 +145,11 @@ class SimpleExtractor(FeatureExtractor):
             else:
                 features["capsule " + str(i) + " dist"] = capsules[i][0] / arena_size
 
-        # Food groups: Finds 3 closest food groups
+    @staticmethod
+    # Returns food groups: Finds 3 closest food groups and records if big or small
+    def getFeatureFood(arena_size, features, pacman, state):
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
         food_groups.sort()
-
         # Records distance away and if big or small
         for i in range(len(food_groups)):
             features["food group " + str(i) + " dist"] = \
@@ -125,8 +162,66 @@ class SimpleExtractor(FeatureExtractor):
                 features["food group " + str(i) + " size"] = 0
             if food_groups[i][0] == 0:
                 features["eating"] = 1
-        features.divideAll(10.0)
-        return features
+
+    @staticmethod
+    # Returns ghost values seperately
+    def getFeatureGhostsSeperate(factors, features, pacman, state):
+        for i in range(len(factors["ghost_locs"])):
+            cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+            if factors["scared"][i] > 0:
+                features["ghost " + str(i) + " scared dist"] = min(cur_distance, 7)
+            else:
+                features["ghost " + str(i) + " dist"] = min(cur_distance, 7)
+        for i in range(len(factors["ghost_locs"])):
+            # Ghost is scared
+            if factors["scared"][i] > 0:
+                cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+                # Scared ghost values
+                if cur_distance <= 7:
+                    features["ghost " + str(i) + " (scared) 7 away"] = 1
+                    if cur_distance <= 5:
+                        features["ghost " + str(i) + " (scared) 5 away"] = 1
+                        if cur_distance <= 3:
+                            features["ghost " + str(i) + " (scared) 3 away"] = 1
+                            if cur_distance <= 2:
+                                features["ghost " + str(i) + " (scared) 2 away"] = 1
+                                if cur_distance <= 1:
+                                    features["ghost " + str(i) + " (scared) 1 away"] = 1
+                                    if cur_distance <= 0:
+                                        features["ghost " + str(i) + " (scared) 0 away"] = 1
+
+            # Ghost is not scared
+            # Need to determine if ghost is facing/is a threat to pacman
+            else:
+                # Find all potential moves for ghost
+                legal_ghost_actions = state.getLegalActions(i + 1)
+                legal_ghost_moves = []
+                for action in legal_ghost_actions:
+                    next_state = state.generateSuccessor(i + 1, action)
+                    legal_ghost_moves.append(next_state.getGhostPosition(i + 1))
+
+                possible_actions = Actions.getLegalNeighbors(state.getGhostPosition(i + 1), state.getWalls())
+
+                # Find all non-potential moves for a ghost
+                illegal_moves = []
+                for possible_action in possible_actions:
+                    if possible_action not in legal_ghost_moves:
+                        illegal_moves.append(possible_action)
+
+                # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
+                cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves))
+
+                # Ghost values
+                if cur_distance <= 7:
+                    features["ghost " + str(i) + " 7 away"] = 1
+                    if cur_distance <= 5:
+                        features["ghost " + str(i) + " 5 away"] = 1
+                        if cur_distance <= 3:
+                            features["ghost " + str(i) + " 3 away"] = 1
+                            if cur_distance <= 2:
+                                features["ghost " + str(i) + " 2 away"] = 1
+                                if cur_distance <= 1:
+                                    features["ghost " + str(i) + " 1 away"] = 1
 
     # Basic feature extractor. Deprecated
     # def getFeatures2(self, state, action):
@@ -196,3 +291,5 @@ class SimpleExtractor(FeatureExtractor):
 #             fringe.append((nbr_x, nbr_y, dist + 1))
 #     # no food found
 #     return None
+
+
