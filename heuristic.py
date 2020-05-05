@@ -4,11 +4,6 @@ import game
 import BFS
 import util
 
-# TODO
-# Fix distances in explanation (Probably also +1)
-# Fix capsule weighting (maybe weight coin grouping by middle or something so distance + total/2 or something)
-# Brandon thing - distance to capsule not location
-
 
 # Generates the other game states possible from current position
 def genAltGameStates(gameState, nextMove):
@@ -121,7 +116,7 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared=None):
 
 
 # Finds the difference for all ghost timers
-# [(total timer, -1 = timer and 1 = no timer), ...]
+# [(total timer, timer=-1/no timer=1), ...]
 def scaredDiff(cur_timer, next_timer):
     diff = []
 
@@ -155,7 +150,8 @@ def compare(cur_state, next_state):
     return diffs
 
 
-# Takes in a dictionary of factors. Returns list of tuples [(weights, explanations, towards/away), ...]
+# Takes in a dictionary of factors. Returns list of tuples
+# [(weights, distance, towards=-1/away=1, type, size), ...]
 # A large weight means something good ex: moving away from a ghost, towards a scared ghost, etc.
 # A negative weight implies something bad
 def weight(factors):
@@ -167,83 +163,57 @@ def weight(factors):
         # 10/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
         cur_weight = 8 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][1]))
         # direction *-1 bc it is good to move away from ghosts
-        weights.append((cur_weight, "ghost " + str(i) + " which is " + str(factors["ghosts"][i][0] - 2) + " moves away", \
-                        factors["ghosts"][i][1]))
+        if factors["scared"][i][1] == 1:
+            weights.append((cur_weight,
+                            factors["ghosts"][i][0] - 2,
+                            factors["ghosts"][i][1],
+                            "ghost " + str(i)))
+        else:
+            weights.append((cur_weight,
+                            factors["ghosts"][i][0] - 2,
+                            factors["ghosts"][i][1],
+                            "ghost " + str(i) + " (scared)"))
 
     # Weight Food Groups
-    # Food tuple has extra value for distance from food
+    # Food tuple has extra value for size of food
     for food in factors["food_groups"]:
         # 5/(distance away + to center) + 5/total food
         cur_weight = ((5/float(max(food[0] + min(food[2] / 2, 6), 1))) + 5/float(max(factors["food"], 1))) * food[1] * -1
-        weights.append((cur_weight, "food group with " + str(food[2]) + " pieces", food[1], food[0]))
+        weights.append((cur_weight, food[0], food[1], "food group", food[2]))
 
     # Weight Capsules
     for capsule in factors["capsules"]:
         # 6/(distance*towards_away*-1) -1 bc towards shrinks distance but good
         cur_weight = 6 / float((max(capsule[0], 1) * capsule[1] * -1))
-        weights.append((cur_weight, "capsule " + str(capsule[0]) + " moves away", capsule[1]))
+        weights.append((cur_weight, capsule[0], capsule[1], "capsule"))
     return weights
 
 
-# Generates explanation from given factors
-def genExplanation(factors, moving):
+# Generates explanation from given a good and bad factor
+def genExplanation(good, bad):
     explanation = ""
-    good = max(factors)
-    bad = min(factors)
-
-    # Not moving at all
-    if not moving:
-        ghosts = []
-        for factor in factors:
-            if "ghost" in factor[1] and factor[0] > 1:
-                ghosts.append(factor)
-        if len(ghosts) > 0:
-            return "Not moving because of " + ghosts[0][1]
-        else:
-            return "No immediate benefit or threat: Standing still"
-
-    # No immediate threat or benefit detected
-    if good[0] < 1:
-        # TODO Remove print statement
-
-        # for factor in factors:
-        #     try:
-        #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
-        #     except:
-        #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
-
-        # Finds nearest food group and says moving towards it
-        food = []
-        for factor in factors:
-            if "food" in factor[1] and (factor[2] == 1 or factor[3] == 0):
-                food.append(factor)
-
-        # Gets most relevant food group that Pac Man is moving towards
-        try:
-            nearest = max(food)
-        except:
-            # If there is no logical reason for moving that direction (no food group or benefit)
-            return "No benefit or threat detected"
-
-        # Returns moving towards a food group
-        if nearest[3] == 0:
-            return "No immediate benefit or threat: Eating " + nearest[1]
-        else:
-            return "No immediate benefit or threat: Moving towards " + nearest[1]
-
-    # A benefit is detected
     if good[2] == 1:
-        explanation += "Moving away from " + good[1]
+        explanation += "Moving away from "
     else:
-        explanation += "Moving towards " + good[1]
+        explanation += "Moving towards "
+
+    if "food" in good[3]:
+        explanation += good[3] + " with " + str(good[4]) + " pieces"
+    else:
+        explanation += good[3] + " which is " + str(good[1]) + " moves away"
 
     # A threat was detected
     if bad[0] < -1:
         explanation += " even though moving "
         if bad[2] == 1:
-            explanation += "away from " + bad[1]
+            explanation += "away from "
         else:
-            explanation += "towards " + bad[1]
+            explanation += "towards "
+
+        if "food" in bad[3]:
+            explanation += bad[3] + " with " + str(bad[4]) + " pieces"
+        else:
+            explanation += bad[3] + " which is " + str(bad[1]) + " moves away"
     # TODO Remove print statement
     # print "DECISION"
     # for factor in factors:
@@ -253,6 +223,46 @@ def genExplanation(factors, moving):
     #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
     # print explanation
     return explanation
+
+
+# Returns an explanation if Pac Man is not moving
+def genNotMovingExplanation(factors):
+    ghosts = []
+    for factor in factors:
+        if "ghost" in factor[3] and factor[0] > 1:
+            ghosts.append(factor)
+    if len(ghosts) > 0:
+        return "Not moving because of " + ghosts[3] + " which is " + str(ghosts[1]) + " moves away"
+    else:
+        return "No immediate benefit or threat: Standing still"
+
+
+# Explanation when no benefit detected for a move
+def genNoBenefitExplanation(factors):
+    # TODO Remove print statement
+    # for factor in factors:
+    #     try:
+    #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
+    #     except:
+    #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1])
+    # Finds nearest food group and says moving towards it
+    food = []
+    for factor in factors:
+        # Food and moving towards or eating food
+        if "food" in factor[3] and (factor[2] == 1 or factor[1] == 0):
+            food.append(factor)
+    # Gets most relevant food group that Pac Man is moving towards
+    try:
+        nearest = max(food)
+    except:
+        # If there is no logical reason for moving that direction (no food group or benefit)
+        return "No benefit or threat detected"
+    # Returns moving towards a food group
+    if nearest[1] == 0:
+        return "No immediate benefit or threat: Eating " + nearest[3] + " with " + str(nearest[4]) + " pieces"
+    else:
+        return "No immediate benefit or threat: Moving towards " + nearest[3] + " with " + str(
+            nearest[4]) + " pieces"
 
 
 # Main function to be called. Gets heuristics and generates explanation
@@ -266,10 +276,19 @@ def newExplanation(cur_state, nextMove):
     factors = compare(cur_state, next_state)
     weighted_factors = weight(factors)
 
-    moving = not bool(next_state.getPacmanPosition() == cur_state.getPacmanPosition())
+    # Generate explanation
+    if bool(next_state.getPacmanPosition() == cur_state.getPacmanPosition()):
+        # Not moving at all
+        return genNotMovingExplanation(weighted_factors)
+    else:
+        good = max(weighted_factors)
+        bad = min(weighted_factors)
 
-    # Returns generated explanation
-    return genExplanation(weighted_factors, moving)
+        if good[0] < 1:
+            # No immediate benefit detected
+            return genNoBenefitExplanation(weighted_factors)
+        else:
+            return genExplanation(good, bad)
 
 
 # Determines if we generate a new explanation

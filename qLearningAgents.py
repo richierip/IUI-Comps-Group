@@ -254,7 +254,7 @@ class ApproximateQAgent(PacmanQAgent):
 
         print(self.decisionWeights)
 
-    # Takes in state and action returns the most important factor(s)
+    # Takes in state, action, and number of features needed
     # Returns list of highest weight*input combinations in readable form
     # [(interpretable explanation, original key), ...]
     def generateFeatureExplanation(self, state, action, num_factors=1):
@@ -266,20 +266,20 @@ class ApproximateQAgent(PacmanQAgent):
             if key not in ["bias"]:
                 combinations[key] = value * self.weights[key]
 
-        # Add in newly generated ghost weights
+        # Create and add in newly generated ghost weights
         explainatory_combinations = combineGhostValues(combinations, features)
         explainatory_combinations = sorted(explainatory_combinations.items(), key=operator.itemgetter(1))
         explainatory_combinations.reverse()
 
+        # Find biggest differences between current and next state
+        next_state = state.generateSuccessor(0, action)
+        differences = heuristic.compare(state, next_state)
+
+        # Generate explanations for most important features and append tuple (explainable explanation, original key)
         explanations = []
         for i in range(num_factors):
-            # Find biggest differences between current and next state
-            next_state = state.generateSuccessor(0, action)
-            factors = heuristic.compare(state, next_state)
-
-            # Generate explanations most important features and append
             explanations.append(
-                [interpret(explainatory_combinations[i][0], factors, state),
+                [interpret(explainatory_combinations[i][0], differences, state),
                  explainatory_combinations[i][0]])
 
         return explanations

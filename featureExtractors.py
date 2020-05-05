@@ -93,7 +93,6 @@ class SimpleExtractor(FeatureExtractor):
                         if cur_distance <= 3:
                             features["ghost-3-away"] += 1
                             if cur_distance <= 2:
-                                #print "HIT"
                                 features["ghost-2-away"] += 1
                                 if cur_distance <= 1:
                                     features["ghost-1-away"] += 1
