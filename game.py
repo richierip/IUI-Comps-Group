@@ -792,10 +792,10 @@ class Game:
 
                             # Perceptron Explanation
                             try:
+                                import FeatureExtractors
                                 def PerceptronInputWeight(self, state, action):
                                     wKeys = agent.classifier.weights.keys()
                                     combinations = []
-                                    import featureExtractors
                                     featureExtract = featureExtractors.SimpleExtractor()
                                     features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
                                     
