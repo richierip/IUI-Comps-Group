@@ -202,7 +202,7 @@ def genNotMovingExplanation(factors):
         if "ghost" in factor[3] and factor[0] > 1:
             ghosts.append(factor)
     if len(ghosts) > 0:
-        return "Not moving because of " + ghosts[3] + " which is " + str(ghosts[1]) + " moves away"
+        return "Not moving because of " + ghosts[0][3] + " which is " + str(ghosts[0][1]) + " moves away"
     else:
         return "No immediate benefit or threat: Standing still"
 

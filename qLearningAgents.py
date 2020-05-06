@@ -198,9 +198,11 @@ class ApproximateQAgent(PacmanQAgent):
         # # If none found uses loaded weights for movement
         # except:
         #     self.decisionWeights = self.weights.copy()
-        self.decisionWeights = {"ghost 0": self.weights.copy(), "ghost 1": self.weights.copy(), "capsule": self.weights.copy(),
-            "food group small":self.weights.copy(), "food group big":self.weights.copy()}
-
+        self.decisionWeights = {"ghost 0": self.weights.copy(),
+                                "ghost 1": self.weights.copy(),
+                                "capsule": self.weights.copy(),
+                                "food group small": self.weights.copy(),
+                                "closest food group": self.weights.copy()}
 
     # Returns weights for movement
     def getWeights(self):
@@ -221,8 +223,8 @@ class ApproximateQAgent(PacmanQAgent):
         combinations = []
         features = self.featExtractor.getFeatures(state, action)
         # Dot product function to multiply v and features as both are Counter() instances.
-        for k,v in self.decisionWeights.items():
-            #feat = self.generateFeatureExplanation(k, state, action)
+        for k, v in self.decisionWeights.items():
+            # feat = self.generateFeatureExplanation(k, state, action)
             qval = v * features
             combinations.append((k, qval))
 
@@ -237,14 +239,13 @@ class ApproximateQAgent(PacmanQAgent):
                 featureKey = combinations[i][0]
                 updateDict(self.decisionWeights[featureKey], 0.8)
         else:
-            bestIndex = int(rating) -1
+            bestIndex = int(rating) - 1
             for i in range(len(combinations)):
                 featureKey = combinations[i][0]
                 if i == bestIndex:
                     updateDict(self.decisionWeights[featureKey], 1.2)
                 elif i < 3:
                     updateDict(self.decisionWeights[featureKey], 0.8)
-
 
     # # Returns input weight combinations for explanation generation
     # def getInputWeightCombinations(self, state, action):
@@ -359,11 +360,14 @@ class ApproximateQAgent(PacmanQAgent):
             # print("----------------------------")
             print "Done"
 
+
 def updateDict(dictionary, value):
     for key in dictionary.keys():
         dictionary[key] *= value
 
     return dictionary
+
+
 # Combines distance ghost weights into one weight for each ghost
 # Returns original combinations but ghost values have been replaced
 def combineGhostValues(combinations, features):
@@ -372,11 +376,11 @@ def combineGhostValues(combinations, features):
     for key, value in combinations.items():
         if 'ghost' in key and features[key] > 0:
             if "scared" in key:
-                for i in range(int(value*10)):
-                    ghosts["scared-ghost-num-" + str(i)] += value / (features[key]*10)
+                for i in range(int(value * 10)):
+                    ghosts["scared-ghost-num-" + str(i)] += value / (features[key] * 10)
             else:
-                for i in range(int(value*10)):
-                    ghosts["ghost-num-" + str(i)] += value / (features[key]*10)
+                for i in range(int(value * 10)):
+                    ghosts["ghost-num-" + str(i)] += value / (features[key] * 10)
 
     # Remove all ghost weights
     for key, weight in combinations.items():

@@ -785,6 +785,7 @@ class Game:
                         # Updates display with generic heuristic generation and neural network decision
                         else:
                             d1 = heuristic.newExplanation(self.state, action)
+                            # print agent.generateFeatureExplanation("ghost 2", self.state, action)
 
                             # Approximate Q Learning Explanation
                             try:
@@ -795,19 +796,20 @@ class Game:
 
                             # Perceptron Explanation
                             try:
-                                import FeatureExtractors
+                                import featureExtractors
                                 def PerceptronInputWeight(self, state, action):
                                     wKeys = agent.classifier.weights.keys()
                                     combinations = []
                                     featureExtract = featureExtractors.SimpleExtractor()
                                     features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
-                                    
+
                                     for k, v in features.items():
                                         if k in wKeys and k != "bias":
                                             inputWeightCombo = v * agent.classifier.weights[k]
                                             combinations.append((k, inputWeightCombo))
 
                                     return combinations
+
                                 d3 = sorted(PerceptronInputWeight(self, self.state, action),
                                                               key=lambda x: x[1], reverse=True)[0][0]
                             except:
