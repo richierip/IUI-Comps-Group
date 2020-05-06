@@ -34,7 +34,7 @@ import textDisplay
 #######################
 # Parts worth reading #
 #######################
-TRAINING = False
+TRAINING = True
 
 
 class Agent:
@@ -773,7 +773,8 @@ class Game:
 
                         # For approximate Q learning agent explanation training
                         if "ApproximateQAgent" in str(agent) and TRAINING:
-                            combinations = agent.generateFeatureExplanation(self.state, action, num_factors=3)
+                            combinations = sorted(agent.getOutputQValues(self.state, action), key=lambda x: x[1], reverse=True)
+                            print(combinations)
                             # combinations = sorted(agent.getInputWeightCombinations(self.state, action),
                             #                       key=lambda x: x[1], reverse=True)
                             rating = self.display.infoPane.updateDecisionQLearning(

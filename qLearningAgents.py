@@ -193,11 +193,14 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights = util.Counter()
 
         # Loads explanation weights
-        try:
-            self.decisionWeights = self.loadWeights("decisionWeights.txt")
-        # If none found uses loaded weights for movement
-        except:
-            self.decisionWeights = self.weights.copy()
+        # try:
+        #     self.decisionWeights = self.loadWeights("decisionWeights.txt")
+        # # If none found uses loaded weights for movement
+        # except:
+        #     self.decisionWeights = self.weights.copy()
+        self.decisionWeights = {"ghost 0": self.weights.copy(), "ghost 1": self.weights.copy(), "capsule": self.weights.copy(),
+            "food group small":self.weights.copy(), "food group big":self.weights.copy()}
+
 
     # Returns weights for movement
     def getWeights(self):
@@ -214,45 +217,74 @@ class ApproximateQAgent(PacmanQAgent):
         """
         return self.weights * self.featExtractor.getFeatures(state, action)
 
-    # Returns input weight combinations for explanation generation
-    def getInputWeightCombinations(self, state, action):
-        wKeys = self.weights.keys()
+    def getOutputQValues(self, state, action):
         combinations = []
         features = self.featExtractor.getFeatures(state, action)
-
-        for k, v in features.items():
-            if k in wKeys and k != "bias":
-                inputWeightCombo = v * self.weights[k]
-                combinations.append((k, inputWeightCombo))
+        # Dot product function to multiply v and features as both are Counter() instances.
+        for k,v in self.decisionWeights.items():
+            #feat = self.generateFeatureExplanation(k, state, action)
+            qval = v * features
+            combinations.append((k, qval))
 
         return combinations
 
-    # Updates weights for decision NN
     def updateDecisionWeights(self, state, action, rating, combinations):
         features = self.featExtractor.getFeatures(state, action)
-        # Do something if no options given
-        if rating is 0 or None:
-            return
-
-        # Do something if all options were bad (None of the above)
-        if rating == "4" or int(rating) > len(combinations):
+        if rating == "0" or None:
+            pass
+        elif rating == "4" or int(rating) > len(combinations):
             for i in range(3):
-                # Top 3 should be negative with high exploration rate
                 featureKey = combinations[i][0]
-                self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
-            return
+                updateDict(self.decisionWeights[featureKey], 0.8)
+        else:
+            bestIndex = int(rating) -1
+            for i in range(len(combinations)):
+                featureKey = combinations[i][0]
+                if i == bestIndex:
+                    updateDict(self.decisionWeights[featureKey], 1.2)
+                elif i < 3:
+                    updateDict(self.decisionWeights[featureKey], 0.8)
 
-        bestIndex = int(rating) - 1
-        for i in range(len(combinations)):
-            featureKey = combinations[i][0]
-            # If best option
-            if i == bestIndex:
-                self.decisionWeights[featureKey] += self.alpha * 1 * features[featureKey]
-            # If one of top 3 choices but not best
-            elif i < 3:
-                self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
 
-        print(self.decisionWeights)
+    # # Returns input weight combinations for explanation generation
+    # def getInputWeightCombinations(self, state, action):
+    #     wKeys = self.decisionWeights.keys()
+    #     combinations = []
+    #     features = self.featExtractor.getFeatures(state, action)
+    #
+    #     for k, v in features.items():
+    #         if k in wKeys and k != "bias":
+    #             inputWeightCombo = v * self.decisionWeights[k]
+    #             combinations.append((k, inputWeightCombo))
+    #
+    #     return combinations
+    #
+    # # Updates weights for decision NN
+    # def updateDecisionWeights(self, state, action, rating, combinations):
+    #     features = self.featExtractor.getFeatures(state, action)
+    #     # Do something if no options given
+    #     if rating is 0 or None:
+    #         return
+    #
+    #     # Do something if all options were bad (None of the above)
+    #     if rating == "4" or int(rating) > len(combinations):
+    #         for i in range(3):
+    #             # Top 3 should be negative with high exploration rate
+    #             featureKey = combinations[i][0]
+    #             self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
+    #         return
+    #
+    #     bestIndex = int(rating) - 1
+    #     for i in range(len(combinations)):
+    #         featureKey = combinations[i][0]
+    #         # If best option
+    #         if i == bestIndex:
+    #             self.decisionWeights[featureKey] += self.alpha * 1 * features[featureKey]
+    #         # If one of top 3 choices but not best
+    #         elif i < 3:
+    #             self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
+    #
+    #     print(self.decisionWeights)
 
     @staticmethod
     # Takes in state and action and key for key factor
@@ -327,7 +359,11 @@ class ApproximateQAgent(PacmanQAgent):
             # print("----------------------------")
             print "Done"
 
+def updateDict(dictionary, value):
+    for key in dictionary.keys():
+        dictionary[key] *= value
 
+    return dictionary
 # Combines distance ghost weights into one weight for each ghost
 # Returns original combinations but ghost values have been replaced
 def combineGhostValues(combinations, features):
