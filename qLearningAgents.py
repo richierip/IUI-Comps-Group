@@ -230,22 +230,27 @@ class ApproximateQAgent(PacmanQAgent):
 
         return combinations
 
-    def updateDecisionWeights(self, state, action, rating, combinations):
-        features = self.featExtractor.getFeatures(state, action)
-        if rating == "0" or None:
+    def updateDecisionWeights(self, state, action, ratings, combinations):
+        mults = [1, 1.2, 1.1, 1, 0.9, 0.8]
+        if ratings[0] == "0":
             pass
-        elif rating == "4" or int(rating) > len(combinations):
-            for i in range(3):
-                featureKey = combinations[i][0]
-                updateDict(self.decisionWeights[featureKey], 0.8)
-        else:
-            bestIndex = int(rating) - 1
-            for i in range(len(combinations)):
-                featureKey = combinations[i][0]
-                if i == bestIndex:
-                    updateDict(self.decisionWeights[featureKey], 1.2)
-                elif i < 3:
-                    updateDict(self.decisionWeights[featureKey], 0.8)
+        for i in range(2):
+            featureKey = combinations[i][0]
+            updateDict(self.decisionWeights[featureKey], mults[int(ratings[i])])
+        # if rating == "0" or None:
+        #     pass
+        # elif rating == "4" or int(rating) > len(combinations):
+        #     for i in range(3):
+        #         featureKey = combinations[i][0]
+        #         updateDict(self.decisionWeights[featureKey], 0.8)
+        # else:
+        #     bestIndex = int(rating) - 1
+        #     for i in range(len(combinations)):
+        #         featureKey = combinations[i][0]
+        #         if i == bestIndex:
+        #             updateDict(self.decisionWeights[featureKey], 1.2)
+        #         elif i < 3:
+        #             updateDict(self.decisionWeights[featureKey], 0.8)
 
     # # Returns input weight combinations for explanation generation
     # def getInputWeightCombinations(self, state, action):
