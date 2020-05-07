@@ -164,7 +164,7 @@ class InfoPane:
                 newstring += " " + word
                 sentenceLength += len(word)
         if options is not None:
-            newstring += "\n\nScore each decision 1(high)-5(low):\n- %s\n- %s" % (options[0][0], options[1][0])
+            newstring += "\n\nScore each decision 1(good)-5(bad):\n- %s\n- %s" % (options[0][0], options[1][0])
         # if options is not None:
         #     if len(options) > 2:
         #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])

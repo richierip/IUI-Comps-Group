@@ -4,6 +4,8 @@ import game
 import BFS
 import util
 
+ghosts = ["red", "pink"]
+
 
 # Generates the other game states possible from current position
 def genAltGameStates(gameState, nextMove):
@@ -137,12 +139,12 @@ def weight(factors):
             weights.append((cur_weight,
                             factors["ghosts"][i][0] - 2,
                             factors["ghosts"][i][1],
-                            "ghost " + str(i)))
+                            ghosts[i] + " ghost"))
         else:
             weights.append((cur_weight,
                             factors["ghosts"][i][0] - 2,
                             factors["ghosts"][i][1],
-                            "ghost " + str(i) + " (scared)"))
+                            "scared " + ghosts[i] + " ghost"))
 
     # Weight Food Groups
     # Food tuple has extra value for size of food

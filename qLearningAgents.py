@@ -198,11 +198,11 @@ class ApproximateQAgent(PacmanQAgent):
         # # If none found uses loaded weights for movement
         # except:
         #     self.decisionWeights = self.weights.copy()
-        self.decisionWeights = {"ghost 0": self.weights.copy(),
-                                "ghost 1": self.weights.copy(),
-                                "capsule": self.weights.copy(),
-                                "food group small": self.weights.copy(),
-                                "closest food group": self.weights.copy()}
+        self.decisionWeights = {"ghost 0": util.Counter(),
+                                "ghost 1": util.Counter(),
+                                "capsule": util.Counter(),
+                                "food group small": util.Counter(),
+                                "closest food group": util.Counter()}
 
     # Returns weights for movement
     def getWeights(self):
@@ -219,24 +219,30 @@ class ApproximateQAgent(PacmanQAgent):
         """
         return self.weights * self.featExtractor.getFeatures(state, action)
 
+    # Calulates input*weight combinations for each dictionary in a dictionary
+    # Used for explanations
     def getOutputQValues(self, state, action):
         combinations = []
-        features = self.featExtractor.getFeatures(state, action)
+        features = self.featExtractor.getFeaturesExplanations(state, action)
         # Dot product function to multiply v and features as both are Counter() instances.
         for k, v in self.decisionWeights.items():
-            # feat = self.generateFeatureExplanation(k, state, action)
             qval = v * features
             combinations.append((k, qval))
 
         return combinations
 
+    # Updates weights for explanation NN
     def updateDecisionWeights(self, state, action, ratings, combinations):
-        mults = [1, 1.2, 1.1, 1, 0.9, 0.8]
+        mults = [1, 3, 1.5, 0, -1.5, -3]
         if ratings[0] == "0":
             pass
-        for i in range(2):
-            featureKey = combinations[i][0]
-            updateDict(self.decisionWeights[featureKey], mults[int(ratings[i])])
+
+        features = self.featExtractor.getFeaturesExplanations(state, action)
+        for i in range(len(ratings)):
+            explanationKey = combinations[i][0]
+            reward = mults[int(ratings[i])]
+            for featurekey in features:
+                self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey]
         # if rating == "0" or None:
         #     pass
         # elif rating == "4" or int(rating) > len(combinations):
@@ -366,13 +372,6 @@ class ApproximateQAgent(PacmanQAgent):
             print "Done"
 
 
-def updateDict(dictionary, value):
-    for key in dictionary.keys():
-        dictionary[key] *= value
-
-    return dictionary
-
-
 # Combines distance ghost weights into one weight for each ghost
 # Returns original combinations but ghost values have been replaced
 def combineGhostValues(combinations, features):
@@ -415,9 +414,12 @@ def interpretKey(key, state, action):
         # Scared or not scared
         # (arbitrary weight, distance, towards=-1/away=1, type)
         if timer == 0:
-            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "ghost " + str(num))
+            cur_ghost = (1,
+                         cur_ghost_info[0],
+                         cur_ghost_info[1],
+                         heuristic.ghosts[num] + " ghost")
         else:
-            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared ghost " + str(num))
+            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared " + heuristic.ghosts[num] + "ghost")
         return cur_ghost
 
     elif "food" in key and "small" in key:

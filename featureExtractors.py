@@ -77,6 +77,9 @@ class SimpleExtractor(FeatureExtractor):
         # Food
         self.getFeatureFood(arena_size, features, pacman, state)
 
+        features.divideAll(10.0)
+        return features
+
     @staticmethod
     # Finds close scared and non-scared ghosts
     def getFeatureGhosts(factors, features, pacman, state):
