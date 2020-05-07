@@ -164,12 +164,14 @@ class InfoPane:
                 newstring += " " + word
                 sentenceLength += len(word)
         if options is not None:
-            if len(options) > 2:
-                newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])
-            elif len(options) == 2:
-                newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s" % (
-                options[0][0], options[1][0])
-            newstring += "\n(%d) None of the above" % (min(len(options)+1, 4))
+            newstring += "\n\nScore each decision 1(high)-5(low):\n- %s\n- %s" % (options[0][0], options[1][0])
+        # if options is not None:
+        #     if len(options) > 2:
+        #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])
+        #     elif len(options) == 2:
+        #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s" % (
+        #         options[0][0], options[1][0])
+        #     newstring += "\n(%d) None of the above" % (min(len(options)+1, 4))
         return newstring
 
     # Update display for Q Learning training
@@ -178,17 +180,28 @@ class InfoPane:
         changeText(self.decision, decision)
         if options is not None:
             if len(options) > 1:
-                rating = wait_for_rating([str(i) for i in list(range(1, min(5,len(options)+2)))])
+                rating1 = wait_for_rating([str(i) for i in list(range(1,6))])
+                sleep(.5)
+                rating2 = wait_for_rating([str(i) for i in list(range(1,6))])
             else:
-                rating = 1
-        #do something with the rating here (save to file?/add to file?)
-            if rating == "4" or int(rating) >= len(options):
-                changeText(self.decision, "Chose none")
-            else:
-                changeText(self.decision, "Chose %s" % (options[int(rating)-1][0]))
+                rating1 = rating2 = 1
+            changeText(self.decision, "Rated %s and %s" % (rating1, rating2))
         else:
-            changeText(self.decision, "")
-        return rating
+            rating1 = rating2 = 0
+        return [rating1, rating2]
+        # if options is not None:
+        #     if len(options) > 1:
+        #         rating = wait_for_rating([str(i) for i in list(range(1, min(5,len(options)+2)))])
+        #     else:
+        #         rating = 1
+        # #do something with the rating here (save to file?/add to file?)
+        #     if rating == "4" or int(rating) >= len(options):
+        #         changeText(self.decision, "Chose none")
+        #     else:
+        #         changeText(self.decision, "Chose %s" % (options[int(rating)-1][0]))
+        # else:
+        #     changeText(self.decision, "")
+        # return rating
 
     # Simple parser
     def parseDecision(self, decision):

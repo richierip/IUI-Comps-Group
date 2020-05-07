@@ -777,10 +777,10 @@ class Game:
                             print(combinations)
                             # combinations = sorted(agent.getInputWeightCombinations(self.state, action),
                             #                       key=lambda x: x[1], reverse=True)
-                            rating = self.display.infoPane.updateDecisionQLearning(
+                            ratings = self.display.infoPane.updateDecisionQLearning(
                                 heuristic.newExplanation(self.state, action),
                                 combinations)
-                            agent.updateDecisionWeights(self.state, action, rating, combinations)
+                            agent.updateDecisionWeights(self.state, action, ratings, combinations)
 
                         # Updates display with generic heuristic generation and neural network decision
                         else:
