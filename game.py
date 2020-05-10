@@ -402,6 +402,7 @@ class GameStateData:
         Generates a new data packet by copying information from its predecessor.
         """
         if prevState != None:
+            self.startTime = prevState.startTime
             self.food = prevState.food.shallowCopy()
             self.capsules = prevState.capsules[:]
             self.agentStates = self.copyAgentStates(prevState.agentStates)
@@ -409,6 +410,7 @@ class GameStateData:
             self._eaten = prevState._eaten
             self.score = prevState.score
 
+        self.startTime = time.time()
         self._foodEaten = None
         self._foodAdded = None
         self._capsuleEaten = None

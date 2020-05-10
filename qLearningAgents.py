@@ -19,6 +19,7 @@ import operator
 import random, util, math
 import heuristic
 import re
+import time
 
 
 class QLearningAgent(ReinforcementAgent):
@@ -227,6 +228,8 @@ class ApproximateQAgent(PacmanQAgent):
         # Dot product function to multiply v and features as both are Counter() instances.
         for k, v in self.decisionWeights.items():
             qval = v * features
+            if util.flipCoin(self.epsilon/(time.time() - state.data.startTime)**(1/8)):
+                qval *= 1.2
             combinations.append((k, qval))
 
         return combinations
@@ -240,9 +243,10 @@ class ApproximateQAgent(PacmanQAgent):
         features = self.featExtractor.getFeaturesExplanations(state, action)
         for i in range(len(ratings)):
             explanationKey = combinations[i][0]
+            t = 1/(time.time() - state.data.startTime)**(1/8)
             reward = mults[int(ratings[i])]
             for featurekey in features:
-                self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey]
+                self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey]*t
         # if rating == "0" or None:
         #     pass
         # elif rating == "4" or int(rating) > len(combinations):
