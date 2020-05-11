@@ -204,6 +204,10 @@ class ApproximateQAgent(PacmanQAgent):
                                 "capsule": util.Counter(),
                                 "food group small": util.Counter(),
                                 "closest food group": util.Counter()}
+        self.training_rounds = 0
+
+    def getTrainingRounds(self):
+        return self.training_rounds
 
     # Returns weights for movement
     def getWeights(self):
@@ -222,16 +226,17 @@ class ApproximateQAgent(PacmanQAgent):
 
     # Calulates input*weight combinations for each dictionary in a dictionary
     # Used for explanations
+    # Returns [(key, value),...] in sorted order from highest value to lowest
     def getOutputQValues(self, state, action):
         combinations = []
         features = self.featExtractor.getFeaturesExplanations(state, action)
+
         # Dot product function to multiply v and features as both are Counter() instances.
         for k, v in self.decisionWeights.items():
             qval = v * features
-            if util.flipCoin(self.epsilon/(time.time() - state.data.startTime)**(1/8)):
-                qval *= 1.2
             combinations.append((k, qval))
 
+        combinations = sorted(combinations, key=lambda x: x[1], reverse=True)
         return combinations
 
     # Updates weights for explanation NN

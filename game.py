@@ -28,13 +28,14 @@ import sys
 import heuristic
 import BFS
 import textDisplay
+import random
 # import featureExtractors
 # from perceptron_pacman import PerceptronInputWeight
 
 #######################
 # Parts worth reading #
 #######################
-TRAINING = True
+Q_TRAINING = False
 
 
 class Agent:
@@ -760,7 +761,6 @@ class Game:
                     self.unmute()
                     return
             else:
-                # TODO Placeholder todo just so I (Adam) can bookmark this
                 nextState = self.state.generateSuccessor(agentIndex, action)
 
                 # Determines if pacman has actively made a new move (start to stop or at intersection)
@@ -768,59 +768,7 @@ class Game:
                         (heuristic.threshold(self.state, self.state.generateSuccessor(0, action)) or
                          ((action == 'Stop' and is_stopped is False) or (action != 'Stop' and is_stopped))):
 
-                    # Updates the display
-                    if not isinstance(self.display, textDisplay.NullGraphics):
-                        pacman = nextState.getPacmanState()
-                        shadow = self.display.drawPrevPacman(pacman)
-
-                        # For approximate Q learning agent explanation training
-                        if "ApproximateQAgent" in str(agent) and TRAINING:
-                            combinations = sorted(agent.getOutputQValues(self.state, action), key=lambda x: x[1], reverse=True)
-                            print(combinations)
-                            # combinations = sorted(agent.getInputWeightCombinations(self.state, action),
-                            #                       key=lambda x: x[1], reverse=True)
-                            ratings = self.display.infoPane.updateDecisionQLearning(
-                                heuristic.newExplanation(self.state, action),
-                                combinations)
-                            agent.updateDecisionWeights(self.state, action, ratings, combinations)
-
-                        # Updates display with generic heuristic generation and neural network decision
-                        else:
-                            d1 = heuristic.newExplanation(self.state, action)
-                            # print agent.generateFeatureExplanation("ghost 2", self.state, action)
-
-                            # Approximate Q Learning Explanation
-                            try:
-                                d2 = sorted(agent.getInputWeightCombinations(self.state, action),
-                                            key=lambda x: x[1], reverse=True)[0][0]
-                            except:
-                                d2 = ""
-
-                            # Perceptron Explanation
-                            try:
-                                import featureExtractors
-                                def PerceptronInputWeight(self, state, action):
-                                    wKeys = agent.classifier.weights.keys()
-                                    combinations = []
-                                    featureExtract = featureExtractors.SimpleExtractor()
-                                    features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
-
-                                    for k, v in features.items():
-                                        if k in wKeys and k != "bias":
-                                            inputWeightCombo = v * agent.classifier.weights[k]
-                                            combinations.append((k, inputWeightCombo))
-
-                                    return combinations
-
-                                d3 = sorted(PerceptronInputWeight(self, self.state, action),
-                                                              key=lambda x: x[1], reverse=True)[0][0]
-                            except:
-                                d3 = ""
-
-                            self.display.infoPane.updateDecision([d1, d2, d3])
-
-                        remove_from_screen(shadow)
-                    pass
+                    self.updateDisplayAndDecision(action, agent, nextState)
 
                 # Check in place to determine if pacman is starting or stopping. Updating values
                 if agentIndex == 0:
@@ -836,8 +784,10 @@ class Game:
 
             # Allow for game specific conditions (winning, losing, etc.)
             self.rules.process(self.state, self)
+
             # Track progress
             if agentIndex == numAgents + 1: self.numMoves += 1
+
             # Next agent
             agentIndex = (agentIndex + 1) % numAgents
 
@@ -858,3 +808,72 @@ class Game:
                     return
 
         self.display.finish()
+
+    #TODO Placeholder todo just so I (Adam) can bookmark this
+    # Called when PacMan needs to make a decision
+    def updateDisplayAndDecision(self, action, agent, nextState):
+        # Updates the display
+        if not isinstance(self.display, textDisplay.NullGraphics):
+            pacman = nextState.getPacmanState()
+            shadow = self.display.drawPrevPacman(pacman)
+
+            # For approximate Q learning agent explanation training
+            if "ApproximateQAgent" in str(agent) and Q_TRAINING:
+                self.updateQLearningAgent(action, agent)
+
+            # Updates display with generic heuristic generation and neural network decision
+            else:
+                d1 = heuristic.newExplanation(self.state, action)
+                # print agent.generateFeatureExplanation("ghost 2", self.state, action)
+
+                # Approximate Q Learning Explanation
+                try:
+                    best_feature_key = agent.getOutputQValues(self.state, action)[0][0]
+                    d2 = agent.generateFeatureExplanation(best_feature_key, self.state, action)
+                except:
+                    d2 = ""
+
+                # Perceptron Explanation
+                try:
+                    import featureExtractors
+                    def PerceptronInputWeight(self, state, action):
+                        wKeys = agent.classifier.weights.keys()
+                        combinations = []
+                        featureExtract = featureExtractors.SimpleExtractor()
+                        features = featureExtractors.SimpleExtractor.getFeatures(featureExtract, state, action)
+
+                        for k, v in features.items():
+                            if k in wKeys and k != "bias":
+                                inputWeightCombo = v * agent.classifier.weights[k]
+                                combinations.append((k, inputWeightCombo))
+
+                        return combinations
+
+                    d3 = sorted(PerceptronInputWeight(self, self.state, action),
+                                key=lambda x: x[1], reverse=True)[0][0]
+                except:
+                    d3 = ""
+
+                self.display.infoPane.updateDecision([d1, d2, d3])
+
+            remove_from_screen(shadow)
+
+    # Updates Q Learning Explanation Generator
+    def updateQLearningAgent(self, action, agent):
+        # Get sum(input*weight) values for each explanation
+        combinations = agent.getOutputQValues(self.state, action)
+        print(combinations)
+
+        # Randomly shuffle choices
+        if flipCoin(.05 / (time.time() - self.state.data.startTime) ** (1 / 8)):
+            random.shuffle(combinations)
+
+        # Obtain ratings
+        heuristic_explanation = heuristic.newExplanation(self.state, action)
+        explanations = []
+        for i in range(2):
+            explanations.append(agent.generateFeatureExplanation(combinations[i][0], self.state, action))
+        ratings = self.display.infoPane.updateDecisionQLearning(heuristic_explanation, explanations)
+
+        # Update explanation weights
+        agent.updateDecisionWeights(self.state, action, ratings, combinations)

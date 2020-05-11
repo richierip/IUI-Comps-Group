@@ -151,11 +151,13 @@ class InfoPane:
     def updateScore(self, score):
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
+    @staticmethod
+    # TODO Remove - I don't think this is used
     # Parser for Q Learning Pacman training
-    def parseDecisionQLearning(self, decision, options):
+    def parseDecisionQLearning(decision, options):
         words = decision.split(" ")
         newstring = "Decision 1:\n" + words[0]
-        sentenceLength = len(words[0]) # Why this line?
+        sentenceLength = len(words[0])
         for word in words[1:]:
             if sentenceLength + len(word) + 1 > 21: # was 29
                 newstring += "\n" + word
@@ -164,7 +166,21 @@ class InfoPane:
                 newstring += " " + word
                 sentenceLength += len(word)
         if options is not None:
-            newstring += "\n\nScore each decision 1(good)-5(bad):\n- %s\n- %s" % (options[0][0], options[1][0])
+            newstring += "\n\nScore each decision 1(good)-5(bad):"
+            for i in range(len(options)):
+                newstring += "\nOption " + str(i + 1) + ":"
+                words = options[i].split(" ")
+                sentenceLength = 0
+                for word in words:
+                    if sentenceLength + len(word) + 1 > 25:  # was 29
+                        newstring += "\n" + word
+                        sentenceLength = len(word)
+                    else:
+                        newstring += " " + word
+                        sentenceLength += len(word)
+                newstring += "\n"
+
+
         # if options is not None:
         #     if len(options) > 2:
         #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])
@@ -176,13 +192,17 @@ class InfoPane:
 
     # Update display for Q Learning training
     def updateDecisionQLearning(self, decision, options):
-        decision = self.parseDecisionQLearning(decision, options)
+        decision = self.parseDecision(decision) + "\n\nScore each decision 1(good)-5(bad):\n"
         changeText(self.decision, decision)
         if options is not None:
             if len(options) > 1:
-                rating1 = wait_for_rating([str(i) for i in list(range(1,6))])
-                sleep(.5)
-                rating2 = wait_for_rating([str(i) for i in list(range(1,6))])
+                option = "Option 1: " + self.parseDecision(options[0])
+                changeText(self.decision, decision + option)
+                rating1 = wait_for_rating([str(i) for i in list(range(1, 6))])
+                sleep(.2)
+                option = "Option 2: " + self.parseDecision(options[1])
+                changeText(self.decision, decision + option)
+                rating2 = wait_for_rating([str(i) for i in list(range(1, 6))])
             else:
                 rating1 = rating2 = 1
             changeText(self.decision, "Rated %s and %s" % (rating1, rating2))
@@ -203,13 +223,14 @@ class InfoPane:
         #     changeText(self.decision, "")
         # return rating
 
+    @staticmethod
     # Simple parser
-    def parseDecision(self, decision):
+    def parseDecision(decision):
         words = decision.split(" ")
         newstring = words[0]
         sentenceLength = len(newstring)  # Why this line?
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 21:  # was 29
+            if sentenceLength + len(word) + 1 > 25:  # was 29
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
