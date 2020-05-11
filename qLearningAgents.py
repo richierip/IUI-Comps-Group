@@ -189,7 +189,7 @@ class ApproximateQAgent(PacmanQAgent):
 
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
         try:
-            self.weights = self.loadWeights("weightData.txt")
+            self.weights = self.loadWeights("QLearningweightData.txt")
         except:
             self.weights = util.Counter()
 
@@ -208,6 +208,9 @@ class ApproximateQAgent(PacmanQAgent):
 
     def getTrainingRounds(self):
         return self.training_rounds
+
+    def updateExplanationRounds(self):
+        self.training_rounds += 1
 
     # Returns weights for movement
     def getWeights(self):
@@ -248,7 +251,7 @@ class ApproximateQAgent(PacmanQAgent):
         features = self.featExtractor.getFeaturesExplanations(state, action)
         for i in range(len(ratings)):
             explanationKey = combinations[i][0]
-            t = 1/(time.time() - state.data.startTime)**(1/8)
+            t = max(0, -(self.getTrainingRounds()/1000)**3 + 1)
             reward = mults[int(ratings[i])]
             for featurekey in features:
                 self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey]*t
@@ -367,13 +370,13 @@ class ApproximateQAgent(PacmanQAgent):
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
-        self.save(self.decisionWeights, "decisionWeights.txt")
+        self.save(self.decisionWeights, "QLearningdecisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # If training is finished
         if self.episodesSoFar == self.numTraining:
             # Save weights for movement
-            self.save(self.weights, "weightData.txt")
+            self.save(self.weights, "QLearningweightData.txt")
 
             # print self.weights
             # print(type(self.weights), len(self.weights))

@@ -192,7 +192,7 @@ class InfoPane:
 
     # Update display for Q Learning training
     def updateDecisionQLearning(self, decision, options):
-        decision = self.parseDecision(decision) + "\n\nScore each decision 1(good)-5(bad):\n"
+        decision = self.parseDecision(decision) + "\nScore each decision 1(good)-5(bad):\n"
         changeText(self.decision, decision)
         if options is not None:
             if len(options) > 1:

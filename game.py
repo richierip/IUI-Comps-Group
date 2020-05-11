@@ -35,7 +35,7 @@ import random
 #######################
 # Parts worth reading #
 #######################
-Q_TRAINING = False
+Q_TRAINING = True
 
 
 class Agent:
@@ -865,8 +865,12 @@ class Game:
         print(combinations)
 
         # Randomly shuffle choices
-        if flipCoin(.05 / (time.time() - self.state.data.startTime) ** (1 / 8)):
+        chance = max(0, -(agent.getTrainingRounds()/1000)**2 + .4)
+        if flipCoin(chance):
             random.shuffle(combinations)
+            ran = True
+        else:
+            ran = False
 
         # Obtain ratings
         heuristic_explanation = heuristic.newExplanation(self.state, action)
@@ -877,3 +881,9 @@ class Game:
 
         # Update explanation weights
         agent.updateDecisionWeights(self.state, action, ratings, combinations)
+        agent.updateExplanationRounds()
+
+        # Saves information about success of training
+        file = open('Q Learning Training Data', 'a')
+        file.write(str(agent.getTrainingRounds()) + "," + ratings[0] + "," + str(ran) + "\n")
+        file.close()
