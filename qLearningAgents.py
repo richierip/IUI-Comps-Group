@@ -476,6 +476,9 @@ def interpretKey(key, state, action):
     elif "food" in key:
         food_groups_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))
 
+        # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
+        cur_food = (1, food_groups_info[0][0], -1, "food group", food_groups_info[0][1])
+
         # Finds closest food group larger than 4
         for food_group_info in food_groups_info:
             if food_group_info[1] >= 4:
