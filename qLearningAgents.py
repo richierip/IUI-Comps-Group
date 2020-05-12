@@ -142,9 +142,10 @@ class QLearningAgent(ReinforcementAgent):
 
         return loadedWeights
 
-    def saveDecisionWeights(self, weights, fileName):
+    def saveDecisionWeights(self, weights, training_rounds, fileName):
         print(weights)
         rawWeights = open(fileName, 'w')
+        rawWeights.write("training rounds:" + str(training_rounds) + "\n")
         for category, miniDict in weights.items():
             rawWeights.write(category + "\n")
             for key, subValue in miniDict.items():
@@ -160,19 +161,20 @@ class QLearningAgent(ReinforcementAgent):
         rawWeights = open(fileName)
         newWeights = True
         curDict = ""
+        rounds = 0
         for line in rawWeights:
             if line != "\n":
-                if newWeights == True:
+                if "training rounds" in line:
+                    rounds = int(line.split(":")[1][0])
+                elif newWeights:
                     curDict = line.strip()
                     newWeights = False
-                else:
+                elif line.strip() != "---------------":
                     (key, value) = line.split(":")
                     loadedDecisionWeights[curDict][key] = float(value[:-2])
-                if line.strip() != "---------------":
-                    newWeights = True
                 else:
-                    newWeights = False
-        return loadedDecisionWeights
+                    newWeights = True
+        return loadedDecisionWeights, rounds
 
 
 class PacmanQAgent(QLearningAgent):
@@ -227,8 +229,8 @@ class ApproximateQAgent(PacmanQAgent):
 
         # Loads explanation weights
         try:
-            self.decisionWeights = self.loadDecisionWeights("QLearningDecisionWeights.txt")
-            print("found\n")
+            self.decisionWeights, self.training_rounds = self.loadDecisionWeights("QLearningDecisionWeights.txt")
+            print("found decision weights\n")
         # # If none found uses loaded weights for movement
         except:
             self.decisionWeights = {"ghost 0": util.Counter(),
@@ -236,7 +238,7 @@ class ApproximateQAgent(PacmanQAgent):
                                     "capsule": util.Counter(),
                                     "food group small": util.Counter(),
                                     "closest food group": util.Counter()}
-        self.training_rounds = 0
+            self.training_rounds = 0
 
     def getTrainingRounds(self):
         return self.training_rounds
@@ -351,7 +353,7 @@ class ApproximateQAgent(PacmanQAgent):
         good = interpretKey(good_key, state, action)
 
         if not moving and "ghost" in good_key:
-            return heuristic.genNotMovingExplanation([good])
+            return "Not moving because of " + str(good[0][3]) + " which is " + str(good[0][1]) + " moves away"
         elif not moving:
             return "NOT moving for unknown reason"
         else:
@@ -402,7 +404,6 @@ class ApproximateQAgent(PacmanQAgent):
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
-        self.saveDecisionWeights(self.decisionWeights, "QLearningDecisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # If training is finished

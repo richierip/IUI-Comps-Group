@@ -863,7 +863,7 @@ class Game:
         print(combinations)
 
         # Randomly shuffle choices
-        chance = max(0, -(agent.getTrainingRounds()/1000)**2 + .4)
+        chance = max(0, -(agent.getTrainingRounds()/1000)**2 + .3)
         if flipCoin(chance):
             random.shuffle(combinations)
             ran = True
@@ -881,7 +881,10 @@ class Game:
         agent.updateDecisionWeights(self.state, action, ratings, combinations)
         agent.updateExplanationRounds()
 
+        print agent.getTrainingRounds()
         # Saves information about success of training
         file = open('QLearningTrainingData.txt', 'a')
         file.write(str(agent.getTrainingRounds()) + "," + ratings[0] + "," + str(ran) + "\n")
         file.close()
+
+        agent.saveDecisionWeights(agent.getDecisionWeights(), agent.getTrainingRounds(), "QLearningDecisionWeights.txt")
