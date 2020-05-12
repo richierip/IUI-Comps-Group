@@ -153,10 +153,10 @@ class QLearningAgent(ReinforcementAgent):
 
     def loadDecisionWeights(self, fileName):
         loadedDecisionWeights = {"ghost 0": util.Counter(),
-                                "ghost 1": util.Counter(),
-                                "capsule": util.Counter(),
-                                "food group small": util.Counter(),
-                                "closest food group": util.Counter()}
+                                 "ghost 1": util.Counter(),
+                                 "capsule": util.Counter(),
+                                 "food group small": util.Counter(),
+                                 "closest food group": util.Counter()}
         rawWeights = open(fileName)
         newWeights = True
         curDict = ""
@@ -173,8 +173,6 @@ class QLearningAgent(ReinforcementAgent):
                 else:
                     newWeights = False
         return loadedDecisionWeights
-
-
 
 
 class PacmanQAgent(QLearningAgent):
@@ -223,22 +221,21 @@ class ApproximateQAgent(PacmanQAgent):
 
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
         try:
-            self.weights = self.loadWeights("QLearningweightData.txt")
+            self.weights = self.loadWeights("QLearningWeightData.txt")
         except:
             self.weights = util.Counter()
 
         # Loads explanation weights
         try:
-             self.decisionWeights = self.loadDecisionWeights("decisionWeights.txt")
-             print("found\n")
+            self.decisionWeights = self.loadDecisionWeights("QLearningDecisionWeights.txt")
+            print("found\n")
         # # If none found uses loaded weights for movement
         except:
-        #     self.decisionWeights = self.weights.copy()
             self.decisionWeights = {"ghost 0": util.Counter(),
-                                "ghost 1": util.Counter(),
-                                "capsule": util.Counter(),
-                                "food group small": util.Counter(),
-                                "closest food group": util.Counter()}
+                                    "ghost 1": util.Counter(),
+                                    "capsule": util.Counter(),
+                                    "food group small": util.Counter(),
+                                    "closest food group": util.Counter()}
         self.training_rounds = 0
 
     def getTrainingRounds(self):
@@ -279,17 +276,17 @@ class ApproximateQAgent(PacmanQAgent):
 
     # Updates weights for explanation NN
     def updateDecisionWeights(self, state, action, ratings, combinations):
-        mults = [1, 3, 1.5, 0, -1.5, -3]
+        mults = [1, 20, 10, 0, -10, -20]
         if ratings[0] == "0":
             pass
 
         features = self.featExtractor.getFeaturesExplanations(state, action)
         for i in range(len(ratings)):
             explanationKey = combinations[i][0]
-            t = max(0, -(self.getTrainingRounds()/1000)**3 + 1)
+            t = max(0, -(self.getTrainingRounds() / 1000) ** 3 + 1)
             reward = mults[int(ratings[i])]
             for featurekey in features:
-                self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey]*t
+                self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey] * t
         # if rating == "0" or None:
         #     pass
         # elif rating == "4" or int(rating) > len(combinations):
@@ -405,13 +402,13 @@ class ApproximateQAgent(PacmanQAgent):
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
-        self.saveDecisionWeights(self.decisionWeights, "QLearningdecisionWeights.txt")
+        self.saveDecisionWeights(self.decisionWeights, "QLearningDecisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # If training is finished
         if self.episodesSoFar == self.numTraining:
             # Save weights for movement
-            self.save(self.weights, "QLearningweightData.txt")
+            self.save(self.weights, "QLearningWeightData.txt")
 
             # print self.weights
             # print(type(self.weights), len(self.weights))

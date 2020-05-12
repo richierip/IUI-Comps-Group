@@ -884,6 +884,6 @@ class Game:
         agent.updateExplanationRounds()
 
         # Saves information about success of training
-        file = open('Q Learning Training Data', 'a')
+        file = open('QLearningTrainingData.txt', 'a')
         file.write(str(agent.getTrainingRounds()) + "," + ratings[0] + "," + str(ran) + "\n")
         file.close()
