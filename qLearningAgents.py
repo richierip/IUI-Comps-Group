@@ -353,7 +353,7 @@ class ApproximateQAgent(PacmanQAgent):
         if not moving and "ghost" in good_key:
             return heuristic.genNotMovingExplanation([good])
         elif not moving:
-            return "NOT Moving for unknown reason"
+            return "NOT moving for unknown reason"
         else:
             return heuristic.genExplanation(good)
 
@@ -463,7 +463,7 @@ def interpretKey(key, state, action):
                          cur_ghost_info[1],
                          heuristic.ghosts[num] + " ghost")
         else:
-            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared " + heuristic.ghosts[num] + "ghost")
+            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared " + heuristic.ghosts[num] + " ghost")
         return cur_ghost
 
     elif "food" in key and "small" in key:
@@ -474,10 +474,15 @@ def interpretKey(key, state, action):
         return cur_food
 
     elif "food" in key:
-        cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))[0]
+        food_groups_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))
 
-        # (arbitrary weight, distance, towards=-1, type, size)
-        cur_food = (1, cur_food_group_info[0], -1, "food group", cur_food_group_info[1])
+        # Finds closest food group larger than 4
+        for food_group_info in food_groups_info:
+            if food_group_info[1] >= 4:
+                # (arbitrary weight, distance, towards=-1, type, size)
+                cur_food = (1, food_group_info[0], -1, "food group", food_group_info[1])
+                break
+
         return cur_food
 
     elif "capsule" in key:
