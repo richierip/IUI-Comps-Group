@@ -142,6 +142,40 @@ class QLearningAgent(ReinforcementAgent):
 
         return loadedWeights
 
+    def saveDecisionWeights(self, weights, fileName):
+        print(weights)
+        rawWeights = open(fileName, 'w')
+        for category, miniDict in weights.items():
+            rawWeights.write(category + "\n")
+            for key, subValue in miniDict.items():
+                rawWeights.write(key + ":" + str(subValue) + "\n")
+            rawWeights.write("---------------\n")
+
+    def loadDecisionWeights(self, fileName):
+        loadedDecisionWeights = {"ghost 0": util.Counter(),
+                                "ghost 1": util.Counter(),
+                                "capsule": util.Counter(),
+                                "food group small": util.Counter(),
+                                "closest food group": util.Counter()}
+        rawWeights = open(fileName)
+        newWeights = True
+        curDict = ""
+        for line in rawWeights:
+            if line != "\n":
+                if newWeights == True:
+                    curDict = line.strip()
+                    newWeights = False
+                else:
+                    (key, value) = line.split(":")
+                    loadedDecisionWeights[curDict][key] = float(value[:-2])
+                if line.strip() != "---------------":
+                    newWeights = True
+                else:
+                    newWeights = False
+        return loadedDecisionWeights
+
+
+
 
 class PacmanQAgent(QLearningAgent):
     "Exactly the same as QLearningAgent, but with different default parameters"
@@ -194,12 +228,13 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights = util.Counter()
 
         # Loads explanation weights
-        # try:
-        #     self.decisionWeights = self.loadWeights("decisionWeights.txt")
+        try:
+             self.decisionWeights = self.loadDecisionWeights("decisionWeights.txt")
+             print("found\n")
         # # If none found uses loaded weights for movement
-        # except:
+        except:
         #     self.decisionWeights = self.weights.copy()
-        self.decisionWeights = {"ghost 0": util.Counter(),
+            self.decisionWeights = {"ghost 0": util.Counter(),
                                 "ghost 1": util.Counter(),
                                 "capsule": util.Counter(),
                                 "food group small": util.Counter(),
@@ -370,7 +405,7 @@ class ApproximateQAgent(PacmanQAgent):
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
-        self.save(self.decisionWeights, "QLearningdecisionWeights.txt")
+        self.saveDecisionWeights(self.decisionWeights, "QLearningdecisionWeights.txt")
         PacmanQAgent.final(self, state)
 
         # If training is finished

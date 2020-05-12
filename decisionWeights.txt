@@ -1,47 +1,5 @@
-DISTANCE of food group with 94 pieces 0 moves away.:0.0
-SIZE of food group with 99 pieces 0 moves away.:0.0
-SIZE of food group with 78 pieces 2 moves away.:0.0
-SIZE of food group with 5 pieces 2 moves away.:0.0
-capsule 0 dist:-0.0
-SIZE of food group with 5 pieces 8 moves away.:0.0
-bias:101.0
-DISTANCE of food group with 81 pieces 0 moves away.:0.0
-SIZE of food group with 79 pieces 0 moves away.:0.0
-DISTANCE of food group with 74 pieces 3 moves away.:0.0
-eating scared ghost:44.0
-DISTANCE of food group with 81 pieces 2 moves away.:0.0
-No important factor. Eating...:0.0
-SIZE of food group with 81 pieces 0 moves away.:0.0
-food group 1 dist:0.0
-SIZE of food group with 81 pieces 2 moves away.:0.0
-ghost-3:-98.0
-SIZE of food group with 5 pieces 7 moves away.:0.0
-DISTANCE of food group with 78 pieces 0 moves away.:0.0
-SIZE of food group with 74 pieces 2 moves away.:0.0
-food group 0 size:72.0
-DISTANCE of food group with 74 pieces 2 moves away.:0.0
-food group 2 size:15.0
-SIZE of food group with 5 pieces 4 moves away.:0.0
-DISTANCE of food group with 78 pieces 2 moves away.:0.0
-eating:174.0
-scared-ghost-7:110.0
-scared-ghost-5:117.0
-scared-ghost-3:118.0
-scared-ghost-2:118.0
-can eat scared ghost:44.0
-SIZE of food group with 74 pieces 3 moves away.:0.0
-capsule 1 dist:-0.0
-food group 2 dist:0.0
-DISTANCE of food group with 82 pieces 0 moves away.:0.0
-eating capsule:-1.0
-food group 1 size:14.0
-DISTANCE of food group with 99 pieces 0 moves away.:0.0
-SIZE of food group with 78 pieces 0 moves away.:0.0
-SIZE of food group with 82 pieces 0 moves away.:0.0
-SIZE of food group with 94 pieces 0 moves away.:0.0
-food group 0 dist:-1.0
-ghost-2:-98.0
-ghost-5:-86.0
-ghost-7:-48.0
-ghost-1:-68.0
-DISTANCE of food group with 79 pieces 0 moves away.:0.0
+closest food group:{}
+ghost 0:{}
+ghost 1:{}
+food group small:{}
+capsule:{}
