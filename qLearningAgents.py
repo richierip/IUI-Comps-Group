@@ -468,32 +468,43 @@ def interpretKey(key, state, action):
         return cur_ghost
 
     elif "food" in key and "small" in key:
-        cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state), key=lambda x: x[1])[0]
+        try:
+            cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state), key=lambda x: x[1])[0]
 
-        # (arbitrary weight, distance, towards=-1, type, size)
-        cur_food = (1, cur_food_group_info[0], -1, "small food group", cur_food_group_info[1])
+            # (arbitrary weight, distance, towards=-1, type, size)
+            cur_food = (1, cur_food_group_info[0], -1, "small food group", cur_food_group_info[1])
+        except:
+            cur_food = (1, 0, 1, "no food", 0)
+
         return cur_food
 
     elif "food" in key:
-        food_groups_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))
+        try:
+            food_groups_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))
 
-        # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
-        cur_food = (1, food_groups_info[0][0], -1, "food group", food_groups_info[0][1])
+            # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
+            cur_food = (1, food_groups_info[0][0], -1, "food group", food_groups_info[0][1])
 
-        # Finds closest food group larger than 4
-        for food_group_info in food_groups_info:
-            if food_group_info[1] >= 4:
-                # (arbitrary weight, distance, towards=-1, type, size)
-                cur_food = (1, food_group_info[0], -1, "food group", food_group_info[1])
-                break
+            # Finds closest food group larger than 4
+            for food_group_info in food_groups_info:
+                if food_group_info[1] >= 4:
+                    # (arbitrary weight, distance, towards=-1, type, size)
+                    cur_food = (1, food_group_info[0], -1, "food group", food_group_info[1])
+                    break
+        except:
+            cur_food = (1, 0, 1, "no food", 0)
 
         return cur_food
 
     elif "capsule" in key:
-        cur_capsule_info = sorted(heuristic.distanceDiff(state, next_state, state.getCapsules()))[0]
+        try:
+            cur_capsule_info = sorted(heuristic.distanceDiff(state, next_state, state.getCapsules()))[0]
 
-        # (arbitrary weight, distance, towards=-1, type, size)
-        cur_capsule = (1, cur_capsule_info[0], cur_capsule_info[1], "capsule")
+            # (arbitrary weight, distance, towards=-1, type, size)
+            cur_capsule = (1, cur_capsule_info[0], cur_capsule_info[1], "capsule")
+        except:
+            cur_capsule = (1, 0, 1, "no capsule", 0)
+
         return cur_capsule
 
 
