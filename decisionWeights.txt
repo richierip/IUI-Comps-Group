@@ -1,0 +1,5 @@
+closest food group:{}
+ghost 0:{}
+ghost 1:{}
+food group small:{}
+capsule:{}
