@@ -285,7 +285,7 @@ class ApproximateQAgent(PacmanQAgent):
         features = self.featExtractor.getFeaturesExplanations(state, action)
         for i in range(len(ratings)):
             explanationKey = combinations[i][0]
-            t = max(0, -(self.getTrainingRounds() / 1000) ** 3 + 1)
+            t = max(0, -(self.getTrainingRounds() / 2000) ** 3 + 1)
             reward = mults[int(ratings[i])]
             for featurekey in features:
                 self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey] * t
@@ -353,7 +353,7 @@ class ApproximateQAgent(PacmanQAgent):
         good = interpretKey(good_key, state, action)
 
         if not moving and "ghost" in good_key:
-            return "Not moving because of " + str(good[0][3]) + " which is " + str(good[0][1]) + " moves away"
+            return "Not moving because of " + str(good[3]) + " which is " + str(good[1]) + " moves away"
         elif not moving:
             return "NOT moving for unknown reason"
         else:
