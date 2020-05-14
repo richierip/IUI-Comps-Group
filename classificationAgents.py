@@ -34,6 +34,7 @@ import random
 import game
 import util
 import pickle
+import qLearningAgents
 
 class DummyOptions:
     def __init__(self):
@@ -89,8 +90,20 @@ class ClassifierAgent(Agent):
         action = self.classifier.classify([features])[0]
 
         if self.classifierType == "perceptron":
-            print(features)
-            print(self.classifier.getWeights())
+            #print(features)
+            # print("#######")
+            # print("0 is : ", features[0])
+            # print(self.classifier.getWeights().keys())
+            for i in range(len(self.classifier.getWeights().keys())):
+                thisKey = self.classifier.getWeights().keys()[i]
+                if i ==1: continue
+                print("########## i is :", i)
+                print("key is : ", thisKey)
+
+                '''the next line triggers an indexoutofbounds error on line 453 in qlearning agents. It seems to call
+                getGhostPosition[7] or something like that, but there are only 2 ghosts so thats a mistake and it crashes. Not sure
+                what the lines ~ 450 are supposed to do but we should maybe just copy over the method and make the changes we need.'''
+                #print(" interpretKeys returns : ", qLearningAgents.interpretKey(thisKey, state, action))
         
 
         return action
