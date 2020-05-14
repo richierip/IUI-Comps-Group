@@ -165,7 +165,7 @@ class QLearningAgent(ReinforcementAgent):
         for line in rawWeights:
             if line != "\n":
                 if "training rounds" in line:
-                    rounds = int(line.split(":")[1][0])
+                    rounds = int(line.split(":")[1])
                 elif newWeights:
                     curDict = line.strip()
                     newWeights = False
@@ -224,13 +224,14 @@ class ApproximateQAgent(PacmanQAgent):
         # Automatically loads weights if any were previously saved, otherwise initializes empty.
         try:
             self.weights = self.loadWeights("QLearningWeightData.txt")
+            print "Weights Loaded Successfully"
         except:
             self.weights = util.Counter()
 
         # Loads explanation weights
         try:
             self.decisionWeights, self.training_rounds = self.loadDecisionWeights("QLearningDecisionWeights.txt")
-            print("found decision weights\n")
+            print("Decision weights successfully loaded\n")
         # # If none found uses loaded weights for movement
         except:
             self.decisionWeights = {"ghost 0": util.Counter(),
@@ -409,7 +410,7 @@ class ApproximateQAgent(PacmanQAgent):
         # If training is finished
         if self.episodesSoFar == self.numTraining:
             # Save weights for movement
-            self.save(self.weights, "QLearningWeightData.txt")
+            # self.save(self.weights, "QLearningWeightData.txt")
 
             # print self.weights
             # print(type(self.weights), len(self.weights))
@@ -450,49 +451,57 @@ def interpretKey(key, state, action):
     if "ghost" in key:
         num = int(re.search(r'\d', key).group())
         cur_ghost_position = state.getGhostPositions()[num]
-
-        # Ghost info
-        # heuristic.distanceDiff(state, next state, list w/ current pos, ghost=True, [(scared, timer)])[0]
-        cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(0, 0)])[0]
         timer = state.getGhostState(num + 1).getScaredTimer()
 
         # Scared or not scared
         # (arbitrary weight, distance, towards=-1/away=1, type)
         if timer == 0:
+            # heuristic.distanceDiff(state, next state, list w/ current pos, ghost=True, [(scared, timer)])[0]
+            cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(1, 0)])[0]
             cur_ghost = (1,
-                         cur_ghost_info[0],
+                         cur_ghost_info[0] - 2,
                          cur_ghost_info[1],
                          heuristic.ghosts[num] + " ghost")
         else:
-            cur_ghost = (1, cur_ghost_info[0], cur_ghost_info[1], "scared " + heuristic.ghosts[num] + " ghost")
+            cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(-1, 5)])[0]
+            cur_ghost = (1, cur_ghost_info[0] - 2, cur_ghost_info[1], "scared " + heuristic.ghosts[num] + " ghost")
         return cur_ghost
-
-    elif "food" in key and "small" in key:
-        try:
-            cur_food_group_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state), key=lambda x: x[1])[0]
-
-            # (arbitrary weight, distance, towards=-1, type, size)
-            cur_food = (1, cur_food_group_info[0], -1, "small food group", cur_food_group_info[1])
-        except:
-            cur_food = (1, 0, 1, "no food", 0)
-
-        return cur_food
 
     elif "food" in key:
         try:
-            food_groups_info = sorted(BFS.coinGroup3s(state.getPacmanPosition(), state))
+            # Get all food groups
+            food = BFS.coinGrouping(next_state.getPacmanPosition(), state)
+            food_groups_info = heuristic.foodGroupDiff(food, state.getPacmanPosition(), next_state.getPacmanPosition(), state)
+            food_groups_info.sort()
 
-            # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
-            cur_food = (1, food_groups_info[0][0], -1, "food group", food_groups_info[0][1])
+            # Remove ones PacMan is moving away from
+            for info in food_groups_info:
+                if info[1] != -1:
+                    food_groups_info.remove(info)
 
-            # Finds closest food group larger than 4
-            for food_group_info in food_groups_info:
-                if food_group_info[1] >= 4:
-                    # (arbitrary weight, distance, towards=-1, type, size)
-                    cur_food = (1, food_group_info[0], -1, "food group", food_group_info[1])
-                    break
+            if "small" in key:
+                cur_food_group_info = food_groups_info[0]
+                # (arbitrary weight, distance, towards=-1, type, size)
+                cur_food = (1, cur_food_group_info[0], cur_food_group_info[1], "small food group", cur_food_group_info[2])
+
+            else:
+                # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
+                cur_food = None
+
+                # Finds closest food group larger than 4
+                for i in range(len(food_groups_info)):
+                    if food_groups_info[i][2] >= 4:
+                        # (arbitrary weight, distance, towards=-1, type, size)
+                        cur_food = (1, food_groups_info[i][0], food_groups_info[i][1], "food group", food_groups_info[i][2])
+                        break
+
+                if cur_food == None:
+                    cur_food = (1, 0, 1, "ERROR: no large food in front", 0)
+
+            return cur_food
+
         except:
-            cur_food = (1, 0, 1, "no food", 0)
+            cur_food = (1, 0, 1, "ERROR: no food in front", 0)
 
         return cur_food
 
@@ -510,6 +519,7 @@ def interpretKey(key, state, action):
 
 # Takes in an input factor (i.e. ghost distnace) and retuns an interpretable sentence about it
 def interpret(cur_factor, factors, state):
+    print "HELLO"
     pass
     # Get number from factor. Bc everything is sorted by distance, factor num corresponds with factors
     try:

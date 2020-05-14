@@ -863,7 +863,7 @@ class Game:
         print(combinations)
 
         # Randomly shuffle choices
-        chance = max(0, -(agent.getTrainingRounds()/2000)**2 + .3)
+        chance = max(0, -(agent.getTrainingRounds()/2000)**2 + .35)
         if flipCoin(chance):
             random.shuffle(combinations)
             ran = True
