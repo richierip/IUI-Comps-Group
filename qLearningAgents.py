@@ -456,15 +456,26 @@ def interpretKey(key, state, action):
         # Scared or not scared
         # (arbitrary weight, distance, towards=-1/away=1, type)
         if timer == 0:
-            # heuristic.distanceDiff(state, next state, list w/ current pos, ghost=True, [(scared, timer)])[0]
-            cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(1, 0)])[0]
+            # heuristic.distanceDiff(state, next state, list w/ current pos, ghost=True, [(scared, timer)])[num]
+            cur_ghost_info = heuristic.distanceDiff(state,
+                                                    next_state,
+                                                    [cur_ghost_position, cur_ghost_position],
+                                                    True,
+                                                    [(1, 0), (1, 0)])[num]
             cur_ghost = (1,
-                         cur_ghost_info[0] - 2,
+                         cur_ghost_info[0] - 1,
                          cur_ghost_info[1],
                          heuristic.ghosts[num] + " ghost")
         else:
-            cur_ghost_info = heuristic.distanceDiff(state, next_state, [cur_ghost_position], True, [(-1, 5)])[0]
-            cur_ghost = (1, cur_ghost_info[0] - 2, cur_ghost_info[1], "scared " + heuristic.ghosts[num] + " ghost")
+            cur_ghost_info = heuristic.distanceDiff(state,
+                                                    next_state,
+                                                    [cur_ghost_position,cur_ghost_position],
+                                                    True,
+                                                    [(-1, 5), (-1, 5)])[num]
+            cur_ghost = (1,
+                         cur_ghost_info[0] - 1,
+                         cur_ghost_info[1],
+                         "scared " + heuristic.ghosts[num] + " ghost")
         return cur_ghost
 
     elif "food" in key:
@@ -486,7 +497,7 @@ def interpretKey(key, state, action):
 
             else:
                 # Defaults to closest: (arbitrary weight, distance, towards=-1, type, size)
-                cur_food = None
+                cur_food = (1, food_groups_info[0][0], food_groups_info[0][1], "food group", food_groups_info[0][2])
 
                 # Finds closest food group larger than 4
                 for i in range(len(food_groups_info)):
@@ -495,13 +506,10 @@ def interpretKey(key, state, action):
                         cur_food = (1, food_groups_info[i][0], food_groups_info[i][1], "food group", food_groups_info[i][2])
                         break
 
-                if cur_food == None:
-                    cur_food = (1, 0, 1, "ERROR: no large food in front", 0)
-
             return cur_food
 
         except:
-            cur_food = (1, 0, 1, "ERROR: no food in front", 0)
+            cur_food = (1, 0, 1, "ERROR: no food in front of Pacman", 0)
 
         return cur_food
 

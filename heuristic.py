@@ -68,13 +68,18 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared_list=None)
 
             possible_actions = game.Actions.getLegalNeighbors(cur_state.getGhostPosition(i + 1), cur_state.getWalls())
 
-            # Find all non-potential moves for a ghost
+            # Find all places the ghost cannot move
             illegal_moves = []
             for possible_action in possible_actions:
                 if possible_action not in legal_ghost_moves:
                     illegal_moves.append(possible_action)
+
             cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state, illegal_moves))
-            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state, [(int(obj_loc[i][0]), int(obj_loc[i][1]))]))
+
+            next_dist = cur_state.getWalls().height * cur_state.getWalls().width
+            for move in legal_ghost_moves:
+                next_dist = min(next_dist,
+                                len(BFS.BFS(next_pac, move, next_state, [(int(obj_loc[i][0]), int(obj_loc[i][1]))])))
 
         else:
             cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state))

@@ -88,16 +88,8 @@ class SimpleExtractor(FeatureExtractor):
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
-
-                # Directional information
-                if old_pac_pos is not None:
-                    features["scared ghost " + str(i) + " towards"] = \
-                        directional(factors["ghost_locs"][i],
-                                    old_pac_pos,
-                                    pacman,
-                                    state)
-
                 cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
+
                 # Scared ghost values
                 if cur_distance <= 7:
                     features["scared-ghost-7-away"] += 1
@@ -111,6 +103,15 @@ class SimpleExtractor(FeatureExtractor):
                                     features["can-eat-scared-ghost"] += 1
                                     if cur_distance <= 0:
                                         features["eating-scared-ghost"] += 1
+
+                # Directional information
+                if old_pac_pos is not None:
+                    features["scared ghost " + str(i) + " towards"] = \
+                        directional(factors["ghost_locs"][i],
+                                    old_pac_pos,
+                                    pacman,
+                                    state)
+                    features["ghost " + str(i) + " scared dist"] = min(cur_distance, 7)
 
             # Ghost is not scared
             # Need to determine if ghost is facing/is a threat to pacman
@@ -140,6 +141,7 @@ class SimpleExtractor(FeatureExtractor):
                                     old_pac_pos,
                                     pacman,
                                     state)
+                    features["ghost " + str(i) + " dist"] = min(cur_distance, 7)
 
                 # Ghost values
                 if cur_distance <= 7:
