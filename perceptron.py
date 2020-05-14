@@ -87,4 +87,6 @@ class PerceptronClassifier:
         "*** YOUR CODE HERE ***"
         # util.raiseNotDefined()
 
-        return featuresWeights
+
+
+        return self.weights

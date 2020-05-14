@@ -17,6 +17,8 @@ import util
 from perceptron import PerceptronClassifier
 from pacman import GameState
 
+
+
 PRINT = True
 
 
@@ -41,6 +43,9 @@ class PerceptronClassifierPacman(PerceptronClassifier):
             guesses.append(vectors.argMax())
         return guesses
 
+
+    def getWeights(self):
+        return self.weights
 
     def train( self, trainingData, trainingLabels, validationData, validationLabels ):
         self.features = trainingData[0][0]['Stop'].keys() # could be useful later

@@ -1,0 +1,22 @@
+scared-ghost-3-away:368.942414919
+ghost-7-away:-143.692883362
+capsule 0 dist:-8.22165499354
+bias:125.797638319
+eating-scared-ghost:188.288280936
+food group 1 dist:-8.67665966779
+scared-ghost-7-away:296.64362179
+ghost-2-away:-398.994402874
+food group 0 size:10.6418185858
+can-eat-scared-ghost:188.288280936
+food group 2 size:-34.3404012979
+scared-ghost-5-away:292.746657707
+eating:347.095312185
+ghost-5-away:-232.130500056
+scared-ghost-2-away:372.79340796
+capsule 1 dist:-6.60145250214
+food group 2 dist:-6.08512306493
+eating capsule:-6.33924874466
+food group 1 size:-50.6911158436
+ghost-1-away:-221.721263917
+ghost-3-away:-364.894252771
+food group 0 dist:-8.79257174792
