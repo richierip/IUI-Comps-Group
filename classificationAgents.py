@@ -53,7 +53,7 @@ class ClassifierAgent(Agent):
         legalLabels = ['Stop', 'West', 'East', 'North', 'South']
         
         didLoadFromFile = False
-
+        self.classifierType = classifierType
         if(classifierType == "perceptron"):
             try:
                 classifier = pickle.load(open("perceptron.pkl", "rb"))
@@ -84,8 +84,14 @@ class ClassifierAgent(Agent):
 
     def getAction(self, state):
         from dataClassifier import runClassifier, enhancedFeatureExtractorPacman
+        
         features = self.featureFunction(state)
         action = self.classifier.classify([features])[0]
+
+        if self.classifierType == "perceptron":
+            print(features)
+            print(self.classifier.getWeights())
+        
 
         return action
 

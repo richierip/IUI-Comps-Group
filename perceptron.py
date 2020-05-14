@@ -85,7 +85,9 @@ class PerceptronClassifier:
         featuresWeights = []
 
         "*** YOUR CODE HERE ***"
-        featuresWeights.append(self.weights[label].sortedKeys()[:100])
+        #featuresWeights.append(self.weights[label].sortedKeys()[:100])
         # util.raiseNotDefined()
 
-        return featuresWeights
+
+
+        return self.weights
