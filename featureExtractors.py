@@ -64,28 +64,39 @@ class SimpleExtractor(FeatureExtractor):
         walls = state.getWalls()
         arena_size = walls.height * walls.width
         pacman = state.generateSuccessor(0, action).getPacmanPosition()
+        old_pac_pos = state.getPacmanPosition()
 
         features = util.Counter()
         features["bias"] = 1.0
 
         # Ghosts
-        self.getFeatureGhostsSeperate(factors, features, pacman, state)
+        # self.getFeatureGhostsSeperate(factors, features, pacman, state)
+        self.getFeatureGhosts(factors, features, pacman, state, old_pac_pos)
 
         # Capsules
-        self.getFeatureCapsule(arena_size, factors, features, pacman, state)
+        self.getFeatureCapsule(arena_size, factors, features, pacman, state, old_pac_pos)
 
         # Food
-        self.getFeatureFood(arena_size, features, pacman, state)
+        self.getFeatureFood(arena_size, features, pacman, state, old_pac_pos)
 
         features.divideAll(10.0)
         return features
 
     @staticmethod
     # Finds close scared and non-scared ghosts
-    def getFeatureGhosts(factors, features, pacman, state):
+    def getFeatureGhosts(factors, features, pacman, state, old_pac_pos=None):
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
+
+                # Directional information
+                if old_pac_pos is not None:
+                    features["scared ghost " + str(i) + " towards"] = \
+                        directional(factors["ghost_locs"][i],
+                                    old_pac_pos,
+                                    pacman,
+                                    state)
+
                 cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state))
                 # Scared ghost values
                 if cur_distance <= 7:
@@ -122,6 +133,14 @@ class SimpleExtractor(FeatureExtractor):
                 # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
                 cur_distance = len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves))
 
+                # Directional information
+                if old_pac_pos is not None:
+                    features["ghost " + str(i) + " towards"] = \
+                        directional(factors["ghost_locs"][i],
+                                    old_pac_pos,
+                                    pacman,
+                                    state)
+
                 # Ghost values
                 if cur_distance <= 7:
                     features["ghost-7-away"] += 1
@@ -136,13 +155,21 @@ class SimpleExtractor(FeatureExtractor):
 
     @staticmethod
     # Returns capsule distances sorted by distance
-    def getFeatureCapsule(arena_size, factors, features, pacman, state):
+    def getFeatureCapsule(arena_size, factors, features, pacman, state, old_pac_pos=None):
         capsules = []
         for i in range(len(factors["capsule_locs"])):
             capsules.append(
                 [float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))), factors["capsule_locs"][i]])
         capsules.sort()
         for i in range(len(capsules)):
+            # Directional information
+            if old_pac_pos is not None:
+                features["capsule " + str(i) + " towards"] = \
+                    directional(factors["capsule_locs"][i],
+                                old_pac_pos,
+                                pacman,
+                                state)
+
             if capsules[i][0] == 0:
                 features["eating capsule"] = 1
             else:
@@ -150,7 +177,7 @@ class SimpleExtractor(FeatureExtractor):
 
     @staticmethod
     # Returns food groups: Finds 3 closest food groups and records if big or small
-    def getFeatureFood(arena_size, features, pacman, state):
+    def getFeatureFood(arena_size, features, pacman, state, old_pac_pos=None):
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
         food_groups.sort()
         # Records distance away and if big or small
@@ -165,6 +192,13 @@ class SimpleExtractor(FeatureExtractor):
                 features["food group " + str(i) + " size"] = 0
             if food_groups[i][0] == 0:
                 features["eating"] = 1
+
+        # Directional information
+        if old_pac_pos is not None:
+            food_groups_old = BFS.coinGroup3s((int(old_pac_pos[0]), int(old_pac_pos[1])), state)
+            for i in range(len(food_groups)):
+                if food_groups_old[i][0] > food_groups[i][0]:
+                    features["towards food" + str(i)] = 1
 
     @staticmethod
     # Returns ghost values seperately
@@ -225,6 +259,16 @@ class SimpleExtractor(FeatureExtractor):
                                 features["ghost " + str(i) + " 2 away"] = 1
                                 if cur_distance <= 1:
                                     features["ghost " + str(i) + " 1 away"] = 1
+
+
+# Reurns 1 if moving away and 0 otherwise
+def directional(feature_pos, cur_pac_pos, next_pac_pos, state):
+    cur_dis = len(BFS.BFS(cur_pac_pos, feature_pos, state))
+    next_dist = len(BFS.BFS(next_pac_pos, feature_pos, state))
+    if next_dist - cur_dis < 0:
+        return 1
+    else:
+        return 0
 
     # Basic feature extractor. Deprecated
     # def getFeatures2(self, state, action):
