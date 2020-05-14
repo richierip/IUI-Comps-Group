@@ -172,7 +172,7 @@ class InfoPane:
                 words = options[i].split(" ")
                 sentenceLength = 0
                 for word in words:
-                    if sentenceLength + len(word) + 1 > 25:  # was 29
+                    if sentenceLength + len(word) + 1 > 4:  # was 29
                         newstring += "\n" + word
                         sentenceLength = len(word)
                     else:
@@ -230,7 +230,7 @@ class InfoPane:
         newstring = words[0]
         sentenceLength = len(newstring)  # Why this line?
         for word in words[1:]:
-            if sentenceLength + len(word) + 1 > 25:  # was 29
+            if sentenceLength + len(word) + 1 > 22:  # was 29
                 newstring += "\n" + word
                 sentenceLength = len(word)
             else:
