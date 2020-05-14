@@ -89,13 +89,13 @@ WALL_RADIUS = 0.15
 
 #This really needs to be here and not inside the class, trust me
 def firstChoice():
-    print("Option 1")
+    print("Heuristic:")
 
 def secondChoice():
-    print("Option 2")
+    print("Approximate Q Learning:")
 
 def thirdChoice():
-    print("Option 3")
+    print("Perceptron:")
 
 class InfoPane:
     def __init__(self, layout, gridSize):
@@ -124,7 +124,7 @@ class InfoPane:
 
     def drawPane(self):
         self.decTitle = text(self.toScreen(self.width - 230, -self.base + 30), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
-        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision("Current placeholder for future decisions  - THIS IS A REALLY LONG DECISION THAT GOES ON AND ON FOR NO REASON AT ALL"), "Times", self.fontSize-10, "bold")
+        self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision(" "), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
         # top = Tkinter.Tk()
         #
@@ -156,7 +156,7 @@ class InfoPane:
     # Parser for Q Learning Pacman training
     def parseDecisionQLearning(decision, options):
         words = decision.split(" ")
-        newstring = "Decision 1:\n" + words[0]
+        newstring = "Heuristic:\n" + words[0]
         sentenceLength = len(words[0])
         for word in words[1:]:
             if sentenceLength + len(word) + 1 > 21: # was 29
