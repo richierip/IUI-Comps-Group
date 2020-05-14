@@ -462,6 +462,15 @@ def interpretKey(key, state, action):
                                                     [cur_ghost_position, cur_ghost_position],
                                                     True,
                                                     [(1, 0), (1, 0)])[num]
+
+            # If ghosts are in home, BFS sometimes doesn't find legal move bc ghosts can't usually go backwards
+            # Treats ghost as scared
+            if cur_ghost_info[0] is []:
+                cur_ghost_info = heuristic.distanceDiff(state,
+                                                        next_state,
+                                                        [cur_ghost_position, cur_ghost_position],
+                                                        False)[num]
+
             cur_ghost = (1,
                          cur_ghost_info[0] - 1,
                          cur_ghost_info[1],
