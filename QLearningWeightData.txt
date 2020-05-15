@@ -1,22 +1,87 @@
-scared-ghost-3-away:368.942414919
-ghost-7-away:-143.692883362
-capsule 0 dist:-8.22165499354
-bias:125.797638319
-eating-scared-ghost:188.288280936
-food group 1 dist:-8.67665966779
-scared-ghost-7-away:296.64362179
-ghost-2-away:-398.994402874
-food group 0 size:10.6418185858
-can-eat-scared-ghost:188.288280936
-food group 2 size:-34.3404012979
-scared-ghost-5-away:292.746657707
-eating:347.095312185
-ghost-5-away:-232.130500056
-scared-ghost-2-away:372.79340796
-capsule 1 dist:-6.60145250214
-food group 2 dist:-6.08512306493
-eating capsule:-6.33924874466
-food group 1 size:-50.6911158436
-ghost-1-away:-221.721263917
-ghost-3-away:-364.894252771
-food group 0 dist:-8.79257174792
+ghost-0-4-away:97.2882981798
+food-group-0-6-away:-50.8024026297
+food-group-0-7-away:-56.0038277211
+closest-capsule-12-away:-13.7958521272
+food-group-2-8-away:9.72336292046
+closest-capsule-2-away:-61.4057838332
+scared-ghost-1-away:78.1385202071
+scared-ghost-0-away:78.1385202071
+food-group-1-7-away:-26.6109537908
+food-group-2-2-away:-49.0684589952
+food-group-1-6-away:-41.1406485522
+food-group-0-13-away:-15.5274668621
+scared-ghost-5-away:47.9975042062
+ghost-1-1-away:-21.6349843784
+food-group-1-14-away:8.33969784886
+food-group-0-12-away:-25.9786285031
+food-group-2-7-away:-11.5739240607
+food-group-0-4-away:-58.5306223192
+scared-ghost-9-away:33.0042068513
+ghost-0-0-away:26.5812403451
+scared-ghost-8-away:22.3315363557
+food-group-0-8-away:-42.6038542384
+food-group-1-4-away:-49.3904805822
+closest-capsule-6-away:-16.6967736738
+food-group-2-6-away:-6.91203583818
+scared-ghost-11-away:26.5972796314
+closest-capsule-14-away:13.6722019836
+food-group-1-5-away:-39.5833368974
+food-group-2-9-away:15.4900285717
+ghost-1-4-away:99.3365127768
+food group 0 size:162.343727688
+closest-capsule-7-away:-18.5820681522
+food-group-1-0-away:-72.2725034659
+eating:56.6432866548
+ghost-0-3-away:117.980633418
+ghost-0-2-away:124.074148383
+food-group-0-9-away:-31.6327917756
+ghost-0-1-away:26.5812403451
+closest-capsule-11-away:1.98801745745
+food-group-2-5-away:1.14313887514
+closest-capsule-0-away:-62.5613253256
+scared-ghost-7-away:23.3735762225
+food-group-1-8-away:-30.0755597742
+food-group-1-13-away:8.71871791931
+food-group-1-12-away:-0.440807116578
+food-group-1-3-away:-40.6926058151
+food-group-1-2-away:-66.0480079432
+ghost-1-3-away:100.049905006
+food-group-0-2-away:-100.175760396
+closest-capsule-8-away:17.9864353043
+closest-capsule-9-away:13.2360150031
+food-group-0-3-away:-78.1562760997
+closest-capsule-13-away:17.931837058
+food-group-2-10-away:22.8123502306
+food-group-0-10-away:-28.8900080267
+food group 2 size:-17.0654560392
+scared-ghost-4-away:60.4131193182
+ghost-1-0-away:-21.6349843784
+closest-capsule-4-away:-67.4352878088
+food-group-1-9-away:-7.13209541477
+food group 1 size:-54.0105656737
+food-group-1-11-away:6.66295278222
+food-group-1-1-away:-72.2725034659
+food-group-2-3-away:-36.0841604963
+food-group-1-10-away:2.36318811569
+closest-capsule-1-away:-62.5613253256
+scared-ghost-3-away:69.7051814443
+food-group-0-1-away:-41.732794921
+closest-capsule-5-away:-30.706556896
+bias:14.9104917338
+closest-capsule-10-away:4.30602790198
+scared-ghost-10-away:36.5673905547
+food-group-0-0-away:-41.732794921
+food-group-0-14-away:-14.9704952151
+closest-capsule-3-away:-52.6936711661
+food-group-2-0-away:-49.4312838508
+food-group-0-5-away:-56.463340689
+food-group-2-1-away:-49.4312838508
+scared-ghost-6-away:42.8592370658
+food-group-2-14-away:6.4827708687
+scared-ghost-2-away:70.0581449277
+food-group-2-4-away:-9.62204823979
+ghost-1-2-away:103.374745852
+food-group-2-11-away:3.92179859765
+food-group-0-11-away:-27.49448536
+food-group-2-12-away:-1.61614217012
+food-group-2-13-away:4.01053233851

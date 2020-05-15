@@ -410,7 +410,7 @@ class ApproximateQAgent(PacmanQAgent):
         # If training is finished
         if self.episodesSoFar == self.numTraining:
             # Save weights for movement
-            # self.save(self.weights, "QLearningWeightData.txt")
+            self.save(self.weights, "QLearningWeightData.txt")
 
             # print self.weights
             # print(type(self.weights), len(self.weights))
