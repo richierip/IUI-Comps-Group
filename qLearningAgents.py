@@ -279,7 +279,7 @@ class ApproximateQAgent(PacmanQAgent):
 
     # Updates weights for explanation NN
     def updateDecisionWeights(self, state, action, ratings, combinations):
-        mults = [1, 20, 10, 0, -10, -20]
+        mults = [1, 20, 10, 0, -15, -25]
         if ratings[0] == "0":
             pass
 
@@ -410,7 +410,7 @@ class ApproximateQAgent(PacmanQAgent):
         # If training is finished
         if self.episodesSoFar == self.numTraining:
             # Save weights for movement
-            self.save(self.weights, "QLearningWeightData.txt")
+            # self.save(self.weights, "QLearningWeightData.txt")
 
             # print self.weights
             # print(type(self.weights), len(self.weights))
