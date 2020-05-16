@@ -35,7 +35,7 @@ import random
 #######################
 # Parts worth reading #
 #######################
-Q_TRAINING = False
+Q_TRAINING = True
 
 
 class Agent:
