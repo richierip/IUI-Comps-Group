@@ -88,11 +88,12 @@ class SimpleExtractor(FeatureExtractor):
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
-                cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), 12)
+                farthest_consideration = 12
+                cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), farthest_consideration)
 
                 # Distance booleans
-                for j in range(cur_distance):
-                    features["scared-ghost-" + str(j) + "-away"] = 1
+                for j in range(farthest_consideration - cur_distance):
+                    features["scared-ghost-" + str(farthest_consideration - j) + "-away"] = 1
 
                 # Directional information
                 if old_pac_pos is not None:
@@ -121,11 +122,12 @@ class SimpleExtractor(FeatureExtractor):
                         illegal_moves.append(possible_action)
 
                 # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
-                cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves)), 5)
+                farthest_consideration = 6
+                cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves)), farthest_consideration)
 
                 # Distance booleans
-                for j in range(cur_distance):
-                    features["ghost-" + str(i) + "-" + str(j) + "-away"] = 1
+                for j in range(farthest_consideration - cur_distance):
+                    features["ghost-" + str(i) + "-" + str(farthest_consideration - j) + "-away"] = 1
 
                 # Directional information
                 if old_pac_pos is not None:
@@ -144,8 +146,9 @@ class SimpleExtractor(FeatureExtractor):
                 [float(len(BFS.BFS(pacman, factors["capsule_locs"][i], state))), factors["capsule_locs"][i]])
         capsules.sort()
         if len(capsules) > 0:
-            for i in range(min(int(capsules[0][0]), 15)):
-                features["closest-capsule-" + str(i) + "-away"] = 1
+            farthest_consideration = 15
+            for i in range(min(int(capsules[0][0]), farthest_consideration)):
+                features["closest-capsule-" + str(farthest_consideration - i) + "-away"] = 1
 
             if old_pac_pos is not None:
                 features["towards-capsule"] = \
@@ -161,8 +164,9 @@ class SimpleExtractor(FeatureExtractor):
         food_groups.sort()
         # Records distance away and if big or small
         for i in range(len(food_groups)):
-            for j in range(min(food_groups[i][0], 15)):
-                features["food-group-" + str(i) + "-" + str(j) + "-away"] = 1
+            farthest_consideration = 15
+            for j in range(min(food_groups[i][0], farthest_consideration)):
+                features["food-group-" + str(i) + "-" + str(farthest_consideration - j) + "-away"] = 1
 
             # Big or small
             if food_groups[i][1] < 5:
