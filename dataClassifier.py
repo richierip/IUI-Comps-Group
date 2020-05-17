@@ -85,6 +85,8 @@ def enhancedPacmanFeatures(state, action):
     #features = neuralDistances(state, action)
     featureExtract = SimpleExtractor()
     features = featureExtract.getFeatures(state, action)
+    print("from enhanced")
+    print(features)
     #print("features: ",features.items())
     # it looks like 'capsule 0' is the problem; its values is a list of values not an int 
     return features
