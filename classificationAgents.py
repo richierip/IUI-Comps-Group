@@ -90,13 +90,14 @@ class ClassifierAgent(Agent):
         action = self.classifier.classify([features])[0]
 
         if self.classifierType == "perceptron":
-            print("Features")
-            print(features)
+            pass
+            #print("Features")
+            #print(features)
             
             # print("#######")
             # print("0 is : ", features[0])
-            print("class weights")
-            print(self.classifier.getWeights())
+            #print("class weights")
+            #print(self.classifier.getWeights())
             #for i in range(len(self.classifier.getWeights().keys())):
                 #thisKey = self.classifier.getWeights().keys()[i]
                 #if i ==1: continue
