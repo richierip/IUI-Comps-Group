@@ -93,7 +93,7 @@ class SimpleExtractor(FeatureExtractor):
 
                 # Distance booleans
                 for j in range(farthest_consideration - cur_distance):
-                    features["scared-ghost-" + str(farthest_consideration - j) + "-away"] = 1
+                    features["scared-ghost-" + str(i) + "-" + str(farthest_consideration - j) + "-away"] = 1
 
                 # Directional information
                 if old_pac_pos is not None:
@@ -123,7 +123,15 @@ class SimpleExtractor(FeatureExtractor):
 
                 # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
                 farthest_consideration = 6
-                cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves)), farthest_consideration)
+                path = BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves)
+
+                # Finds current distance. Check for edge case where ghost is in house
+                if path is []:
+                    cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), farthest_consideration)
+
+                # Normal case. Illegal moves excluded
+                else:
+                    cur_distance = min(len(path), farthest_consideration)
 
                 # Distance booleans
                 for j in range(farthest_consideration - cur_distance):

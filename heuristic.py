@@ -57,6 +57,7 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared_list=None)
 
     # Creates tuple for each object w/ absolute distance and direction
     for i in range(len(obj_loc)):
+        cur_loc = (int(obj_loc[i][0]), int(obj_loc[i][1]))
         # Non-scared ghost
         if ghosts and scared_list[i][0] == 1:
             # Find all potential moves for ghost
@@ -74,16 +75,21 @@ def distanceDiff(cur_state, next_state, obj_loc, ghosts=False, scared_list=None)
                 if possible_action not in legal_ghost_moves:
                     illegal_moves.append(possible_action)
 
-            cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state, illegal_moves))
+            path = BFS.BFS(cur_pac, cur_loc, cur_state, illegal_moves)
 
-            next_dist = cur_state.getWalls().height * cur_state.getWalls().width
-            for move in legal_ghost_moves:
-                next_dist = min(next_dist,
-                                len(BFS.BFS(next_pac, move, next_state, [(int(obj_loc[i][0]), int(obj_loc[i][1]))])))
+            # Finds current distance. Check for edge case where ghost is in house
+            if path is []:
+                cur_dist = len(BFS.BFS(cur_pac, cur_loc, cur_state))
+                next_dist = len(BFS.BFS(next_pac, cur_loc, cur_state))
+
+            # Normal case. Illegal moves excluded
+            else:
+                cur_dist = len(path)
+                next_dist = len(BFS.BFS(next_pac, cur_loc, cur_state, illegal_moves))
 
         else:
-            cur_dist = len(BFS.BFS(cur_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), cur_state))
-            next_dist = len(BFS.BFS(next_pac, (int(obj_loc[i][0]), int(obj_loc[i][1])), next_state))
+            cur_dist = len(BFS.BFS(cur_pac, cur_loc, cur_state))
+            next_dist = len(BFS.BFS(next_pac, cur_loc, next_state))
 
         if next_dist - cur_dist >= 0:
             diff.append((next_dist, 1))
@@ -117,7 +123,7 @@ def compare(cur_state, next_state):
     cur_factors = gatherFactors(cur_state)
     next_factors = gatherFactors(next_state)
 
-    diffs["pac_loc"] = next_state.getPacmanPosition()
+    # diffs["pac_loc"] = next_state.getPacmanPosition()
     diffs['scared'] = scaredDiff(next_factors["scared"], cur_factors["scared"])
     diffs['ghosts'] = distanceDiff(cur_state, next_state, cur_factors["ghost_locs"], True, diffs["scared"])
     diffs["food_groups"] = foodGroupDiff(BFS.coinGrouping(next_state.getPacmanPosition(), cur_state), \

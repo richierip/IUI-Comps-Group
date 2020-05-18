@@ -19,7 +19,7 @@
 # purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
 # John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
-
+import re
 from util import *
 from graphicsUtils import *
 import time, os
@@ -35,7 +35,7 @@ import random
 #######################
 # Parts worth reading #
 #######################
-Q_TRAINING = True
+Q_TRAINING = False
 
 
 class Agent:
@@ -858,7 +858,7 @@ class Game:
 
     # Updates Q Learning Explanation Generator
     def updateQLearningAgent(self, action, agent):
-        # Get sum(input*weight) values for each explanation
+        # Get sorted sum(input*weight) values for each explanation
         combinations = agent.getOutputQValues(self.state, action)
         print(combinations)
 
@@ -874,7 +874,15 @@ class Game:
         heuristic_explanation = heuristic.newExplanation(self.state, action)
         explanations = []
         for i in range(2):
-            explanations.append(combinations[i][0])
+            if "ghost" in combinations[i][0]:
+                num = int(re.search(r'\d', combinations[i][0]).group())
+                explanations.append(str(heuristic.ghosts[num]) + " ghost")
+            elif "food" in combinations[i][0] and "small" not in combinations[i][0]:
+                explanations.append("CLOSEST food group")
+            elif "food" in combinations[i][0]:
+                explanations.append("SMALL food group")
+            else:
+                explanations.append(combinations[i][0])
         #     explanations.append(agent.generateFeatureExplanation(combinations[i][0], self.state, action))
         ratings = self.display.infoPane.updateDecisionQLearning(heuristic_explanation, explanations)
 
