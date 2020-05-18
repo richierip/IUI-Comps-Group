@@ -874,7 +874,8 @@ class Game:
         heuristic_explanation = heuristic.newExplanation(self.state, action)
         explanations = []
         for i in range(2):
-            explanations.append(agent.generateFeatureExplanation(combinations[i][0], self.state, action))
+            explanations.append(combinations[i][0])
+        #     explanations.append(agent.generateFeatureExplanation(combinations[i][0], self.state, action))
         ratings = self.display.infoPane.updateDecisionQLearning(heuristic_explanation, explanations)
 
         # Update explanation weights
