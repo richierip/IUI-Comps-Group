@@ -190,9 +190,14 @@ class PacmanQAgent(QLearningAgent):
         gamma    - discount factor
         numTraining - number of training episodes, i.e. no learning after these many episodes
         """
-        args['epsilon'] = epsilon
-        args['gamma'] = gamma
-        args['alpha'] = alpha
+        if numTraining == 0:
+            args['epsilon'] = 0
+            args['gamma'] = 0
+            args['alpha'] = 0
+        else:
+            args['epsilon'] = epsilon
+            args['gamma'] = gamma
+            args['alpha'] = alpha
         args['numTraining'] = numTraining
         self.index = 0  # This is always Pacman
         QLearningAgent.__init__(self, **args)

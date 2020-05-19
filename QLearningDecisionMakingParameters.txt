@@ -14,12 +14,31 @@ Capsule:
   Capsules exist in both corners; PacMan tends to take a beeline straight
   for the capsule each time, and generally prioritizes them very highly.
   However, for the sake of consistency, only mark the capsule as a primary
-  motive (1 or 2) if PacMan is within 7 of the capsule.  Otherwise, mark not
+  motive (1 or 2) if PacMan is within 7 or so of the capsule.  Otherwise, mark not
   good motive (4 or 5).
 
-Ghost 0:
-Ghost 1:
+  If capsule is an option and there are no capsules, mark 5.
+
+Red Ghost:
+Pink Ghost:
   You can generally tell which ghost is ghost 1 or 0 by measuring how far each
   one is from PacMan.
   Ghosts should be considered primary (1 or 2) if they are within 4 of pacman.
   Otherwise, 5-7 might be a 3, 8+ is 4 or 5.
+
+  The direction of ghosts are not known so even if the ghost is moving away consider
+  it as the same situation as if it is moving towards you when training weights
+
+  You can mark both options as good.
+
+  If Pac-Man stops moving, mark both options as 3 unless he stopped because of a ghost
+  moving into range. If that is the case then mark as good (1 or 2).
+
+  When the game is nearing its end and nothing is happening then just quit and restart
+  a game. Training will be saved
+
+  Before training get a feel for what explanations make sense and which ones don't.
+  In game.py mark q_training = False and watch a game or two. When you are ready to train
+  mark q_training = True.
+
+  If Pac-Man ever freezes and stays in one position quit the game and restart.

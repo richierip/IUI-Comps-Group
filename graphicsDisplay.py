@@ -536,11 +536,13 @@ class PacmanGraphics:
             move_by(ghostImagePart, delta)
         refresh()
 
+
         if ghost.scaredTimer > 0:
-            color = SCARED_COLOR
+            fill_color = SCARED_COLOR
         else:
-            color = GHOST_COLORS[ghostIndex-1]
-        edit(ghostImageParts[0], ('fill', color), ('outline', color))
+            fill_color = GHOST_COLORS[ghostIndex-1]
+        outline_color = GHOST_COLORS[ghostIndex - 1]
+        edit(ghostImageParts[0], ('fill', fill_color), ('outline', outline_color))
         self.moveEyes(self.getPosition(ghost), self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
 
