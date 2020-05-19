@@ -48,10 +48,10 @@ class SimpleExtractor(FeatureExtractor):
         self.getFeatureGhosts(factors, features, pacman, state)
 
         # Capsule values: distances sorted
-        self.getFeatureCapsule(arena_size, factors, features, pacman, state)
+        self.getFeatureCapsule(factors, features, pacman, state)
 
         # Food groups: Finds 3 closest food groups
-        self.getFeatureFood(arena_size, features, pacman, state)
+        self.getFeatureFood(features, pacman, state)
 
         features.divideAll(10.0)
         return features
@@ -74,10 +74,10 @@ class SimpleExtractor(FeatureExtractor):
         self.getFeatureGhosts(factors, features, pacman, state, old_pac_pos)
 
         # Capsules
-        self.getFeatureCapsule(arena_size, factors, features, pacman, state, old_pac_pos)
+        self.getFeatureCapsule(factors, features, pacman, state, old_pac_pos)
 
         # Food
-        self.getFeatureFood(arena_size, features, pacman, state, old_pac_pos)
+        self.getFeatureFood(features, pacman, state, old_pac_pos)
 
         features.divideAll(10.0)
         return features
@@ -88,7 +88,7 @@ class SimpleExtractor(FeatureExtractor):
         for i in range(len(factors["ghost_locs"])):
             # Ghost is scared
             if factors["scared"][i] > 0:
-                farthest_consideration = 12
+                farthest_consideration = 15
                 cur_distance = min(len(BFS.BFS(pacman, factors["ghost_locs"][i], state)), farthest_consideration)
 
                 # Distance booleans
@@ -122,7 +122,7 @@ class SimpleExtractor(FeatureExtractor):
                         illegal_moves.append(possible_action)
 
                 # Runs BFS without the spots behind the current ghosts (ghosts can't go backward)
-                farthest_consideration = 6
+                farthest_consideration = 15
                 path = BFS.BFS(pacman, factors["ghost_locs"][i], state, illegal_moves)
 
                 # Finds current distance. Check for edge case where ghost is in house
@@ -147,7 +147,7 @@ class SimpleExtractor(FeatureExtractor):
 
     @staticmethod
     # Returns capsule distances sorted by distance
-    def getFeatureCapsule(arena_size, factors, features, pacman, state, old_pac_pos=None):
+    def getFeatureCapsule(factors, features, pacman, state, old_pac_pos=None):
         capsules = []
         for i in range(len(factors["capsule_locs"])):
             capsules.append(
@@ -167,7 +167,7 @@ class SimpleExtractor(FeatureExtractor):
 
     @staticmethod
     # Returns food groups: Finds 3 closest food groups and records if big or small
-    def getFeatureFood(arena_size, features, pacman, state, old_pac_pos=None):
+    def getFeatureFood(features, pacman, state, old_pac_pos=None):
         food_groups = BFS.coinGroup3s((int(pacman[0]), int(pacman[1])), state)
         food_groups.sort()
         # Records distance away and if big or small
