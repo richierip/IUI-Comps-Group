@@ -1,0 +1,25 @@
+Parameters and Guidelines for Evaluation of Decision Making TRAINING
+
+Closest Food Group:
+  A small food group is defined as one containing 4 or fewer food pieces
+  Closest food group is defined as one containing 5 or more adjacent food pieces
+  that is closest to PacMan
+  - If small food group is offered as explanation for what should be a closest, mark 5.
+  - If closest food group is offered as explanation for what should be a small, mark 5.
+  - Food group is usually the default motive if PacMan is not actively interacting
+    with ghosts or seeking out a nearby capsule.
+  - *Something about tendency to go for small or close food groups*
+
+Capsule:
+  Capsules exist in both corners; PacMan tends to take a beeline straight
+  for the capsule each time, and generally prioritizes them very highly.
+  However, for the sake of consistency, only mark the capsule as a primary
+  motive (1 or 2) if PacMan is within 7 of the capsule.  Otherwise, mark not
+  good motive (4 or 5).
+
+Ghost 0:
+Ghost 1:
+  You can generally tell which ghost is ghost 1 or 0 by measuring how far each
+  one is from PacMan.
+  Ghosts should be considered primary (1 or 2) if they are within 4 of pacman.
+  Otherwise, 5-7 might be a 3, 8+ is 4 or 5.
