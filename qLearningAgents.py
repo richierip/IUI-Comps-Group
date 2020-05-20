@@ -295,60 +295,6 @@ class ApproximateQAgent(PacmanQAgent):
             reward = mults[int(ratings[i])]
             for featurekey in features:
                 self.decisionWeights[explanationKey][featurekey] += reward * features[featurekey] * t
-        # if rating == "0" or None:
-        #     pass
-        # elif rating == "4" or int(rating) > len(combinations):
-        #     for i in range(3):
-        #         featureKey = combinations[i][0]
-        #         updateDict(self.decisionWeights[featureKey], 0.8)
-        # else:
-        #     bestIndex = int(rating) - 1
-        #     for i in range(len(combinations)):
-        #         featureKey = combinations[i][0]
-        #         if i == bestIndex:
-        #             updateDict(self.decisionWeights[featureKey], 1.2)
-        #         elif i < 3:
-        #             updateDict(self.decisionWeights[featureKey], 0.8)
-
-    # # Returns input weight combinations for explanation generation
-    # def getInputWeightCombinations(self, state, action):
-    #     wKeys = self.decisionWeights.keys()
-    #     combinations = []
-    #     features = self.featExtractor.getFeatures(state, action)
-    #
-    #     for k, v in features.items():
-    #         if k in wKeys and k != "bias":
-    #             inputWeightCombo = v * self.decisionWeights[k]
-    #             combinations.append((k, inputWeightCombo))
-    #
-    #     return combinations
-    #
-    # # Updates weights for decision NN
-    # def updateDecisionWeights(self, state, action, rating, combinations):
-    #     features = self.featExtractor.getFeatures(state, action)
-    #     # Do something if no options given
-    #     if rating is 0 or None:
-    #         return
-    #
-    #     # Do something if all options were bad (None of the above)
-    #     if rating == "4" or int(rating) > len(combinations):
-    #         for i in range(3):
-    #             # Top 3 should be negative with high exploration rate
-    #             featureKey = combinations[i][0]
-    #             self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
-    #         return
-    #
-    #     bestIndex = int(rating) - 1
-    #     for i in range(len(combinations)):
-    #         featureKey = combinations[i][0]
-    #         # If best option
-    #         if i == bestIndex:
-    #             self.decisionWeights[featureKey] += self.alpha * 1 * features[featureKey]
-    #         # If one of top 3 choices but not best
-    #         elif i < 3:
-    #             self.decisionWeights[featureKey] += self.alpha * -1 * features[featureKey]
-    #
-    #     print(self.decisionWeights)
 
     @staticmethod
     # Takes in state and action and key for key factor
@@ -364,32 +310,6 @@ class ApproximateQAgent(PacmanQAgent):
             return "NOT moving for unknown reason"
         else:
             return heuristic.genExplanation(good)
-
-        # features = self.featExtractor.getFeatures(state, action)
-        #
-        # # Find input weight combinations
-        # combinations = util.Counter()
-        # for key, value in features.items():
-        #     if key not in ["bias"]:
-        #         combinations[key] = value * self.weights[key]
-        #
-        # # Create and add in newly generated ghost weights
-        # explainatory_combinations = combineGhostValues(combinations, features)
-        # explainatory_combinations = sorted(explainatory_combinations.items(), key=operator.itemgetter(1))
-        # explainatory_combinations.reverse()
-        #
-        # # Find biggest differences between current and next state
-        # next_state = state.generateSuccessor(0, action)
-        # differences = heuristic.compare(state, next_state)
-        #
-        # # Generate explanations for most important features and append tuple (explainable explanation, original key)
-        # explanations = []
-        # for i in range(num_factors):
-        #     explanations.append(
-        #         [interpret(explainatory_combinations[i][0], differences, state),
-        #          explainatory_combinations[i][0]])
-        #
-        # return explanations
 
     def update(self, state, action, nextState, reward):
         """

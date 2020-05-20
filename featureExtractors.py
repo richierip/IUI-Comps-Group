@@ -37,8 +37,6 @@ class SimpleExtractor(FeatureExtractor):
     """
     def getFeatures(self, state, action):
         factors = heuristic.gatherFactors(state)
-        walls = state.getWalls()
-        arena_size = walls.height * walls.width
         pacman = state.generateSuccessor(0, action).getPacmanPosition()
 
         features = util.Counter()
@@ -62,7 +60,6 @@ class SimpleExtractor(FeatureExtractor):
     def getFeaturesExplanations(self, state, action):
         factors = heuristic.gatherFactors(state)
         walls = state.getWalls()
-        arena_size = walls.height * walls.width
         pacman = state.generateSuccessor(0, action).getPacmanPosition()
         old_pac_pos = state.getPacmanPosition()
 
@@ -70,7 +67,6 @@ class SimpleExtractor(FeatureExtractor):
         features["bias"] = 1.0
 
         # Ghosts
-        # self.getFeatureGhostsSeperate(factors, features, pacman, state)
         self.getFeatureGhosts(factors, features, pacman, state, old_pac_pos)
 
         # Capsules

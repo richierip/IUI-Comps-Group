@@ -143,7 +143,7 @@ def weight(factors):
 
     # Weight Ghosts
     for i in range(len(factors["ghosts"])):
-        # 10/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
+        # 8/(max(1, distance_of_ghost)*movement_towards_or_away*scared_ghost
         cur_weight = 8 / float((max(1, factors["ghosts"][i][0]) * factors["ghosts"][i][1] * factors["scared"][i][0]))
         # direction *-1 bc it is good to move away from ghosts
         if factors["scared"][i][0] == 1:
