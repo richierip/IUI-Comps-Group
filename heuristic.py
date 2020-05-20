@@ -197,7 +197,7 @@ def genExplanation(good, bad=None):
             explanation += bad[3] + " with " + str(bad[4]) + " pieces"
         else:
             explanation += bad[3] + " which is " + str(bad[1]) + " moves away"
-    # TODO Remove print statement
+
     # print "DECISION"
     # for factor in factors:
     #     try:
@@ -222,7 +222,6 @@ def genNotMovingExplanation(factors):
 
 # Explanation when no benefit detected for a move
 def genNoBenefitExplanation(factors):
-    # TODO Remove print statement
     # for factor in factors:
     #     try:
     #         print "Weight: " + str(factor[0]) + ", Reason: " + str(factor[1]) + "Distance: " + str(factor[3])
