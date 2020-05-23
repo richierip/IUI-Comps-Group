@@ -852,7 +852,7 @@ class Game:
                 except:
                     d3 = ""
 
-                self.display.infoPane.updateDecision([d1, d2, d3])
+                self.display.infoPane.updateDecision([d1, d2])
 
             remove_from_screen(shadow)
 

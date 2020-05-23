@@ -192,7 +192,7 @@ class InfoPane:
 
     # Update display for Q Learning training
     def updateDecisionQLearning(self, decision, options):
-        decision = self.parseDecision(decision) + "\nScore each decision 1(good)-5(bad):\n"
+        decision = self.parseDecision(decision) + "Score decision 5(good)-1(bad):\n"
         changeText(self.decision, decision)
         if options is not None:
             if len(options) > 1:
@@ -243,13 +243,21 @@ class InfoPane:
     # Simple update decision method
     def updateDecision(self, decisions):
         allDecisions = ""
-        i = 1
+        i = 0
+        names = ["Heuristic:\n", "Q Learning:\n", "Perceptron:\n"]
         for decision in decisions:
-            allDecisions += "Decision %d:\n" % i
+            allDecisions += names[i]
             allDecisions += self.parseDecision(decision)
             i += 1
         changeText(self.decision, allDecisions)
-        rating = wait_for_rating(["1", "2", "3", "4"])
+        rating1 = wait_for_rating(["1", "2", "3", "4", "5"])
+        # sleep(.2)
+        # rating2 = wait_for_rating(["1", "2", "3", "4", "5"])
+        # changeText(self.decision, "Type")
+        # q = raw_input()
+        # with open("QualityData.txt", "a") as file_object:
+        #     # Append 'hello' at the end of file
+        #     file_object.write(q + "," + rating1 + "," + rating2 + "\n")
         # do something with the rating here (save to file?/add to file?)
         changeText(self.decision, "")
 
