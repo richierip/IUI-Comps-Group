@@ -81,22 +81,6 @@ CAPSULE_SIZE = 0.25
 # Drawing walls
 WALL_RADIUS = 0.15
 
-# class decisionText:
-#     def __init__(self):
-#         self.decTitle = "Decision:"
-#         self.decision = ""
-#         self.option1 =
-
-#This really needs to be here and not inside the class, trust me
-def firstChoice():
-    print("Heuristic:")
-
-def secondChoice():
-    print("Approximate Q Learning:")
-
-def thirdChoice():
-    print("Perceptron:")
-
 class InfoPane:
     def __init__(self, layout, gridSize):
         self.gridSize = gridSize
@@ -126,14 +110,6 @@ class InfoPane:
         self.decTitle = text(self.toScreen(self.width - 230, -self.base + 30), self.decisionTitleColor, "Decision Pane:", "Times", self.fontSize-5, "bold")
         self.decision = text(self.toScreen(self.width - 300, -self.base + 75), self.decisionColor, self.parseDecision(" "), "Times", self.fontSize-10, "bold")
         self.scoreText = text( self.toScreen(-10, -10), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
-        # top = Tkinter.Tk()
-        #
-        # B = Tkinter.Button( text ="First", command = firstChoice)
-        # B.place(x = self.width - 100, y = 240)
-        # B = Tkinter.Button( text ="Second", command = secondChoice)
-        # B.place(x = self.width - 100, y = 265)
-        # B = Tkinter.Button( text ="Third", command = thirdChoice)
-        # B.place(x = self.width - 100, y = 290)
 
     def initializeGhostDistances(self, distances):
         self.ghostDistanceText = []
@@ -179,15 +155,6 @@ class InfoPane:
                         newstring += " " + word
                         sentenceLength += len(word)
                 newstring += "\n"
-
-
-        # if options is not None:
-        #     if len(options) > 2:
-        #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s\n(3) %s" % (options[0][0], options[1][0], options[2][0])
-        #     elif len(options) == 2:
-        #         newstring += "\n\nChoose appropriate explanation:\n(1) %s\n(2) %s" % (
-        #         options[0][0], options[1][0])
-        #     newstring += "\n(%d) None of the above" % (min(len(options)+1, 4))
         return newstring
 
     # Update display for Q Learning training
@@ -209,19 +176,6 @@ class InfoPane:
         else:
             rating1 = rating2 = 0
         return [rating1, rating2]
-        # if options is not None:
-        #     if len(options) > 1:
-        #         rating = wait_for_rating([str(i) for i in list(range(1, min(5,len(options)+2)))])
-        #     else:
-        #         rating = 1
-        # #do something with the rating here (save to file?/add to file?)
-        #     if rating == "4" or int(rating) >= len(options):
-        #         changeText(self.decision, "Chose none")
-        #     else:
-        #         changeText(self.decision, "Chose %s" % (options[int(rating)-1][0]))
-        # else:
-        #     changeText(self.decision, "")
-        # return rating
 
     @staticmethod
     # Simple parser
@@ -251,6 +205,7 @@ class InfoPane:
             i += 1
         changeText(self.decision, allDecisions)
         rating1 = wait_for_rating(["1", "2", "3", "4", "5"])
+        # Uncomment to add data collection
         # sleep(.2)
         # rating2 = wait_for_rating(["1", "2", "3", "4", "5"])
         # changeText(self.decision, "Type")
