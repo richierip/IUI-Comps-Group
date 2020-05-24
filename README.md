@@ -11,6 +11,17 @@ Our two main gameplay agents are a perceptron and a q-learning neural net.
 
 To create explanations, we have a hard-coded heuristic, observing the perceptron weights with no intermediary, and a q-learning neural net which works independently of the gameplaying agent.
 
+### Running the game
+
+To run the perceptron agent, use arguments
+
+`$ python pacman.py -p ClassifierAgent --agentArgs trainingData=pacmandata/contest_training.pkl`
+
+To run the q-learning agent,
+
+`$ python pacman.py -p ApproximateQAgent -a extractor=SimpleExtractor -n 60 -l mediumClassic`
+
+
 ### Dependencies
 
 Python 2.7
