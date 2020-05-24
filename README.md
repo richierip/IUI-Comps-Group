@@ -14,11 +14,14 @@ To create explanations, we have a hard-coded heuristic, observing the perceptron
 ### Dependencies
 
 Python 2.7
+
 TKinter
 
 
 ### Thanks
 
 Our comps advisor, Dave Musicant
+
 UC Berkeley AI assets
+
 Python 2.7 for clinging to life
